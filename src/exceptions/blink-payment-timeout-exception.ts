@@ -20,33 +20,19 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
+import {BlinkPaymentFailureException} from './blink-payment-failure-exception';
 
 /**
- * The request arguments.
+ * The exception thrown when payment was not completed within the bank's request timeout window.
  *
  * @export
- * @interface RequestArgs
+ * @exception
+ * @extends {BlinkPaymentFailureException}
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
+export class BlinkPaymentTimeoutException extends BlinkPaymentFailureException {
+    constructor(message?: string, innerException?: Error) {
+        super(message || "Payment timed out", innerException);
+        this.name = "BlinkPaymentTimeoutException";
+        Object.setPrototypeOf(this, BlinkPaymentTimeoutException.prototype);
     }
 }

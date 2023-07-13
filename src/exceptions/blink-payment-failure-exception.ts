@@ -20,33 +20,20 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
-
 /**
- * The request arguments.
+ * The base checked exception for Blink Debit payments.
  *
  * @export
- * @interface RequestArgs
+ * @exception
+ * @extends {Error}
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
+export class BlinkPaymentFailureException extends Error {
+    constructor(message?: string, innerException?: Error) {
+        super(message || "Payment operation failed");
+        this.name = "BlinkPaymentFailureException";
+        this.innerException = innerException;
+        Object.setPrototypeOf(this, BlinkPaymentFailureException.prototype);
     }
+
+    innerException?: Error;
 }

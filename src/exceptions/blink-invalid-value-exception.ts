@@ -20,33 +20,19 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
+import {BlinkClientException} from './blink-client-exception';
 
 /**
- * The request arguments.
+ * The exception thrown when the argument is invalid.
  *
  * @export
- * @interface RequestArgs
+ * @exception
+ * @extends {BlinkClientException}
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
+export class BlinkInvalidValueException extends BlinkClientException {
+    constructor(message?: string, innerException?: Error) {
+        super(message, innerException);
+        this.name = "BlinkInvalidValueException";
+        Object.setPrototypeOf(this, BlinkInvalidValueException.prototype);
     }
 }

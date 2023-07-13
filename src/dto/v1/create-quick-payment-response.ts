@@ -20,33 +20,23 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
-
 /**
- * The request arguments.
+ * The quick payment request
  *
  * @export
- * @interface RequestArgs
+ * @interface CreateQuickPaymentResponse
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export interface CreateQuickPaymentResponse {
+    /**
+     * The quick payment ID
+     * @type {string}
+     * @memberof CreateQuickPaymentResponse
+     */
+    quickPaymentId: string;
+    /**
+     * The URL to redirect the user to, returned if the flow type is \"redirect\" or \"gateway\"
+     * @type {string}
+     * @memberof CreateQuickPaymentResponse
+     */
+    redirectUri?: string;
 }

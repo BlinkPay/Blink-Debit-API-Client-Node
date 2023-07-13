@@ -20,33 +20,19 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
+import {BlinkConsentFailureException} from './blink-consent-failure-exception';
 
 /**
- * The request arguments.
+ * The exception thrown when single/domestic or recurring/enduring consent is rejected by the customer.
  *
  * @export
- * @interface RequestArgs
+ * @exception
+ * @extends {BlinkConsentFailureException}
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
+export class BlinkConsentRejectedException extends BlinkConsentFailureException {
+    constructor(message?: string, innerException?: Error) {
+        super(message || "Consent was rejected by the customer", innerException);
+        this.name = "BlinkConsentRejectedException";
+        Object.setPrototypeOf(this, BlinkConsentRejectedException.prototype);
     }
 }

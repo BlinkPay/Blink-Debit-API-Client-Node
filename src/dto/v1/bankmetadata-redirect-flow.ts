@@ -20,33 +20,23 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
-
 /**
- * The request arguments.
+ * Details about the mandatory redirect flow functionality.
  *
  * @export
- * @interface RequestArgs
+ * @interface BankmetadataRedirectFlow
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export interface BankmetadataRedirectFlow {
+    /**
+     * Whether the redirect flow is enabled
+     * @type {boolean}
+     * @memberof BankmetadataRedirectFlow
+     */
+    enabled: boolean;
+    /**
+     * ISO8601 time duration until the redirect flow consent request times out
+     * @type {string}
+     * @memberof BankmetadataRedirectFlow
+     */
+    requestTimeout?: string;
 }

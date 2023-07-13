@@ -20,33 +20,16 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
-
 /**
- * The request arguments.
+ * The available periods selection.  A \"monthly\" period with a from_timestamp 2019-08-21T00:00:00 will have periods defined as - 2019-08-21T00:00:00 to 2019-09-20T23:59:59  - 2019-09-21T00:00:00 to 2019-10-20T23:59:59  - 2019-10-21T00:00:00 to 2019-11-20T23:59:59  - Etc  A \"weekly\" period with a from_timestamp 2019-08-21T00:00:00 will have periods defined as - 2019-08-21T00:00:00 to 2019-08-27T23:59:59  - 2019-08-28T00:00:00 to 2019-09-03T23:59:59  - 2019-09-04T00:00:00 to 2019-09-10T23:59:59  - Etc
  *
  * @export
- * @interface RequestArgs
+ * @enum {string}
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export enum Period {
+    Annual = 'annual',
+    Daily = 'daily',
+    Fortnightly = 'fortnightly',
+    Monthly = 'monthly',
+    Weekly = 'weekly'
 }

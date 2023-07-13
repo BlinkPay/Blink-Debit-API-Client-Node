@@ -20,33 +20,27 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
-
 /**
- * The request arguments.
+ * The base consent detail.
  *
  * @export
- * @interface RequestArgs
+ * @interface ConsentDetail
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
+export interface ConsentDetail {
+    /**
+     * Whether the consent is single or enduring.
+     * @type {string}
+     * @memberof ConsentDetail
+     */
+    type: ConsentDetailTypeEnum;
 }
 
 /**
- * The base API.
- *
+ * The enumeration of consent detail types.
  * @export
- * @class BaseAPI
+ * @enum {string}
  */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export enum ConsentDetailTypeEnum {
+    Single = 'single',
+    Enduring = 'enduring'
 }

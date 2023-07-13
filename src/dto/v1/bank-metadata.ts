@@ -20,33 +20,32 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
+import {Bank} from './bank';
+import {BankmetadataFeatures} from './bankmetadata-features';
+import {BankmetadataRedirectFlow} from './bankmetadata-redirect-flow';
 
 /**
- * The request arguments.
- *
+ * Information about a banks enabled features.
  * @export
- * @interface RequestArgs
+ * @interface BankMetadata
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export interface BankMetadata {
+    /**
+     *
+     * @type {Bank}
+     * @memberof BankMetadata
+     */
+    name: Bank;
+    /**
+     *
+     * @type {BankmetadataFeatures}
+     * @memberof BankMetadata
+     */
+    features: BankmetadataFeatures;
+    /**
+     *
+     * @type {BankmetadataRedirectFlow}
+     * @memberof BankMetadata
+     */
+    redirectFlow: BankmetadataRedirectFlow;
 }

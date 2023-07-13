@@ -20,33 +20,29 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
-
 /**
- * The request arguments.
+ * The base auth flow detail.
  *
  * @export
- * @interface RequestArgs
+ * @interface AuthFlowDetail
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
+export interface AuthFlowDetail {
+    /**
+     * Whether to use Blink Gateway, redirect or decoupled flow.
+     * @type {string}
+     * @memberof AuthFlowDetail
+     */
+    type: AuthFlowDetailTypeEnum;
 }
 
 /**
- * The base API.
+ * The enumeration of authorisation flow detail types.
  *
  * @export
- * @class BaseAPI
+ * @enum {string}
  */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export enum AuthFlowDetailTypeEnum {
+    Gateway = 'gateway',
+    Redirect = 'redirect',
+    Decoupled = 'decoupled'
 }

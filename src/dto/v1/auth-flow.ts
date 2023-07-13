@@ -20,33 +20,21 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
+import {DecoupledFlow} from './decoupled-flow';
+import {GatewayFlow} from './gateway-flow';
+import {RedirectFlow} from './redirect-flow';
 
 /**
- * The request arguments.
+ * The type of bank authentication flow used and details of the authentication flow.
  *
  * @export
- * @interface RequestArgs
+ * @interface AuthFlow
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export interface AuthFlow {
+    /**
+     * The authentication flow detail
+     * @type {GatewayFlow | RedirectFlow | DecoupledFlow}
+     * @memberof AuthFlow
+     */
+    detail: GatewayFlow | RedirectFlow | DecoupledFlow;
 }

@@ -20,33 +20,34 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
+import {Amount} from './amount';
+import {AuthFlow} from './auth-flow';
+import {ConsentDetail} from './consent-detail';
+import {Pcr} from './pcr';
 
 /**
- * The request arguments.
+ * The model for a single consent request, relating to a one-off payment.
  *
  * @export
- * @interface RequestArgs
+ * @interface SingleConsentRequest
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export interface SingleConsentRequest extends ConsentDetail {
+    /**
+     *
+     * @type {AuthFlow}
+     * @memberof SingleConsentRequest
+     */
+    flow: AuthFlow;
+    /**
+     *
+     * @type {Pcr}
+     * @memberof SingleConsentRequest
+     */
+    pcr: Pcr;
+    /**
+     *
+     * @type {Amount}
+     * @memberof SingleConsentRequest
+     */
+    amount: Amount;
 }

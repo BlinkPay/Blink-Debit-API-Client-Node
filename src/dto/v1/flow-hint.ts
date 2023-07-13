@@ -20,33 +20,36 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
+import {Bank} from './bank';
 
 /**
- * The request arguments.
+ * Optionally include a hint to the Gateway of which flow should be used, allowing the customers details to be prefilled in order to make the checkout experience faster. You can also use Gateway flow hint to instruct Gateway to identify a customer using their last consent ID for mobile payments.
  *
  * @export
- * @interface RequestArgs
+ * @interface FlowHint
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
+export interface FlowHint {
+    /**
+     * The flow hint type, i.e. Redirect or Decoupled.
+     * @type {string}
+     * @memberof FlowHint
+     */
+    type: FlowHintTypeEnum;
+    /**
+     *
+     * @type {Bank}
+     * @memberof FlowHint
+     */
+    bank: Bank;
 }
 
 /**
- * The base API.
+ * The enumeration of flow hint types.
  *
  * @export
- * @class BaseAPI
+ * @enum {string}
  */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export enum FlowHintTypeEnum {
+    Redirect = 'redirect',
+    Decoupled = 'decoupled'
 }

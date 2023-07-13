@@ -20,33 +20,29 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
-
 /**
- * The request arguments.
+ * PCR (Particulars, code, reference) details.
  *
  * @export
- * @interface RequestArgs
+ * @interface Pcr
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export interface Pcr {
+    /**
+     * The particulars
+     * @type {string}
+     * @memberof Pcr
+     */
+    particulars: string;
+    /**
+     * The code
+     * @type {string}
+     * @memberof Pcr
+     */
+    code?: string;
+    /**
+     * The reference
+     * @type {string}
+     * @memberof Pcr
+     */
+    reference?: string;
 }
