@@ -1,8 +1,9 @@
 # Blink-Debit-API-Client-TypeScript
 [![CI](https://github.com/BlinkPay/Blink-Debit-API-Client-TypeScript/actions/workflows/build.yml/badge.svg)](https://github.com/BlinkPay/Blink-Debit-API-Client-TypeScript/actions/workflows/build.yml)
 [![NPM](https://img.shields.io/npm/v/Blink-Debit-API-Client-TypeScript.svg)](https://npmjs.org/package/Blink-Debit-API-Client-TypeScript)
-[![Sonar](https://sonarcloud.io/api/project_badges/measure?project=blink-debit-api-client-typescript&metric=alert_status)](https://sonarcloud.io/dashboard?id=blink-debit-api-client-typescript)
-[![Snyk](https://snyk.io/test/github/BlinkPay/Blink-Debit-API-Client-TypeScript/badge.svg)](https://snyk.io/test/github/BlinkPay/Blink-Debit-API-Client-TypeScript)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=blink-debit-api-client-typescript&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=blink-debit-api-client-typescript)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=blink-debit-api-client-typescript&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=blink-debit-api-client-typescript)
+[![Snyk security](https://snyk.io/test/github/BlinkPay/Blink-Debit-API-Client-TypeScript/badge.svg)](https://snyk.io/test/github/BlinkPay/Blink-Debit-API-Client-TypeScript)
 
 # Table of Contents
 1. [Introduction](#introduction)
@@ -130,6 +131,7 @@ An optional request ID, correlation ID and idempotency key can be added as argum
 A request can have one request ID and one idempotency key but multiple correlation IDs in case of retries.
 
 ## Full Examples
+> **Note:** For error handling, a BlinkServiceException can be caught.
 ### Quick payment (one-off payment), using Gateway flow
 A quick payment is a one-off payment that combines the API calls needed for both the consent and the payment.
 ```typescript

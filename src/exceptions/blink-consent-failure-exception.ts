@@ -20,14 +20,16 @@
  * SOFTWARE.
  */
 
+import {BlinkServiceException} from './blink-service-exception';
+
 /**
- * The base checked exception for Blink Debit consents.
+ * The exception for Blink Debit consents.
  *
  * @export
  * @exception
- * @extends {Error}
+ * @extends {BlinkServiceException}
  */
-export class BlinkConsentFailureException extends Error {
+export class BlinkConsentFailureException extends BlinkServiceException {
     constructor(message?: string, innerException?: Error) {
         super(message || "Consent operation failed");
         this.name = "BlinkConsentFailureException";

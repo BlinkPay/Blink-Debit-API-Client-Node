@@ -20,14 +20,16 @@
  * SOFTWARE.
  */
 
+import {BlinkServiceException} from './blink-service-exception';
+
 /**
- * The base checked exception for Blink Debit payments.
+ * The exception for Blink Debit payments.
  *
  * @export
  * @exception
- * @extends {Error}
+ * @extends {BlinkServiceException}
  */
-export class BlinkPaymentFailureException extends Error {
+export class BlinkPaymentFailureException extends BlinkServiceException {
     constructor(message?: string, innerException?: Error) {
         super(message || "Payment operation failed");
         this.name = "BlinkPaymentFailureException";

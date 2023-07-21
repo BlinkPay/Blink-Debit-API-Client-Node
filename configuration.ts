@@ -30,8 +30,8 @@ import {
     BlinkForbiddenException,
     BlinkNotImplementedException,
     BlinkRateLimitExceededException,
-    BlinkRequestTimeoutException,
     BlinkResourceNotFoundException,
+    BlinkRetryableException,
     BlinkServiceException,
     BlinkUnauthorisedException
 } from './src';
@@ -237,7 +237,7 @@ export class Configuration {
                     throw new BlinkResourceNotFoundException(body.message);
                 case 408:
                     this._logger.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
-                    throw new BlinkRequestTimeoutException(body.message);
+                    throw new BlinkRetryableException(body.message);
                 case 422:
                     this._logger.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
                     throw new BlinkUnauthorisedException(body.message);
@@ -256,7 +256,7 @@ export class Configuration {
                         throw new BlinkClientException(body.message);
                     } else if (status >= 500) {
                         this._logger.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
-                        throw new BlinkServiceException(body.message);
+                        throw new BlinkRetryableException(body.message);
                     }
             }
         });
@@ -267,8 +267,7 @@ export class Configuration {
             return;
         }
 
-        // FIXME handle Axios errors
-        this.retryPolicy = retry(handleType(BlinkRequestTimeoutException), {
+        this.retryPolicy = retry(handleType(BlinkRetryableException), {
             maxAttempts: 2,
             backoff: new ExponentialBackoff({maxDelay: Math.random() * 1000, initialDelay: 2000, exponent: 2})
         });

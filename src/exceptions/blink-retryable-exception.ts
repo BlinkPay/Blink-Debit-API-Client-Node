@@ -21,18 +21,18 @@
  */
 
 /**
- * The base checked exception for pending authorisation or submission.
+ * The exception thrown when an API call failed but can be retried.
  *
  * @export
  * @exception
  * @extends {Error}
  */
-export class BlinkPendingException extends Error {
+export class BlinkRetryableException extends Error {
     constructor(message?: string, innerException?: Error) {
-        super(message || "Authorisation or submission is pending");
-        this.name = "BlinkPendingException";
+        super(message || "Operation failed and will be retried");
+        this.name = "BlinkRetryableException";
         this.innerException = innerException;
-        Object.setPrototypeOf(this, BlinkPendingException.prototype)
+        Object.setPrototypeOf(this, BlinkRetryableException.prototype)
     }
 
     innerException?: Error;

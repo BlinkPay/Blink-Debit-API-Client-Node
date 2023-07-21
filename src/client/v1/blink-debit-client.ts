@@ -32,10 +32,11 @@ import {ConstantBackoff, handleType, retry} from 'cockatiel';
 import {
     BlinkConsentFailureException,
     BlinkConsentRejectedException,
-    BlinkConsentTimeoutException, BlinkPaymentFailureException,
+    BlinkConsentTimeoutException,
+    BlinkPaymentFailureException,
     BlinkPaymentRejectedException,
     BlinkPaymentTimeoutException,
-    BlinkPendingException,
+    BlinkRetryableException,
     BlinkServiceException
 } from '../../exceptions';
 import globalAxios, {AxiosResponse} from "axios";
@@ -203,7 +204,7 @@ export class BlinkDebitClient {
      * @throws {BlinkServiceException} Thrown when an exception occurs.
      */
     public awaitAuthorisedSingleConsent(consentId: string, maxWaitSeconds: number): Promise<Consent> {
-        const retryPolicy = retry(handleType(BlinkPendingException), {
+        const retryPolicy = retry(handleType(BlinkRetryableException), {
             maxAttempts: maxWaitSeconds,
             backoff: new ConstantBackoff(1000)
         });
@@ -219,11 +220,11 @@ export class BlinkDebitClient {
                     return consent;
                 }
 
-                throw new BlinkPendingException();
+                throw new BlinkRetryableException();
             })
             .then(response => response.data)
             .catch(error => {
-                if (error instanceof BlinkPendingException) {
+                if (error instanceof BlinkRetryableException) {
                     throw new BlinkConsentTimeoutException();
                 } else if (error instanceof BlinkConsentFailureException || error instanceof BlinkServiceException) {
                     throw error;
@@ -277,7 +278,7 @@ export class BlinkDebitClient {
      * @throws {BlinkConsentFailureException} Thrown when a consent exception occurs
      */
     public async awaitAuthorisedSingleConsentAsync(consentId: string, maxWaitSeconds: number): Promise<AxiosResponse<Consent>> {
-        const retryPolicy = retry(handleType(BlinkPendingException), {
+        const retryPolicy = retry(handleType(BlinkRetryableException), {
             maxAttempts: maxWaitSeconds,
             backoff: new ConstantBackoff(1000)
         });
@@ -302,11 +303,11 @@ export class BlinkDebitClient {
                     case ConsentStatusEnum.GatewayAwaitingSubmission:
                     case ConsentStatusEnum.AwaitingAuthorisation:
                     default:
-                        throw new BlinkPendingException(`Single consent [${consentId}] is waiting for authorisation`);
+                        throw new BlinkRetryableException(`Single consent [${consentId}] is waiting for authorisation`);
                 }
             })
             .catch(error => {
-                if (error instanceof BlinkPendingException) {
+                if (error instanceof BlinkRetryableException) {
                     throw new BlinkConsentTimeoutException();
                 } else if (error instanceof BlinkConsentFailureException || error instanceof BlinkServiceException) {
                     throw error;
@@ -429,7 +430,7 @@ export class BlinkDebitClient {
      * @throws {BlinkServiceException} Thrown when an exception occurs.
      */
     public awaitAuthorisedEnduringConsent(consentId: string, maxWaitSeconds: number): Promise<Consent> {
-        const retryPolicy = retry(handleType(BlinkPendingException), {
+        const retryPolicy = retry(handleType(BlinkRetryableException), {
             maxAttempts: maxWaitSeconds,
             backoff: new ConstantBackoff(1000)
         });
@@ -445,11 +446,11 @@ export class BlinkDebitClient {
                     return consent;
                 }
 
-                throw new BlinkPendingException();
+                throw new BlinkRetryableException();
             })
             .then(response => response.data)
             .catch(error => {
-                if (error instanceof BlinkPendingException) {
+                if (error instanceof BlinkRetryableException) {
                     throw new BlinkConsentTimeoutException();
                 } else if (error instanceof BlinkConsentFailureException || error instanceof BlinkServiceException) {
                     throw error;
@@ -503,7 +504,7 @@ export class BlinkDebitClient {
      * @throws {BlinkConsentFailureException} Thrown when a consent exception occurs
      */
     public async awaitAuthorisedEnduringConsentAsync(consentId: string, maxWaitSeconds: number): Promise<AxiosResponse<Consent>> {
-        const retryPolicy = retry(handleType(BlinkPendingException), {
+        const retryPolicy = retry(handleType(BlinkRetryableException), {
             maxAttempts: maxWaitSeconds,
             backoff: new ConstantBackoff(1000)
         });
@@ -528,11 +529,11 @@ export class BlinkDebitClient {
                     case ConsentStatusEnum.GatewayAwaitingSubmission:
                     case ConsentStatusEnum.AwaitingAuthorisation:
                     default:
-                        throw new BlinkPendingException(`Enduring consent [${consentId}] is waiting for authorisation`);
+                        throw new BlinkRetryableException(`Enduring consent [${consentId}] is waiting for authorisation`);
                 }
             })
             .catch(error => {
-                if (error instanceof BlinkPendingException) {
+                if (error instanceof BlinkRetryableException) {
                     throw new BlinkConsentTimeoutException();
                 } else if (error instanceof BlinkConsentFailureException || error instanceof BlinkServiceException) {
                     throw error;
@@ -664,7 +665,7 @@ export class BlinkDebitClient {
      * @throws {BlinkServiceException} Thrown when an exception occurs
      */
     public awaitSuccessfulQuickPayment(quickPaymentId: string, maxWaitSeconds: number): Promise<QuickPaymentResponse> {
-        const retryPolicy = retry(handleType(BlinkPendingException), {
+        const retryPolicy = retry(handleType(BlinkRetryableException), {
             maxAttempts: maxWaitSeconds,
             backoff: new ConstantBackoff(1000)
         });
@@ -680,11 +681,11 @@ export class BlinkDebitClient {
                     return quickPayment;
                 }
 
-                throw new BlinkPendingException();
+                throw new BlinkRetryableException();
             })
             .then(response => response.data)
             .catch(async error => {
-                if (error instanceof BlinkPendingException) {
+                if (error instanceof BlinkRetryableException) {
                     const blinkConsentTimeoutException = new BlinkConsentTimeoutException();
 
                     try {
@@ -754,7 +755,7 @@ export class BlinkDebitClient {
      * @throws {BlinkConsentFailureException} Thrown when a consent exception occurs
      */
     public async awaitSuccessfulQuickPaymentAsync(quickPaymentId: string, maxWaitSeconds: number): Promise<AxiosResponse<QuickPaymentResponse>> {
-        const retryPolicy = retry(handleType(BlinkPendingException), {
+        const retryPolicy = retry(handleType(BlinkRetryableException), {
             maxAttempts: maxWaitSeconds,
             backoff: new ConstantBackoff(1000)
         });
@@ -779,11 +780,11 @@ export class BlinkDebitClient {
                     case ConsentStatusEnum.GatewayAwaitingSubmission:
                     case ConsentStatusEnum.AwaitingAuthorisation:
                     default:
-                        throw new BlinkPendingException(`Quick payment [${quickPaymentId}] is waiting for authorisation`);
+                        throw new BlinkRetryableException(`Quick payment [${quickPaymentId}] is waiting for authorisation`);
                 }
             })
             .catch(async error => {
-                if (error instanceof BlinkPendingException) {
+                if (error instanceof BlinkRetryableException) {
                     const blinkConsentTimeoutException = new BlinkConsentTimeoutException();
 
                     try {
@@ -965,7 +966,7 @@ export class BlinkDebitClient {
      * @throws {BlinkServiceException} Thrown when an exception occurs
      */
     public awaitSuccessfulPayment(paymentId: string, maxWaitSeconds: number): Promise<Payment> {
-        const retryPolicy = retry(handleType(BlinkPendingException), {
+        const retryPolicy = retry(handleType(BlinkRetryableException), {
             maxAttempts: maxWaitSeconds,
             backoff: new ConstantBackoff(1000)
         });
@@ -981,11 +982,11 @@ export class BlinkDebitClient {
                     return payment;
                 }
 
-                throw new BlinkPendingException();
+                throw new BlinkRetryableException();
             })
             .then(response => response.data)
             .catch(error => {
-                if (error instanceof BlinkPendingException) {
+                if (error instanceof BlinkRetryableException) {
                     throw new BlinkPaymentTimeoutException();
                 } else if (error instanceof BlinkPaymentFailureException || error instanceof BlinkServiceException) {
                     throw error;
@@ -1039,7 +1040,7 @@ export class BlinkDebitClient {
      * @throws {BlinkConsentFailureException} Thrown when a consent exception occurs
      */
     public async awaitSuccessfulPaymentAsync(paymentId: string, maxWaitSeconds: number): Promise<AxiosResponse<Payment>> {
-        const retryPolicy = retry(handleType(BlinkPendingException), {
+        const retryPolicy = retry(handleType(BlinkRetryableException), {
             maxAttempts: maxWaitSeconds,
             backoff: new ConstantBackoff(1000)
         });
@@ -1060,11 +1061,11 @@ export class BlinkDebitClient {
                     case PaymentStatusEnum.AcceptedSettlementInProcess:
                     case PaymentStatusEnum.Pending:
                     default:
-                        throw new BlinkPendingException(`Payment [${paymentId}] is pending or being processed`);
+                        throw new BlinkRetryableException(`Payment [${paymentId}] is pending or being processed`);
                 }
             })
             .catch(error => {
-                if (error instanceof BlinkPendingException) {
+                if (error instanceof BlinkRetryableException) {
                     throw new BlinkPaymentTimeoutException();
                 } else if (error instanceof BlinkPaymentFailureException || error instanceof BlinkServiceException) {
                     throw error;
