@@ -180,7 +180,7 @@ const request: SingleConsentRequest = {
     } as Pcr
 };
 
-const createConsentResponse = client.createSingleConsent(consent);
+const createConsentResponse = client.createSingleConsent(request);
 const redirectUri = createConsentResponse.redirectUri; // Redirect the consumer to this URL
 const paymentRequest = new PaymentRequest
 {
