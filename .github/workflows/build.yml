@@ -81,8 +81,14 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: |
             ${{ runner.os }}-sonar
-      - name: SonarQube Scan
+      - name: Run Sonar
         uses: sonarsource/sonarqube-scan-action@master
+        with:
+          projectBaseDir: .
+          sonarHostURL: https://sonarcloud.io
+          sonarLogin: ${{ secrets.SONAR_TOKEN }}
+          sonarProjectKey: blink-debit-api-client-typescript
+          sonarOrganization: blinkpay
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
