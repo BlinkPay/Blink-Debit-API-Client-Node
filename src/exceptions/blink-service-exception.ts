@@ -20,33 +20,20 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
-
 /**
- * The request arguments.
+ * The base checked exception for generic Blink Debit services.
  *
  * @export
- * @interface RequestArgs
+ * @exception
+ * @extends {Error}
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
+export class BlinkServiceException extends Error {
+    constructor(message?: string, innerException?: Error) {
+        super(message || "Service call to Blink Debit failed, please contact BlinkPay with the correlation ID");
+        this.name = "BlinkServiceException";
+        this.innerException = innerException;
+        Object.setPrototypeOf(this, BlinkServiceException.prototype)
     }
+
+    innerException?: Error;
 }

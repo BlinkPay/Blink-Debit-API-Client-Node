@@ -20,33 +20,31 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
+import {EnduringPaymentRequest} from './enduring-payment-request';
 
 /**
- * The request arguments.
+ * The payment request model.
  *
  * @export
- * @interface RequestArgs
+ * @interface PaymentRequest
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export interface PaymentRequest {
+    /**
+     * The consent ID
+     * @type {string}
+     * @memberof PaymentRequest
+     */
+    consentId: string;
+    /**
+     *
+     * @type {EnduringPaymentRequest}
+     * @memberof PaymentRequest
+     */
+    enduringPayment?: EnduringPaymentRequest;
+    /**
+     * The account reference ID from account list. This is required if the account selection information was provided to you on the consents endpoint.
+     * @type {string}
+     * @memberof PaymentRequest
+     */
+    accountReferenceId?: string;
 }

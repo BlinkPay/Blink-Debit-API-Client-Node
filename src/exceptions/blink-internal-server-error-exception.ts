@@ -20,33 +20,19 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
+import {BlinkServiceException} from './blink-service-exception';
 
 /**
- * The request arguments.
+ * The exception thrown when Blink Debit encounters a generic error (500).
  *
  * @export
- * @interface RequestArgs
+ * @exception
+ * @extends {BlinkServiceException}
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
+export class BlinkInternalServerErrorException extends BlinkServiceException {
+    constructor(message?: string, innerException?: Error) {
+        super(message || "Internal server error occurred in Blink Debit, please contact BlinkPay with the correlation ID", innerException);
+        this.name = "BlinkInternalServerErrorException";
+        Object.setPrototypeOf(this, BlinkInternalServerErrorException.prototype);
     }
 }

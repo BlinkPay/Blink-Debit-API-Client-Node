@@ -20,33 +20,33 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
-
 /**
- * The request arguments.
+ * Amount with currency.
  *
  * @export
- * @interface RequestArgs
+ * @interface Amount
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
+export interface Amount {
+    /**
+     * The amount.
+     * @type {string}
+     * @memberof Amount
+     */
+    total: string;
+    /**
+     * The currency. Only NZD is supported.
+     * @type {string}
+     * @memberof Amount
+     */
+    currency: AmountCurrencyEnum;
 }
 
 /**
- * The base API.
+ * The enumeration of currencies.
  *
  * @export
- * @class BaseAPI
+ * @enum {string}
  */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export enum AmountCurrencyEnum {
+    NZD = 'NZD'
 }

@@ -20,33 +20,16 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
-
 /**
- * The request arguments.
+ * The value type used to identify the customer with their bank.
  *
  * @export
- * @interface RequestArgs
+ * @enum {string}
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export enum IdentifierType {
+    Email = 'email',
+    PhoneNumber = 'phone_number',
+    MobileNumber = 'mobile_number',
+    BankingUsername = 'banking_username',
+    ConsentId = 'consent_id'
 }

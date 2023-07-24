@@ -20,33 +20,33 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
+import {Amount} from './amount';
+import {Pcr} from './pcr';
+import {RefundDetail} from './refund-detail';
 
 /**
- * The request arguments.
+ * The PCR and amount to use in the `partial_refund` request.
  *
  * @export
- * @interface RequestArgs
+ * @interface PartialRefundRequest
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export interface PartialRefundRequest extends RefundDetail {
+    /**
+     *
+     * @type {Amount}
+     * @memberof PartialRefundRequest
+     */
+    amount: Amount;
+    /**
+     *
+     * @type {Pcr}
+     * @memberof PartialRefundRequest
+     */
+    pcr: Pcr;
+    /**
+     * The URI that the merchant will need to visit to authorise the refund payment from their bank, if applicable.
+     * @type {string}
+     * @memberof PartialRefundRequest
+     */
+    consentRedirect?: string;
 }

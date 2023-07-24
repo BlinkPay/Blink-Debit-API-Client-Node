@@ -20,33 +20,60 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
+import {RefundRequest} from './refund-request';
 
 /**
- * The request arguments.
+ * The model for a refund.
  *
  * @export
- * @interface RequestArgs
+ * @interface Refund
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
+export interface Refund {
+    /**
+     * The refund ID.
+     * @type {string}
+     * @memberof Refund
+     */
+    refundId: string;
+    /**
+     * The refund status
+     * @type {string}
+     * @memberof Refund
+     */
+    status: RefundStatusEnum;
+    /**
+     * The time that the refund was created.
+     * @type {Date}
+     * @memberof Refund
+     */
+    creationTimestamp: Date;
+    /**
+     * The time that the status was last updated.
+     * @type {Date}
+     * @memberof Refund
+     */
+    statusUpdatedTimestamp: Date;
+    /**
+     * The customer account number used or to be used for the refund.
+     * @type {string}
+     * @memberof Refund
+     */
+    accountNumber: string;
+    /**
+     *
+     * @type {RefundRequest}
+     * @memberof Refund
+     */
+    detail: RefundRequest;
 }
 
 /**
- * The base API.
- *
+ * The enumeration of refund statuses.
  * @export
- * @class BaseAPI
+ * @enum {string}
  */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export enum RefundStatusEnum {
+    Failed = 'failed',
+    Processing = 'processing',
+    Completed = 'completed'
 }

@@ -20,33 +20,33 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
-
 /**
- * The request arguments.
- *
+ * The refund detail model.
  * @export
- * @interface RequestArgs
+ * @interface RefundDetail
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
+export interface RefundDetail {
+    /**
+     * The payment ID. The payment must have a status of `AcceptedSettlementCompleted`.
+     * @type {string}
+     * @memberof RefundDetail
+     */
+    paymentId: string;
+    /**
+     * The refund type.
+     * @type {string}
+     * @memberof RefundDetail
+     */
+    type: RefundDetailTypeEnum;
 }
 
 /**
- * The base API.
- *
+ * The enumeration of refund detail types.
  * @export
- * @class BaseAPI
+ * @enum {string}
  */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export enum RefundDetailTypeEnum {
+    AccountNumber = 'account_number',
+    PartialRefund = 'partial_refund',
+    FullRefund = 'full_refund'
 }

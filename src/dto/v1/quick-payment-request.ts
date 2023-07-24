@@ -20,33 +20,13 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
+import {SingleConsentRequest} from './single-consent-request';
 
 /**
- * The request arguments.
+ * The model for a quick payment, relating to a single consent and a one-off payment.
  *
  * @export
- * @interface RequestArgs
+ * @interface QuickPaymentRequest
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export interface QuickPaymentRequest extends SingleConsentRequest {
 }

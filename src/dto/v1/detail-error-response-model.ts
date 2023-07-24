@@ -20,33 +20,47 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
-
 /**
- * The request arguments.
+ * The detailed error response.
  *
  * @export
- * @interface RequestArgs
+ * @interface DetailErrorResponseModel
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export interface DetailErrorResponseModel {
+    /**
+     * The error timestamp.
+     * @type {Date}
+     * @memberof DetailErrorResponseModel
+     */
+    timestamp?: Date;
+    /**
+     * The status code.
+     * @type {number}
+     * @memberof DetailErrorResponseModel
+     */
+    status?: number;
+    /**
+     * The title of the error code.
+     * @type {string}
+     * @memberof DetailErrorResponseModel
+     */
+    error?: string;
+    /**
+     * The error detail.
+     * @type {string}
+     * @memberof DetailErrorResponseModel
+     */
+    message: string;
+    /**
+     * The requested path when the error was triggered.
+     * @type {string}
+     * @memberof DetailErrorResponseModel
+     */
+    path?: string;
+    /**
+     * A code supplied by BlinkPay to reference the error type
+     * @type {string}
+     * @memberof DetailErrorResponseModel
+     */
+    code?: string;
 }

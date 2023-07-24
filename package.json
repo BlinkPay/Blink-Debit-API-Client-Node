@@ -1,27 +1,42 @@
 {
-  "name": "",
-  "version": "",
-  "description": "OpenAPI client for ",
-  "author": "OpenAPI-Generator Contributors",
+  "name": "blink-debit-api-client-typescript",
+  "version": "1.0.0",
+  "description": "The Blink Debit API client for TypeScript",
+  "author": "Rey Vincent Babilonia (rey.babilonia@blinkpay.co.nz)",
   "keywords": [
-    "axios",
-    "typescript",
-    "openapi-client",
-    "openapi-generator",
-    ""
+    "blink debit",
+    "blinkpay",
+    "blink paynow",
+    "blink autopay"
   ],
-  "license": "Unlicense",
+  "license": "MIT",
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc --outDir dist/",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "test": "jest"
   },
   "dependencies": {
-    "axios": "^0.21.1"
+    "axios": "^1.4.0",
+    "cockatiel": "^3.1.1",
+    "dotenv": "^16.3.1",
+    "humps": "^2.0.1",
+    "log4js": "^6.9.1",
+    "luxon": "^3.3.0",
+    "qs": "^6.11.2",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@types/node": "^12.11.5",
-    "typescript": "^3.6.4"
+    "@types/humps": "^2.0.3",
+    "@types/jest": "^29.5.2",
+    "@types/luxon": "^3.3.0",
+    "@types/node": "^20.3.2",
+    "@types/qs": "^6.9.7",
+    "@types/uuid": "^9.0.2",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.3"
   }
 }

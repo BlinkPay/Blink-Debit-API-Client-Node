@@ -20,33 +20,46 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
+import {Amount} from './amount';
+import {AuthFlow} from './auth-flow';
+import {ConsentDetail} from './consent-detail';
+import {Period} from './period';
 
 /**
- * The request arguments.
+ * The model for an enduring consent request, relating to multiple payments.
  *
  * @export
- * @interface RequestArgs
+ * @interface EnduringConsentRequest
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export interface EnduringConsentRequest extends ConsentDetail {
+    /**
+     *
+     * @type {AuthFlow}
+     * @memberof EnduringConsentRequest
+     */
+    flow: AuthFlow;
+    /**
+     * The ISO 8601 start date to calculate the periods for which to calculate the consent period.
+     * @type {Date}
+     * @memberof EnduringConsentRequest
+     */
+    fromTimestamp: Date;
+    /**
+     * The ISO 8601 timeout for when an enduring consent will expire. If this field is blank, an indefinite request will be attempted.
+     * @type {Date}
+     * @memberof EnduringConsentRequest
+     */
+    expiryTimestamp?: Date;
+    /**
+     *
+     * @type {Period}
+     * @memberof EnduringConsentRequest
+     */
+    period: Period;
+    /**
+     *
+     * @type {Amount}
+     * @memberof EnduringConsentRequest
+     */
+    maximumAmountPeriod: Amount;
 }

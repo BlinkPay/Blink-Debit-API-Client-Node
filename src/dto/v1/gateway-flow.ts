@@ -20,33 +20,27 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
+import {AuthFlowDetail} from './auth-flow-detail';
+import {DecoupledFlowHint} from './decoupled-flow-hint';
+import {RedirectFlowHint} from './redirect-flow-hint';
 
 /**
- * The request arguments.
+ * The details for a Gateway flow.
  *
  * @export
- * @interface RequestArgs
+ * @interface GatewayFlow
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export interface GatewayFlow extends AuthFlowDetail {
+    /**
+     * The URL to redirect back to once the payment is completed through the gateway. The `cid` (Consent ID) will be added as a URL parameter. If there is an error, an `error` parameter will be appended also.
+     * @type {string}
+     * @memberof GatewayFlow
+     */
+    redirectUri: string;
+    /**
+     * The gateway flow hint
+     * @type {RedirectFlowHint | DecoupledFlowHint}
+     * @memberof GatewayFlow
+     */
+    flowHint?: RedirectFlowHint | DecoupledFlowHint;
 }

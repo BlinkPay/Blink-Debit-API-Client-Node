@@ -20,33 +20,26 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
+import {Amount} from './amount';
+import {Pcr} from './pcr';
 
 /**
- * The request arguments.
+ * The model for an enduring payment request, if applicable.
  *
  * @export
- * @interface RequestArgs
+ * @interface EnduringPaymentRequest
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export interface EnduringPaymentRequest {
+    /**
+     *
+     * @type {Pcr}
+     * @memberof EnduringPaymentRequest
+     */
+    pcr: Pcr;
+    /**
+     *
+     * @type {Amount}
+     * @memberof EnduringPaymentRequest
+     */
+    amount: Amount;
 }

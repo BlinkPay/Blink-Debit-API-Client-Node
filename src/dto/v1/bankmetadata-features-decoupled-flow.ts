@@ -20,33 +20,33 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
+import {
+    BankmetadataFeaturesDecoupledFlowAvailableIdentifiers
+} from './bankmetadata-features-decoupled-flow-available-identifiers';
 
 /**
- * The request arguments.
+ * The decoupled flow bank feature
  *
  * @export
- * @interface RequestArgs
+ * @interface BankmetadataFeaturesDecoupledFlow
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export interface BankmetadataFeaturesDecoupledFlow {
+    /**
+     * Whether the Decoupled Flow is enabled.
+     * @type {boolean}
+     * @memberof BankmetadataFeaturesDecoupledFlow
+     */
+    enabled: boolean;
+    /**
+     * If enabled, will show the available fields to use to identify the customer with their bank.
+     * @type {Array<BankmetadataFeaturesDecoupledFlowAvailableIdentifiers>}
+     * @memberof BankmetadataFeaturesDecoupledFlow
+     */
+    availableIdentifiers?: Array<BankmetadataFeaturesDecoupledFlowAvailableIdentifiers>;
+    /**
+     * ISO8601 time duration until the decoupled flow consent request times out
+     * @type {string}
+     * @memberof BankmetadataFeaturesDecoupledFlow
+     */
+    requestTimeout: string;
 }

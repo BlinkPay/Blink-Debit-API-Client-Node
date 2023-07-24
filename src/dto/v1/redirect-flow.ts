@@ -20,33 +20,26 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
+import {AuthFlowDetail} from './auth-flow-detail';
+import {Bank} from './bank';
 
 /**
- * The request arguments.
+ * The details for a Redirect flow.
  *
  * @export
- * @interface RequestArgs
+ * @interface RedirectFlow
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export interface RedirectFlow extends AuthFlowDetail {
+    /**
+     * The URI to redirect back to once the consent is completed. App-based workflows may use deep/universal links. The `cid` (Consent ID) will be added as a URL parameter. If there is an error, an `error` parameter will be appended also.
+     * @type {string}
+     * @memberof RedirectFlow
+     */
+    redirectUri: string;
+    /**
+     *
+     * @type {Bank}
+     * @memberof RedirectFlow
+     */
+    bank: Bank;
 }

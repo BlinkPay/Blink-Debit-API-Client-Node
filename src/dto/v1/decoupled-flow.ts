@@ -20,33 +20,40 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
+import {AuthFlowDetail} from './auth-flow-detail';
+import {Bank} from './bank';
+import {IdentifierType} from './identifier-type';
+import {IdentifierValue} from './identifier-value';
 
 /**
- * The request arguments.
+ * The details for a Decoupled flow.
  *
  * @export
- * @interface RequestArgs
+ * @interface DecoupledFlow
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export interface DecoupledFlow extends AuthFlowDetail {
+    /**
+     *
+     * @type {Bank}
+     * @memberof DecoupledFlow
+     */
+    bank: Bank;
+    /**
+     *
+     * @type {IdentifierType}
+     * @memberof DecoupledFlow
+     */
+    identifierType: IdentifierType;
+    /**
+     *
+     * @type {IdentifierValue}
+     * @memberof DecoupledFlow
+     */
+    identifierValue: IdentifierValue;
+    /**
+     * A callback URL to call once the consent status has been updated using decoupled flow. Blink will also append the `cid` (the Consent ID) in an additional URL parameter. This is sent to your api as a GET request and will be retried up to 3 times if 5xx errors are received from your server.
+     * @type {string}
+     * @memberof DecoupledFlow
+     */
+    callbackUrl?: string;
 }

@@ -20,33 +20,23 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
-
 /**
- * The request arguments.
+ * The model for the returned details from a consent, once created.
  *
  * @export
- * @interface RequestArgs
+ * @interface CreateConsentResponse
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export interface CreateConsentResponse {
+    /**
+     * The consent ID
+     * @type {string}
+     * @memberof CreateConsentResponse
+     */
+    consentId: string;
+    /**
+     * The URL to redirect the user to, returned if the flow type is \"redirect\" or \"gateway\"
+     * @type {string}
+     * @memberof CreateConsentResponse
+     */
+    redirectUri?: string;
 }

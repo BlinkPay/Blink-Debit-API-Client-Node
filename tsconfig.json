@@ -1,5 +1,10 @@
 {
   "compilerOptions": {
+    "esModuleInterop": true,
+    "types": [
+      "node",
+      "jest"
+    ],
     "declaration": true,
     "target": "es5",
     "module": "commonjs",
@@ -8,7 +13,8 @@
     "rootDir": ".",
     "lib": [
       "es6",
-      "dom"
+      "dom",
+      "es2021.promise"
     ],
     "typeRoots": [
       "node_modules/@types"

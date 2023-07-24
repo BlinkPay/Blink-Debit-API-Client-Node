@@ -20,33 +20,29 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
-
 /**
- * The request arguments.
+ * The enduring consent bank feature
  *
  * @export
- * @interface RequestArgs
+ * @interface BankmetadataFeaturesEnduringConsent
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export interface BankmetadataFeaturesEnduringConsent {
+    /**
+     * If enduring consent is disabled, only single payment consents can be issued.
+     * @type {boolean}
+     * @memberof BankmetadataFeaturesEnduringConsent
+     */
+    enabled: boolean;
+    /**
+     * ISO8601 time duration for the maximum allowed enduring consent period, i.e. how long the consent could be used to execute payments for. Appears only if consent_indefinite is false
+     * @type {string}
+     * @memberof BankmetadataFeaturesEnduringConsent
+     */
+    maximumConsent?: string;
+    /**
+     * If the consenting period for payments is indefinite or time-limited by the bank
+     * @type {boolean}
+     * @memberof BankmetadataFeaturesEnduringConsent
+     */
+    consentIndefinite?: boolean;
 }

@@ -20,33 +20,27 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
+import {FlowHint} from './flow-hint';
+import {IdentifierType} from './identifier-type';
+import {IdentifierValue} from './identifier-value';
 
 /**
- * The request arguments.
+ * Decoupled flow hint.
  *
  * @export
- * @interface RequestArgs
+ * @interface DecoupledFlowHint
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export interface DecoupledFlowHint extends FlowHint {
+    /**
+     *
+     * @type {IdentifierType}
+     * @memberof DecoupledFlowHint
+     */
+    identifierType: IdentifierType;
+    /**
+     *
+     * @type {IdentifierValue}
+     * @memberof DecoupledFlowHint
+     */
+    identifierValue: IdentifierValue;
 }

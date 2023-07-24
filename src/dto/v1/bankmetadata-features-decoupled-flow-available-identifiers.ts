@@ -20,33 +20,37 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
+import {IdentifierType} from './identifier-type';
 
 /**
- * The request arguments.
+ * The available identifiers.
  *
  * @export
- * @interface RequestArgs
+ * @interface BankmetadataFeaturesDecoupledFlowAvailableIdentifiers
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export interface BankmetadataFeaturesDecoupledFlowAvailableIdentifiers {
+    /**
+     *
+     * @type {IdentifierType}
+     * @memberof BankmetadataFeaturesDecoupledFlowAvailableIdentifiers
+     */
+    type: IdentifierType;
+    /**
+     * A regex that can be used for validation of the field
+     * @type {string}
+     * @memberof BankmetadataFeaturesDecoupledFlowAvailableIdentifiers
+     */
+    regex?: string;
+    /**
+     * The common name of the field
+     * @type {string}
+     * @memberof BankmetadataFeaturesDecoupledFlowAvailableIdentifiers
+     */
+    name: string;
+    /**
+     * The description of the field and/or where to find it
+     * @type {string}
+     * @memberof BankmetadataFeaturesDecoupledFlowAvailableIdentifiers
+     */
+    description?: string;
 }

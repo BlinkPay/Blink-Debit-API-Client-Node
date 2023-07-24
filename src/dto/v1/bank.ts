@@ -20,33 +20,17 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import globalAxios, {AxiosInstance, AxiosRequestConfig} from 'axios';
-
 /**
- * The request arguments.
+ * The bank name. Required if not using Blink's hosted gateway.
  *
  * @export
- * @interface RequestArgs
+ * @enum {string}
  */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export enum Bank {
+    ASB = 'ASB',
+    ANZ = 'ANZ',
+    BNZ = 'BNZ',
+    Westpac = 'Westpac',
+    KiwiBank = 'KiwiBank',
+    PNZ = 'PNZ'
 }
