@@ -44,7 +44,8 @@ import globalAxios from 'axios';
 import {v4 as uuidv4} from 'uuid';
 import {DateTime} from 'luxon';
 
-jest.setTimeout(30000);
+require('dotenv').config();
+jest.setTimeout(60000);
 
 describe('EnduringConsentsApi Integration Test', () => {
     const redirectUri = 'https://www.blinkpay.co.nz/sample-merchant-return-page';

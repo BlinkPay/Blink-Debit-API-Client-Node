@@ -46,6 +46,9 @@ import globalAxios from 'axios';
 import {v4 as uuidv4} from 'uuid';
 import {DateTime} from 'luxon';
 
+require('dotenv').config();
+jest.setTimeout(120000);
+
 describe('PaymentsApi Integration Test', () => {
     const callbackUrl = 'https://www.mymerchant.co.nz/callback';
     let singleConsentsApiInstance: ReturnType<typeof SingleConsentsApiFactory>;

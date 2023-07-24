@@ -24,6 +24,7 @@ import {Bank, BankMetadata, BankMetadataApiFactory, IdentifierType} from '../../
 import {Configuration} from '../../../configuration';
 import globalAxios from 'axios';
 
+require('dotenv').config();
 jest.setTimeout(30000);
 
 describe('BankMetadataApi Integration Test', () => {

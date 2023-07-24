@@ -43,7 +43,8 @@ import {Configuration} from '../../../configuration';
 import globalAxios from 'axios';
 import {v4 as uuidv4} from 'uuid';
 
-jest.setTimeout(30000);
+require('dotenv').config();
+jest.setTimeout(60000);
 
 describe('SingleConsentsApi Integration Test', () => {
     const redirectUri = 'https://www.blinkpay.co.nz/sample-merchant-return-page';

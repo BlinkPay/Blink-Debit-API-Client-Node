@@ -52,6 +52,9 @@ import {
 import {v4 as uuidv4} from 'uuid';
 import {DateTime} from 'luxon';
 
+require('dotenv').config();
+jest.setTimeout(180000);
+
 describe('BlinkDebitClient Integration Tests', () => {
     const redirectUrl = "https://www.blinkpay.co.nz/sample-merchant-return-page";
     const callbackUrl = "https://www.mymerchant.co.nz/callback";
