@@ -1,6 +1,6 @@
 # Blink-Debit-API-Client-TypeScript
 [![CI](https://github.com/BlinkPay/Blink-Debit-API-Client-TypeScript/actions/workflows/build.yml/badge.svg)](https://github.com/BlinkPay/Blink-Debit-API-Client-TypeScript/actions/workflows/build.yml)
-[![NPM](https://img.shields.io/npm/v/Blink-Debit-API-Client-TypeScript.svg)](https://npmjs.org/package/Blink-Debit-API-Client-TypeScript)
+[![NPM](https://img.shields.io/npm/v/blink-debit-api-client-typescript.svg)](https://npmjs.org/package/blink-debit-api-client-typescript)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=blink-debit-api-client-typescript&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=blink-debit-api-client-typescript)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=blink-debit-api-client-typescript&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=blink-debit-api-client-typescript)
 [![Snyk security](https://img.shields.io/badge/Snyk_security-monitored-9043C6)](https://app.snyk.io/org/blinkpay-zw9/project/79852dcd-f05b-4481-b4de-a692e767286a)
