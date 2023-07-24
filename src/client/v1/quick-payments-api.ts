@@ -25,7 +25,7 @@ import {Configuration} from '../../../configuration';
 import {BaseAPI, RequestArgs} from '../../../base';
 import {CreateQuickPaymentResponse, QuickPaymentRequest, QuickPaymentResponse} from '../../dto';
 import {decamelizeKeys} from 'humps';
-import {BlinkInvalidValueException} from "../../exceptions";
+import {BlinkInvalidValueException} from '../../exceptions';
 
 /**
  * QuickPaymentsApi - axios parameter creator

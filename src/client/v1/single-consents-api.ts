@@ -25,7 +25,7 @@ import {Configuration} from '../../../configuration';
 import {BaseAPI, RequestArgs} from '../../../base';
 import {Consent, CreateConsentResponse, SingleConsentRequest} from '../../dto';
 import {decamelizeKeys} from 'humps';
-import {BlinkInvalidValueException} from "../../exceptions";
+import {BlinkInvalidValueException} from '../../exceptions';
 
 /**
  * SingleConsentsApi - axios parameter creator

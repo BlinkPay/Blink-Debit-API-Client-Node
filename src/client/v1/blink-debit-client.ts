@@ -39,7 +39,7 @@ import {
     BlinkRetryableException,
     BlinkServiceException
 } from '../../exceptions';
-import globalAxios, {AxiosResponse} from "axios";
+import globalAxios, {AxiosResponse} from 'axios';
 import {
     BankMetadata,
     Consent,
@@ -59,7 +59,7 @@ import {
     SingleConsentRequest
 } from '../../dto';
 import * as log4js from 'log4js';
-import {Configuration} from "../../../configuration";
+import {Configuration} from '../../../configuration';
 
 /**
  * The facade for accessing all client methods from one place.

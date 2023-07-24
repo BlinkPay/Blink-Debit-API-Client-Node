@@ -25,7 +25,7 @@ import {Configuration} from '../../../configuration';
 import {BaseAPI, RequestArgs} from '../../../base';
 import {Refund, RefundDetail, RefundResponse} from '../../dto';
 import {decamelizeKeys} from 'humps';
-import {BlinkInvalidValueException} from "../../exceptions";
+import {BlinkInvalidValueException} from '../../exceptions';
 
 /**
  * RefundsApi - axios parameter creator
