@@ -40,7 +40,7 @@ jobs:
             ${{ runner.os }}-node-
 
   build_test:
-    needs: cache
+    needs: sonar
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -55,7 +55,7 @@ jobs:
           BLINKPAY_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
 
   snyk:
-    needs: build_test
+    needs: cache
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
