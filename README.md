@@ -71,7 +71,7 @@ const request: QuickPaymentRequest = {
 };
 
 const qpCreateResponse = client.createQuickPayment(request);
-_logger.LogInformation("Redirect URL: {}", qpCreateResponseredirectUri); // Redirect the consumer to this URL
+_logger.LogInformation("Redirect URL: {}", qpCreateResponse.redirectUri); // Redirect the consumer to this URL
 const qpId = qpCreateResponse.quickPaymentId;
 const qpResponse = client.awaitSuccessfulQuickPaymentOrThrowException(qpId, 300); // Will throw an exception if the payment was not successful after 5min
 ```
