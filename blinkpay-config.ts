@@ -20,34 +20,12 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
-import {AxiosInstance, AxiosRequestConfig} from 'axios';
-
-/**
- * The request arguments.
- *
- * @export
- * @interface RequestArgs
- */
-export interface RequestArgs {
-    url: string;
-    options: AxiosRequestConfig;
-}
-
-/**
- * The base API.
- *
- * @export
- * @class BaseAPI
- */
-export class BaseAPI {
-    protected configuration: Configuration | undefined;
-    protected axios: AxiosInstance | undefined;
-
-    constructor(configuration?: Configuration, protected basePath?: string, axios?: AxiosInstance) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
-        }
-    }
+export interface BlinkPayConfig {
+    blinkpay: {
+        debitUrl: string;
+        clientId: string;
+        clientSecret: string;
+        timeout: number;
+        retryEnabled: boolean;
+    };
 }

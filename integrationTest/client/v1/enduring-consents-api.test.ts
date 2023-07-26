@@ -53,7 +53,7 @@ describe('EnduringConsentsApi Integration Test', () => {
     let apiInstance: ReturnType<typeof EnduringConsentsApiFactory>;
 
     beforeAll(async () => {
-        const configuration = Configuration.getInstance();
+        const configuration = Configuration.getInstance(globalAxios);
 
         apiInstance = EnduringConsentsApiFactory(configuration, undefined, globalAxios);
     });

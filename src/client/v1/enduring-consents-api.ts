@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import globalAxios, {AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios';
+import {AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios';
 import {Configuration} from '../../../configuration';
 import {BaseAPI, RequestArgs} from '../../../base';
 import {Consent, CreateConsentResponse, EnduringConsentRequest} from '../../dto';
@@ -32,7 +32,7 @@ import {BlinkInvalidValueException} from '../../exceptions';
  *
  * @export
  */
-export const EnduringConsentsApiAxiosParamCreator = function (configuration?: Configuration) {
+export const EnduringConsentsApiAxiosParamCreator = function (axios: AxiosInstance, configuration?: Configuration) {
     return {
         /**
          * Create an enduring consent request with the bank that will go to the customer for approval.  A successful response does not indicate a completed consent. The status of the consent can be subsequently checked with the consent ID.
@@ -58,7 +58,7 @@ export const EnduringConsentsApiAxiosParamCreator = function (configuration?: Co
 
             // authentication Bearer required
             // oauth required
-            await configuration.getAccessToken();
+            await configuration.getAccessToken(axios);
             if (configuration && configuration.accessToken) {
                 const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
                     ? await configuration.accessToken("Bearer", ["create:single_consent", "view:single_consent", "revoke:single_consent", "create:enduring_consent", "view:enduring_consent", "revoke:enduring_consent", "create:payment", "view:payment", "view:metadata", "view:transaction", "create:quick_payment", "view:quick_payment", "create:refund", "view:refund"])
@@ -129,7 +129,7 @@ export const EnduringConsentsApiAxiosParamCreator = function (configuration?: Co
 
             // authentication Bearer required
             // oauth required
-            await configuration.getAccessToken();
+            await configuration.getAccessToken(axios);
             if (configuration && configuration.accessToken) {
                 const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
                     ? await configuration.accessToken("Bearer", ["create:single_consent", "view:single_consent", "revoke:single_consent", "create:enduring_consent", "view:enduring_consent", "revoke:enduring_consent", "create:payment", "view:payment", "view:metadata", "view:transaction", "create:quick_payment", "view:quick_payment", "create:refund", "view:refund"])
@@ -188,7 +188,7 @@ export const EnduringConsentsApiAxiosParamCreator = function (configuration?: Co
 
             // authentication Bearer required
             // oauth required
-            await configuration.getAccessToken();
+            await configuration.getAccessToken(axios);
             if (configuration && configuration.accessToken) {
                 const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
                     ? await configuration.accessToken("Bearer", ["create:single_consent", "view:single_consent", "revoke:single_consent", "create:enduring_consent", "view:enduring_consent", "revoke:enduring_consent", "create:payment", "view:payment", "view:metadata", "view:transaction", "create:quick_payment", "view:quick_payment", "create:refund", "view:refund"])
@@ -227,7 +227,7 @@ export const EnduringConsentsApiAxiosParamCreator = function (configuration?: Co
  * EnduringConsentsApi - functional programming interface
  * @export
  */
-export const EnduringConsentsApiFp = function (configuration?: Configuration) {
+export const EnduringConsentsApiFp = function (axios: AxiosInstance, configuration?: Configuration) {
     return {
         /**
          * Create an enduring consent request with the bank that will go to the customer for approval.  A successful response does not indicate a completed consent. The status of the consent can be subsequently checked with the consent ID.
@@ -240,8 +240,8 @@ export const EnduringConsentsApiFp = function (configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          */
         async createEnduringConsent(body?: EnduringConsentRequest, requestId?: string, xCorrelationId?: string, xCustomerIp?: string, idempotencyKey?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<CreateConsentResponse>>> {
-            const localVarAxiosArgs = await EnduringConsentsApiAxiosParamCreator(configuration).createEnduringConsent(body, requestId, xCorrelationId, xCustomerIp, idempotencyKey, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = configuration.basePath) => {
+            const localVarAxiosArgs = await EnduringConsentsApiAxiosParamCreator(axios, configuration).createEnduringConsent(body, requestId, xCorrelationId, xCustomerIp, idempotencyKey, options);
+            return (axios: AxiosInstance, basePath: string = configuration.basePath) => {
                 const axiosRequestArgs: AxiosRequestConfig = {
                     ...localVarAxiosArgs.options,
                     url: basePath + localVarAxiosArgs.url
@@ -261,8 +261,8 @@ export const EnduringConsentsApiFp = function (configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          */
         async getEnduringConsent(consentId: string, requestId?: string, xCorrelationId?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Consent>>> {
-            const localVarAxiosArgs = await EnduringConsentsApiAxiosParamCreator(configuration).getEnduringConsent(consentId, requestId, xCorrelationId, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = configuration.basePath) => {
+            const localVarAxiosArgs = await EnduringConsentsApiAxiosParamCreator(axios, configuration).getEnduringConsent(consentId, requestId, xCorrelationId, options);
+            return (axios: AxiosInstance, basePath: string = configuration.basePath) => {
                 const axiosRequestArgs: AxiosRequestConfig = {
                     ...localVarAxiosArgs.options,
                     url: basePath + localVarAxiosArgs.url
@@ -282,8 +282,8 @@ export const EnduringConsentsApiFp = function (configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          */
         async revokeEnduringConsent(consentId: string, requestId?: string, xCorrelationId?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>> {
-            const localVarAxiosArgs = await EnduringConsentsApiAxiosParamCreator(configuration).revokeEnduringConsent(consentId, requestId, xCorrelationId, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = configuration.basePath) => {
+            const localVarAxiosArgs = await EnduringConsentsApiAxiosParamCreator(axios, configuration).revokeEnduringConsent(consentId, requestId, xCorrelationId, options);
+            return (axios: AxiosInstance, basePath: string = configuration.basePath) => {
                 const axiosRequestArgs: AxiosRequestConfig = {
                     ...localVarAxiosArgs.options,
                     url: basePath + localVarAxiosArgs.url
@@ -314,7 +314,7 @@ export const EnduringConsentsApiFactory = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          */
         async createEnduringConsent(body?: EnduringConsentRequest, requestId?: string, xCorrelationId?: string, xCustomerIp?: string, idempotencyKey?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<CreateConsentResponse>> {
-            return EnduringConsentsApiFp(configuration).createEnduringConsent(body, requestId, xCorrelationId, xCustomerIp, idempotencyKey, options).then((request) => request(axios, basePath));
+            return EnduringConsentsApiFp(axios, configuration).createEnduringConsent(body, requestId, xCorrelationId, xCustomerIp, idempotencyKey, options).then((request) => request(axios, basePath));
         },
         /**
          * Get an existing consent by ID.
@@ -325,7 +325,7 @@ export const EnduringConsentsApiFactory = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          */
         async getEnduringConsent(consentId: string, requestId?: string, xCorrelationId?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Consent>> {
-            return EnduringConsentsApiFp(configuration).getEnduringConsent(consentId, requestId, xCorrelationId, options).then((request) => request(axios, basePath));
+            return EnduringConsentsApiFp(axios, configuration).getEnduringConsent(consentId, requestId, xCorrelationId, options).then((request) => request(axios, basePath));
         },
         /**
          * Revoke an existing consent by ID.
@@ -336,7 +336,7 @@ export const EnduringConsentsApiFactory = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          */
         async revokeEnduringConsent(consentId: string, requestId?: string, xCorrelationId?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>> {
-            return EnduringConsentsApiFp(configuration).revokeEnduringConsent(consentId, requestId, xCorrelationId, options).then((request) => request(axios, basePath));
+            return EnduringConsentsApiFp(axios, configuration).revokeEnduringConsent(consentId, requestId, xCorrelationId, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -360,7 +360,7 @@ export class EnduringConsentsApi extends BaseAPI {
      * @memberof EnduringConsentsApi
      */
     public async createEnduringConsent(body?: EnduringConsentRequest, requestId?: string, xCorrelationId?: string, xCustomerIp?: string, idempotencyKey?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<CreateConsentResponse>> {
-        return EnduringConsentsApiFp(this.configuration).createEnduringConsent(body, requestId, xCorrelationId, xCustomerIp, idempotencyKey, options).then((request) => request(this.axios, this.basePath));
+        return EnduringConsentsApiFp(this.axios, this.configuration).createEnduringConsent(body, requestId, xCorrelationId, xCustomerIp, idempotencyKey, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -373,7 +373,7 @@ export class EnduringConsentsApi extends BaseAPI {
      * @memberof EnduringConsentsApi
      */
     public async getEnduringConsent(consentId: string, requestId?: string, xCorrelationId?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Consent>> {
-        return EnduringConsentsApiFp(this.configuration).getEnduringConsent(consentId, requestId, xCorrelationId, options).then((request) => request(this.axios, this.basePath));
+        return EnduringConsentsApiFp(this.axios, this.configuration).getEnduringConsent(consentId, requestId, xCorrelationId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -386,6 +386,6 @@ export class EnduringConsentsApi extends BaseAPI {
      * @memberof EnduringConsentsApi
      */
     public async revokeEnduringConsent(consentId: string, requestId?: string, xCorrelationId?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>> {
-        return EnduringConsentsApiFp(this.configuration).revokeEnduringConsent(consentId, requestId, xCorrelationId, options).then((request) => request(this.axios, this.basePath));
+        return EnduringConsentsApiFp(this.axios, this.configuration).revokeEnduringConsent(consentId, requestId, xCorrelationId, options).then((request) => request(this.axios, this.basePath));
     }
 }

@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import globalAxios, {AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios';
+import {AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios';
 import {Configuration} from '../../../configuration';
 import {BaseAPI, RequestArgs} from '../../../base';
 import {Refund, RefundDetail, RefundResponse} from '../../dto';
@@ -32,7 +32,7 @@ import {BlinkInvalidValueException} from '../../exceptions';
  *
  * @export
  */
-export const RefundsApiAxiosParamCreator = function (configuration?: Configuration) {
+export const RefundsApiAxiosParamCreator = function (axios: AxiosInstance, configuration?: Configuration) {
     return {
         /**
          * Create a request for refund.  Multiple money-transfer refunds can be processed aganist one payment, but for no greater than the total value of the payment.  **For money transfer refunds, a 201 response does not indicate that the refund has been processed successfully. The status needs to be subsequently checked using the GET endpoint**
@@ -60,7 +60,7 @@ export const RefundsApiAxiosParamCreator = function (configuration?: Configurati
 
             // authentication Bearer required
             // oauth required
-            await configuration.getAccessToken();
+            await configuration.getAccessToken(axios);
             if (configuration && configuration.accessToken) {
                 const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
                     ? await configuration.accessToken("Bearer", ["create:single_consent", "view:single_consent", "revoke:single_consent", "create:enduring_consent", "view:enduring_consent", "revoke:enduring_consent", "create:payment", "view:payment", "view:metadata", "view:transaction", "create:quick_payment", "view:quick_payment", "create:refund", "view:refund"])
@@ -123,7 +123,7 @@ export const RefundsApiAxiosParamCreator = function (configuration?: Configurati
 
             // authentication Bearer required
             // oauth required
-            await configuration.getAccessToken();
+            await configuration.getAccessToken(axios);
             if (configuration && configuration.accessToken) {
                 const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
                     ? await configuration.accessToken("Bearer", ["create:single_consent", "view:single_consent", "revoke:single_consent", "create:enduring_consent", "view:enduring_consent", "revoke:enduring_consent", "create:payment", "view:payment", "view:metadata", "view:transaction", "create:quick_payment", "view:quick_payment", "create:refund", "view:refund"])
@@ -162,7 +162,7 @@ export const RefundsApiAxiosParamCreator = function (configuration?: Configurati
  * RefundsApi - functional programming interface
  * @export
  */
-export const RefundsApiFp = function (configuration?: Configuration) {
+export const RefundsApiFp = function (axios: AxiosInstance, configuration?: Configuration) {
     return {
         /**
          * Create a request for refund.  Multiple money-transfer refunds can be processed aganist one payment, but for no greater than the total value of the payment.  **For money transfer refunds, a 201 response does not indicate that the refund has been processed successfully. The status needs to be subsequently checked using the GET endpoint**
@@ -177,8 +177,8 @@ export const RefundsApiFp = function (configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          */
         async createRefund(body?: RefundDetail, requestId?: string, xCorrelationId?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<RefundResponse>>> {
-            const localVarAxiosArgs = await RefundsApiAxiosParamCreator(configuration).createRefund(body, requestId, xCorrelationId, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = configuration.basePath) => {
+            const localVarAxiosArgs = await RefundsApiAxiosParamCreator(axios, configuration).createRefund(body, requestId, xCorrelationId, options);
+            return (axios: AxiosInstance, basePath: string = configuration.basePath) => {
                 const axiosRequestArgs: AxiosRequestConfig = {
                     ...localVarAxiosArgs.options,
                     url: basePath + localVarAxiosArgs.url
@@ -198,8 +198,8 @@ export const RefundsApiFp = function (configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          */
         async getRefund(refundId: string, requestId?: string, xCorrelationId?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Refund>>> {
-            const localVarAxiosArgs = await RefundsApiAxiosParamCreator(configuration).getRefund(refundId, requestId, xCorrelationId, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = configuration.basePath) => {
+            const localVarAxiosArgs = await RefundsApiAxiosParamCreator(axios, configuration).getRefund(refundId, requestId, xCorrelationId, options);
+            return (axios: AxiosInstance, basePath: string = configuration.basePath) => {
                 const axiosRequestArgs: AxiosRequestConfig = {
                     ...localVarAxiosArgs.options,
                     url: basePath + localVarAxiosArgs.url
@@ -232,7 +232,7 @@ export const RefundsApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          */
         async createRefund(body?: RefundDetail, requestId?: string, xCorrelationId?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<RefundResponse>> {
-            return RefundsApiFp(configuration).createRefund(body, requestId, xCorrelationId, options).then((request) => request(axios, basePath));
+            return RefundsApiFp(axios, configuration).createRefund(body, requestId, xCorrelationId, options).then((request) => request(axios, basePath));
         },
         /**
          * Get refund by ID.
@@ -243,7 +243,7 @@ export const RefundsApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          */
         async getRefund(refundId: string, requestId?: string, xCorrelationId?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Refund>> {
-            return RefundsApiFp(configuration).getRefund(refundId, requestId, xCorrelationId, options).then((request) => request(axios, basePath));
+            return RefundsApiFp(axios, configuration).getRefund(refundId, requestId, xCorrelationId, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -269,7 +269,7 @@ export class RefundsApi extends BaseAPI {
      * @memberof RefundsApi
      */
     public async createRefund(body?: RefundDetail, requestId?: string, xCorrelationId?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<RefundResponse>> {
-        return RefundsApiFp(this.configuration).createRefund(body, requestId, xCorrelationId, options).then((request) => request(this.axios, this.basePath));
+        return RefundsApiFp(this.axios, this.configuration).createRefund(body, requestId, xCorrelationId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -282,6 +282,6 @@ export class RefundsApi extends BaseAPI {
      * @memberof RefundsApi
      */
     public async getRefund(refundId: string, requestId?: string, xCorrelationId?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Refund>> {
-        return RefundsApiFp(this.configuration).getRefund(refundId, requestId, xCorrelationId, options).then((request) => request(this.axios, this.basePath));
+        return RefundsApiFp(this.axios, this.configuration).getRefund(refundId, requestId, xCorrelationId, options).then((request) => request(this.axios, this.basePath));
     }
 }

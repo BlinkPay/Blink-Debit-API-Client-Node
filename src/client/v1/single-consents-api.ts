@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import globalAxios, {AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios';
+import {AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios';
 import {Configuration} from '../../../configuration';
 import {BaseAPI, RequestArgs} from '../../../base';
 import {Consent, CreateConsentResponse, SingleConsentRequest} from '../../dto';
@@ -32,7 +32,7 @@ import {BlinkInvalidValueException} from '../../exceptions';
  *
  * @export
  */
-export const SingleConsentsApiAxiosParamCreator = function (configuration?: Configuration) {
+export const SingleConsentsApiAxiosParamCreator = function (axios: AxiosInstance, configuration?: Configuration) {
     return {
         /**
          * Create a single payment consent request with the bank that will go to the customer for approval.  A successful response does not indicate a completed consent. The status of the consent can be subsequently checked with the consent ID.
@@ -58,7 +58,7 @@ export const SingleConsentsApiAxiosParamCreator = function (configuration?: Conf
 
             // authentication Bearer required
             // oauth required
-            await configuration.getAccessToken();
+            await configuration.getAccessToken(axios);
             if (configuration) {
                 const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
                     ? await configuration.accessToken("Bearer", ["create:single_consent", "view:single_consent", "revoke:single_consent", "create:enduring_consent", "view:enduring_consent", "revoke:enduring_consent", "create:payment", "view:payment", "view:metadata", "view:transaction", "create:quick_payment", "view:quick_payment", "create:refund", "view:refund"])
@@ -129,7 +129,7 @@ export const SingleConsentsApiAxiosParamCreator = function (configuration?: Conf
 
             // authentication Bearer required
             // oauth required
-            await configuration.getAccessToken();
+            await configuration.getAccessToken(axios);
             if (configuration && configuration.accessToken) {
                 const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
                     ? await configuration.accessToken("Bearer", ["create:single_consent", "view:single_consent", "revoke:single_consent", "create:enduring_consent", "view:enduring_consent", "revoke:enduring_consent", "create:payment", "view:payment", "view:metadata", "view:transaction", "create:quick_payment", "view:quick_payment", "create:refund", "view:refund"])
@@ -188,7 +188,7 @@ export const SingleConsentsApiAxiosParamCreator = function (configuration?: Conf
 
             // authentication Bearer required
             // oauth required
-            await configuration.getAccessToken();
+            await configuration.getAccessToken(axios);
             if (configuration && configuration.accessToken) {
                 const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
                     ? await configuration.accessToken("Bearer", ["create:single_consent", "view:single_consent", "revoke:single_consent", "create:enduring_consent", "view:enduring_consent", "revoke:enduring_consent", "create:payment", "view:payment", "view:metadata", "view:transaction", "create:quick_payment", "view:quick_payment", "create:refund", "view:refund"])
@@ -227,7 +227,7 @@ export const SingleConsentsApiAxiosParamCreator = function (configuration?: Conf
  * SingleConsentsApi - functional programming interface
  * @export
  */
-export const SingleConsentsApiFp = function (configuration?: Configuration) {
+export const SingleConsentsApiFp = function (axios: AxiosInstance, configuration?: Configuration) {
     return {
         /**
          * Create a single payment consent request with the bank that will go to the customer for approval.  A successful response does not indicate a completed consent. The status of the consent can be subsequently checked with the consent ID.
@@ -240,8 +240,8 @@ export const SingleConsentsApiFp = function (configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          */
         async createSingleConsent(body?: SingleConsentRequest, requestId?: string, xCorrelationId?: string, xCustomerIp?: string, idempotencyKey?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<CreateConsentResponse>>> {
-            const localVarAxiosArgs = await SingleConsentsApiAxiosParamCreator(configuration).createSingleConsent(body, requestId, xCorrelationId, xCustomerIp, idempotencyKey, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = configuration.basePath) => {
+            const localVarAxiosArgs = await SingleConsentsApiAxiosParamCreator(axios, configuration).createSingleConsent(body, requestId, xCorrelationId, xCustomerIp, idempotencyKey, options);
+            return (axios: AxiosInstance, basePath: string = configuration.basePath) => {
                 const axiosRequestArgs: AxiosRequestConfig = {
                     ...localVarAxiosArgs.options,
                     url: basePath + localVarAxiosArgs.url
@@ -261,8 +261,8 @@ export const SingleConsentsApiFp = function (configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          */
         async getSingleConsent(consentId: string, requestId?: string, xCorrelationId?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Consent>>> {
-            const localVarAxiosArgs = await SingleConsentsApiAxiosParamCreator(configuration).getSingleConsent(consentId, requestId, xCorrelationId, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = configuration.basePath) => {
+            const localVarAxiosArgs = await SingleConsentsApiAxiosParamCreator(axios, configuration).getSingleConsent(consentId, requestId, xCorrelationId, options);
+            return (axios: AxiosInstance, basePath: string = configuration.basePath) => {
                 const axiosRequestArgs: AxiosRequestConfig = {
                     ...localVarAxiosArgs.options,
                     url: basePath + localVarAxiosArgs.url
@@ -282,8 +282,8 @@ export const SingleConsentsApiFp = function (configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          */
         async revokeSingleConsent(consentId: string, requestId?: string, xCorrelationId?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>> {
-            const localVarAxiosArgs = await SingleConsentsApiAxiosParamCreator(configuration).revokeSingleConsent(consentId, requestId, xCorrelationId, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = configuration.basePath) => {
+            const localVarAxiosArgs = await SingleConsentsApiAxiosParamCreator(axios, configuration).revokeSingleConsent(consentId, requestId, xCorrelationId, options);
+            return (axios: AxiosInstance, basePath: string = configuration.basePath) => {
                 const axiosRequestArgs: AxiosRequestConfig = {
                     ...localVarAxiosArgs.options,
                     url: basePath + localVarAxiosArgs.url
@@ -314,7 +314,7 @@ export const SingleConsentsApiFactory = function (configuration?: Configuration,
          * @param {*} [options] Override http request option.
          */
         async createSingleConsent(body?: SingleConsentRequest, requestId?: string, xCorrelationId?: string, xCustomerIp?: string, idempotencyKey?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<CreateConsentResponse>> {
-            return SingleConsentsApiFp(configuration).createSingleConsent(body, requestId, xCorrelationId, xCustomerIp, idempotencyKey, options).then((request) => request(axios, basePath));
+            return SingleConsentsApiFp(axios, configuration).createSingleConsent(body, requestId, xCorrelationId, xCustomerIp, idempotencyKey, options).then((request) => request(axios, basePath));
         },
         /**
          * Get an existing consent by ID.
@@ -325,7 +325,7 @@ export const SingleConsentsApiFactory = function (configuration?: Configuration,
          * @param {*} [options] Override http request option.
          */
         async getSingleConsent(consentId: string, requestId?: string, xCorrelationId?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Consent>> {
-            return SingleConsentsApiFp(configuration).getSingleConsent(consentId, requestId, xCorrelationId, options).then((request) => request(axios, basePath));
+            return SingleConsentsApiFp(axios, configuration).getSingleConsent(consentId, requestId, xCorrelationId, options).then((request) => request(axios, basePath));
         },
         /**
          * Revoke an existing consent by ID.
@@ -336,7 +336,7 @@ export const SingleConsentsApiFactory = function (configuration?: Configuration,
          * @param {*} [options] Override http request option.
          */
         async revokeSingleConsent(consentId: string, requestId?: string, xCorrelationId?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>> {
-            return SingleConsentsApiFp(configuration).revokeSingleConsent(consentId, requestId, xCorrelationId, options).then((request) => request(axios, basePath));
+            return SingleConsentsApiFp(axios, configuration).revokeSingleConsent(consentId, requestId, xCorrelationId, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -360,7 +360,7 @@ export class SingleConsentsApi extends BaseAPI {
      * @memberof SingleConsentsApi
      */
     public async createSingleConsent(body?: SingleConsentRequest, requestId?: string, xCorrelationId?: string, xCustomerIp?: string, idempotencyKey?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<CreateConsentResponse>> {
-        return SingleConsentsApiFp(this.configuration).createSingleConsent(body, requestId, xCorrelationId, xCustomerIp, idempotencyKey, options).then((request) => request(this.axios, this.basePath));
+        return SingleConsentsApiFp(this.axios, this.configuration).createSingleConsent(body, requestId, xCorrelationId, xCustomerIp, idempotencyKey, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -373,7 +373,7 @@ export class SingleConsentsApi extends BaseAPI {
      * @memberof SingleConsentsApi
      */
     public async getSingleConsent(consentId: string, requestId?: string, xCorrelationId?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Consent>> {
-        return SingleConsentsApiFp(this.configuration).getSingleConsent(consentId, requestId, xCorrelationId, options).then((request) => request(this.axios, this.basePath));
+        return SingleConsentsApiFp(this.axios, this.configuration).getSingleConsent(consentId, requestId, xCorrelationId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -386,6 +386,6 @@ export class SingleConsentsApi extends BaseAPI {
      * @memberof SingleConsentsApi
      */
     public async revokeSingleConsent(consentId: string, requestId?: string, xCorrelationId?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>> {
-        return SingleConsentsApiFp(this.configuration).revokeSingleConsent(consentId, requestId, xCorrelationId, options).then((request) => request(this.axios, this.basePath));
+        return SingleConsentsApiFp(this.axios, this.configuration).revokeSingleConsent(consentId, requestId, xCorrelationId, options).then((request) => request(this.axios, this.basePath));
     }
 }

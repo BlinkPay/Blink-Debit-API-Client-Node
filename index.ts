@@ -13,3 +13,4 @@
  */
 export * from './src';
 export * from './configuration';
+export * from './blinkpay-config';

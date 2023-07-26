@@ -60,7 +60,7 @@ describe('RefundsApi Integration Test', () => {
     let apiInstance: ReturnType<typeof RefundsApiFactory>;
 
     beforeAll(async () => {
-        const configuration = Configuration.getInstance();
+        const configuration = Configuration.getInstance(globalAxios);
 
         singleConsentsApiInstance = SingleConsentsApiFactory(configuration, undefined, globalAxios);
         enduringConsentsApiInstance = EnduringConsentsApiFactory(configuration, undefined, globalAxios);

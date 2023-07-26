@@ -52,7 +52,7 @@ describe('QuickPaymentsApi Integration Test', () => {
     let apiInstance: ReturnType<typeof QuickPaymentsApiFactory>;
 
     beforeAll(async () => {
-        const configuration = Configuration.getInstance();
+        const configuration = Configuration.getInstance(globalAxios);
 
         apiInstance = QuickPaymentsApiFactory(configuration, undefined, globalAxios);
     });

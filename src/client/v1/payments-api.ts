@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import globalAxios, {AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios';
+import {AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios';
 import {Configuration} from '../../../configuration';
 import {BaseAPI, RequestArgs} from '../../../base';
 import {Payment, PaymentRequest, PaymentResponse} from '../../dto';
@@ -32,7 +32,7 @@ import {BlinkInvalidValueException} from '../../exceptions';
  *
  * @export
  */
-export const PaymentsApiAxiosParamCreator = function (configuration?: Configuration) {
+export const PaymentsApiAxiosParamCreator = function (axios: AxiosInstance, configuration?: Configuration) {
     return {
         /**
          * Create a payment request with a given customer consent. This creates a single, direct credit payment.  A 200 response does **not** indicate a successful debit. The payment status can be checked by subsequent calls to the returned payment object.
@@ -59,7 +59,7 @@ export const PaymentsApiAxiosParamCreator = function (configuration?: Configurat
 
             // authentication Bearer required
             // oauth required
-            await configuration.getAccessToken();
+            await configuration.getAccessToken(axios);
             if (configuration && configuration.accessToken) {
                 const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
                     ? await configuration.accessToken("Bearer", ["create:single_consent", "view:single_consent", "revoke:single_consent", "create:enduring_consent", "view:enduring_consent", "revoke:enduring_consent", "create:payment", "view:payment", "view:metadata", "view:transaction", "create:quick_payment", "view:quick_payment", "create:refund", "view:refund"])
@@ -126,7 +126,7 @@ export const PaymentsApiAxiosParamCreator = function (configuration?: Configurat
 
             // authentication Bearer required
             // oauth required
-            await configuration.getAccessToken();
+            await configuration.getAccessToken(axios);
             if (configuration && configuration.accessToken) {
                 const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
                     ? await configuration.accessToken("Bearer", ["create:single_consent", "view:single_consent", "revoke:single_consent", "create:enduring_consent", "view:enduring_consent", "revoke:enduring_consent", "create:payment", "view:payment", "view:metadata", "view:transaction", "create:quick_payment", "view:quick_payment", "create:refund", "view:refund"])
@@ -165,7 +165,7 @@ export const PaymentsApiAxiosParamCreator = function (configuration?: Configurat
  * PaymentsApi - functional programming interface
  * @export
  */
-export const PaymentsApiFp = function (configuration?: Configuration) {
+export const PaymentsApiFp = function (axios: AxiosInstance, configuration?: Configuration) {
     return {
         /**
          * Create a payment request with a given customer consent. This creates a single, direct credit payment.  A 200 response does **not** indicate a successful debit. The payment status can be checked by subsequent calls to the returned payment object.
@@ -179,8 +179,8 @@ export const PaymentsApiFp = function (configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          */
         async createPayment(body?: PaymentRequest, requestId?: string, xCorrelationId?: string, idempotencyKey?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<PaymentResponse>>> {
-            const localVarAxiosArgs = await PaymentsApiAxiosParamCreator(configuration).createPayment(body, requestId, xCorrelationId, idempotencyKey, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = configuration.basePath) => {
+            const localVarAxiosArgs = await PaymentsApiAxiosParamCreator(axios, configuration).createPayment(body, requestId, xCorrelationId, idempotencyKey, options);
+            return (axios: AxiosInstance, basePath: string = configuration.basePath) => {
                 const axiosRequestArgs: AxiosRequestConfig = {
                     ...localVarAxiosArgs.options,
                     url: basePath + localVarAxiosArgs.url
@@ -200,8 +200,8 @@ export const PaymentsApiFp = function (configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          */
         async getPayment(paymentId: string, requestId?: string, xCorrelationId?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Payment>>> {
-            const localVarAxiosArgs = await PaymentsApiAxiosParamCreator(configuration).getPayment(paymentId, requestId, xCorrelationId, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = configuration.basePath) => {
+            const localVarAxiosArgs = await PaymentsApiAxiosParamCreator(axios, configuration).getPayment(paymentId, requestId, xCorrelationId, options);
+            return (axios: AxiosInstance, basePath: string = configuration.basePath) => {
                 const axiosRequestArgs: AxiosRequestConfig = {
                     ...localVarAxiosArgs.options,
                     url: basePath + localVarAxiosArgs.url
@@ -233,7 +233,7 @@ export const PaymentsApiFactory = function (configuration?: Configuration, baseP
          * @param {*} [options] Override http request option.
          */
         async createPayment(body?: PaymentRequest, requestId?: string, xCorrelationId?: string, idempotencyKey?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<PaymentResponse>> {
-            return PaymentsApiFp(configuration).createPayment(body, requestId, xCorrelationId, idempotencyKey, options).then((request) => request(axios, basePath));
+            return PaymentsApiFp(axios, configuration).createPayment(body, requestId, xCorrelationId, idempotencyKey, options).then((request) => request(axios, basePath));
         },
         /**
          * Get a payment and its status by ID.
@@ -244,7 +244,7 @@ export const PaymentsApiFactory = function (configuration?: Configuration, baseP
          * @param {*} [options] Override http request option.
          */
         async getPayment(paymentId: string, requestId?: string, xCorrelationId?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Payment>> {
-            return PaymentsApiFp(configuration).getPayment(paymentId, requestId, xCorrelationId, options).then((request) => request(axios, basePath));
+            return PaymentsApiFp(axios, configuration).getPayment(paymentId, requestId, xCorrelationId, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -269,7 +269,7 @@ export class PaymentsApi extends BaseAPI {
      * @memberof PaymentsApi
      */
     public async createPayment(body?: PaymentRequest, requestId?: string, xCorrelationId?: string, idempotencyKey?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<PaymentResponse>> {
-        return PaymentsApiFp(this.configuration).createPayment(body, requestId, xCorrelationId, idempotencyKey, options).then((request) => request(this.axios, this.basePath));
+        return PaymentsApiFp(this.axios, this.configuration).createPayment(body, requestId, xCorrelationId, idempotencyKey, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -282,6 +282,6 @@ export class PaymentsApi extends BaseAPI {
      * @memberof PaymentsApi
      */
     public async getPayment(paymentId: string, requestId?: string, xCorrelationId?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Payment>> {
-        return PaymentsApiFp(this.configuration).getPayment(paymentId, requestId, xCorrelationId, options).then((request) => request(this.axios, this.basePath));
+        return PaymentsApiFp(this.axios, this.configuration).getPayment(paymentId, requestId, xCorrelationId, options).then((request) => request(this.axios, this.basePath));
     }
 }
