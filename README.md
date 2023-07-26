@@ -39,6 +39,7 @@ npm install blink-debit-api-client-typescript --save
 ```
 
 ## Quick Start
+### Option 1: Node.js environment
 Append the BlinkPay environment variables to your `.env` file.
 ```dotenv
 BLINKPAY_DEBIT_URL=https://sandbox.debit.blinkpay.co.nz
@@ -49,7 +50,11 @@ BLINKPAY_TIMEOUT=10000
 ```
 
 ```typescript
-const client = new BlinkDebitClient();
+import axios from 'axios';
+import log from 'loglevel';
+import { BlinkDebitClient, QuickPaymentRequest, ConsentDetailTypeEnum, AuthFlowDetailTypeEnum, GatewayFlow, AuthFlow, AmountCurrencyEnum, Amount, Pcr } from 'blink-debit-api-client-typescript';
+
+const client = new BlinkDebitClient(axios);
 
 const request: QuickPaymentRequest = {
     type: ConsentDetailTypeEnum.Single,
@@ -70,10 +75,107 @@ const request: QuickPaymentRequest = {
     } as Pcr
 };
 
-const qpCreateResponse = client.createQuickPayment(request);
-_logger.LogInformation("Redirect URL: {}", qpCreateResponse.redirectUri); // Redirect the consumer to this URL
-const qpId = qpCreateResponse.quickPaymentId;
-const qpResponse = client.awaitSuccessfulQuickPaymentOrThrowException(qpId, 300); // Will throw an exception if the payment was not successful after 5min
+async function createQuickPayment() {
+    const qpCreateResponse = await client.createQuickPayment(request);
+    log.info("Redirect URL: {}", qpCreateResponse.redirectUri); // Redirect the consumer to this URL
+    const qpId = qpCreateResponse.quickPaymentId;
+    const qpResponse = client.awaitSuccessfulQuickPaymentOrThrowException(qpId, 300); // Will throw an exception if the payment was not successful after 5min
+}
+
+createQuickPayment();
+```
+### Option 2: Browser environment e.g. React
+Append the BlinkPay environment variables to your `.env` file. Notice the `REACT_APP_` prefix.
+```dotenv
+REACT_APP_BLINKPAY_DEBIT_URL=https://sandbox.debit.blinkpay.co.nz
+REACT_APP_BLINKPAY_CLIENT_ID=...
+REACT_APP_BLINKPAY_CLIENT_SECRET=...
+REACT_APP_BLINKPAY_RETRY_ENABLED=true
+REACT_APP_BLINKPAY_TIMEOUT=10000
+```
+You may need to install `react-app-rewired` and other dependencies to override the default webpack configuration and to disable path and fs which only work for Node.js environment. Create a `config-overrides.js` file:
+```javascript
+module.exports = function override(config, env) {
+    config.resolve.fallback = {
+        ...config.resolve.fallback,
+        "path": false,
+        "fs": false,
+        "os": require.resolve("os-browserify/browser"),
+        "crypto": require.resolve("crypto-browserify"),
+        "stream": require.resolve("stream-browserify"),
+        "buffer": require.resolve("buffer/")
+    };
+
+    return config;
+};
+```
+Create an Axios instance e.g. `axiosInstance.ts`:
+```javascript
+import axios from 'axios';
+
+const globalAxios = axios.create({
+    headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    }
+});
+
+export default globalAxios;
+```
+Create the BlinkDebitClient e.g. `blinkDebitClientInstance.ts`:
+```javascript
+import {BlinkPayConfig, BlinkDebitClient} from 'blink-debit-api-client-typescript';
+import config from './config.json';
+import globalAxios from './axiosInstance';
+
+const blinkPayConfig: BlinkPayConfig = {
+    blinkpay: {
+        debitUrl: process.env.REACT_APP_BLINKPAY_DEBIT_URL || config.blinkpay.debitUrl,
+        clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID || config.blinkpay.clientId,
+        clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET || config.blinkpay.clientSecret,
+        timeout: config.blinkpay.timeout,
+        retryEnabled: config.blinkpay.retryEnabled
+    }
+};
+
+export const client = new BlinkDebitClient(globalAxios, blinkPayConfig);
+```
+In your component, create a function for submitting a form:
+```javascript
+async submitForm(e: React.FormEvent) {
+    e.preventDefault();
+
+    this.setState({
+        errorResponse: {},
+        disabled: true
+    });
+
+    const request = {
+        type: ConsentDetailTypeEnum.Single,
+        flow: {
+            detail: {
+                type: AuthFlowDetailTypeEnum.Gateway,
+                redirectUri: window.location.origin + "/redirect"
+            }
+        },
+        amount: {
+            currency: AmountCurrencyEnum.NZD,
+            total: "0.01"
+        },
+        pcr: {
+            particulars: "particulars",
+            code: "code",
+            reference: "reference"
+        }
+    };
+
+    const qpCreateResponse = await client.createQuickPayment(request);
+    // redirect to gateway
+    const redirectUri = qpCreateResponse.redirectUri;
+    if (redirectUri !== undefined) {
+        window.location.assign(redirectUri);
+    }
+}
 ```
 
 ## Configuration
@@ -90,7 +192,7 @@ Configuration will be detected and loaded according to the hierarchy -
 
 ### Configuration examples
 
-#### .env file
+#### .env file for Node.js environment
 This file is NOT pushed to the repository.
 ```dotenv
 BLINKPAY_DEBIT_URL=<BLINKPAY_DEBIT_URL>
@@ -100,12 +202,14 @@ BLINKPAY_TIMEOUT=10000
 BLINKPAY_RETRY_ENABLED=true
 ```
 
-### config.json file
-Substitute the correct values in your `config.json` file. Since this file can be pushed to your repository, make sure that the client secret is not included.
+### config.json file for both Node.js and browser environments
+Substitute the correct values in your `config.json` file. Since this file can be pushed to your repository, make sure that the client secret is not included. Placeholders can be replaced with actual values from CI/CID tool.
 ```json
 {
   "blinkpay": {
-    "debitUrl": "https://sandbox.debit.blinkpay.co.nz",
+    "debitUrl": "BLINKPAY_DEBIT_URL",
+    "clientId": "BLINKPAY_CLIENT_ID",
+    "clientSecret": "BLINKPAY_CLIENT_SECRET",
     "timeout": 10000,
     "retryEnabled": true
   }
@@ -115,14 +219,28 @@ Substitute the correct values in your `config.json` file. Since this file can be
 ## Client creation
 If you've configured the `.env` file locally or via CI/CD, you can just create the client with:
 ```typescript
-const client = new BlinkDebitClient();
+const client = new BlinkDebitClient(axios);
 ```
 
 Another way is to pass the path to a JSON configuration file:
 ```typescript
 const directory = '/path/to/config/directory';
 const fileName = 'my-config.json'
-const client = new BlinkDebitClient(directory, fileName);
+const client = new BlinkDebitClient(axios, directory, fileName);
+```
+
+A third way is to pass the BlinkPayConfig:
+```typescript
+const blinkPayConfig: BlinkPayConfig = {
+    blinkpay: {
+        debitUrl: process.env.REACT_APP_BLINKPAY_DEBIT_URL || config.blinkpay.debitUrl,
+        clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID || config.blinkpay.clientId,
+        clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET || config.blinkpay.clientSecret,
+        timeout: config.blinkpay.timeout,
+        retryEnabled: config.blinkpay.retryEnabled
+    }
+};
+const client = new BlinkDebitClient(axios, blinkPayConfig);
 ```
 
 ## Request ID, Correlation ID and Idempotency Key
@@ -710,4 +828,4 @@ const refundResponse = client.createRefund(request);
 #### Retrieval
 ```typescript
 const refund = client.getRefund(refundId);
-```
+``` erb

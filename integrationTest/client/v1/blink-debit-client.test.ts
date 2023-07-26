@@ -51,7 +51,7 @@ import {
 } from '../../../src';
 import {v4 as uuidv4} from 'uuid';
 import {DateTime} from 'luxon';
-import globalAxios from "axios";
+import globalAxios from 'axios';
 
 require('dotenv').config();
 jest.setTimeout(180000);

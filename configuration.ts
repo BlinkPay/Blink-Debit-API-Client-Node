@@ -238,6 +238,9 @@ export class Configuration {
 
             return response;
         }, error => {
+            if (error.response === undefined) {
+                return Promise.reject(error);
+            }
             const status = error.response.status;
             const headers = error.response.headers;
             const body = error.response.data ? error.response.data : error.message;
