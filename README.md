@@ -125,16 +125,15 @@ export default globalAxios;
 Create the BlinkDebitClient e.g. `blinkDebitClientInstance.ts`:
 ```javascript
 import {BlinkPayConfig, BlinkDebitClient} from 'blink-debit-api-client-typescript';
-import config from './config.json';
 import globalAxios from './axiosInstance';
 
 const blinkPayConfig: BlinkPayConfig = {
     blinkpay: {
-        debitUrl: process.env.REACT_APP_BLINKPAY_DEBIT_URL || config.blinkpay.debitUrl,
-        clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID || config.blinkpay.clientId,
-        clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET || config.blinkpay.clientSecret,
-        timeout: config.blinkpay.timeout,
-        retryEnabled: config.blinkpay.retryEnabled
+        debitUrl: process.env.REACT_APP_BLINKPAY_DEBIT_URL,
+        clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID,
+        clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET,
+        timeout: 10000,
+        retryEnabled: true
     }
 };
 
@@ -187,7 +186,7 @@ async submitForm(e: React.FormEvent) {
 ### Configuration precedence
 Configuration will be detected and loaded according to the hierarchy -
 1. `.env`
-2. `config.json`
+2. `config.json` (Node.js environment)
 3. Default values
 
 ### Configuration examples
@@ -202,14 +201,12 @@ BLINKPAY_TIMEOUT=10000
 BLINKPAY_RETRY_ENABLED=true
 ```
 
-### config.json file for both Node.js and browser environments
-Substitute the correct values in your `config.json` file. Since this file can be pushed to your repository, make sure that the client secret is not included. Placeholders can be replaced with actual values from CI/CID tool.
+### config.json file for Node.js environment
+Substitute the correct values in your `config.json` file. Since this file can be pushed to your repository, make sure that the client secret is not included.
 ```json
 {
   "blinkpay": {
-    "debitUrl": "BLINKPAY_DEBIT_URL",
-    "clientId": "BLINKPAY_CLIENT_ID",
-    "clientSecret": "BLINKPAY_CLIENT_SECRET",
+    "debitUrl": "${BLINKPAY_DEBIT_URL}",
     "timeout": 10000,
     "retryEnabled": true
   }
@@ -217,7 +214,7 @@ Substitute the correct values in your `config.json` file. Since this file can be
 ```
 
 ## Client creation
-If you've configured the `.env` file locally or via CI/CD, you can just create the client with:
+In a Node.js environment, if you've configured the `.env` file locally or via CI/CD, you can just create the client with:
 ```typescript
 const client = new BlinkDebitClient(axios);
 ```
@@ -229,15 +226,15 @@ const fileName = 'my-config.json'
 const client = new BlinkDebitClient(axios, directory, fileName);
 ```
 
-A third way is to pass the BlinkPayConfig:
+In a browser environment, the client can be created by passing the BlinkPayConfig:
 ```typescript
 const blinkPayConfig: BlinkPayConfig = {
     blinkpay: {
-        debitUrl: process.env.REACT_APP_BLINKPAY_DEBIT_URL || config.blinkpay.debitUrl,
-        clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID || config.blinkpay.clientId,
-        clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET || config.blinkpay.clientSecret,
-        timeout: config.blinkpay.timeout,
-        retryEnabled: config.blinkpay.retryEnabled
+        debitUrl: process.env.REACT_APP_BLINKPAY_DEBIT_URL,
+        clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID,
+        clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET,
+        timeout: 10000,
+        retryEnabled: true
     }
 };
 const client = new BlinkDebitClient(axios, blinkPayConfig);
@@ -828,4 +825,4 @@ const refundResponse = client.createRefund(request);
 #### Retrieval
 ```typescript
 const refund = client.getRefund(refundId);
-``` erb
+```
