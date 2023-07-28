@@ -129,9 +129,9 @@ import globalAxios from './axiosInstance';
 
 const blinkPayConfig: BlinkPayConfig = {
     blinkpay: {
-        debitUrl: process.env.REACT_APP_BLINKPAY_DEBIT_URL,
-        clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID,
-        clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET,
+        debitUrl: process.env.REACT_APP_BLINKPAY_DEBIT_URL || '',
+        clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID || '',
+        clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET || '',
         timeout: 10000,
         retryEnabled: true
     }
@@ -230,9 +230,9 @@ In a browser environment, the client can be created by passing the BlinkPayConfi
 ```typescript
 const blinkPayConfig: BlinkPayConfig = {
     blinkpay: {
-        debitUrl: process.env.REACT_APP_BLINKPAY_DEBIT_URL,
-        clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID,
-        clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET,
+        debitUrl: process.env.REACT_APP_BLINKPAY_DEBIT_URL || '',
+        clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID || '',
+        clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET || '',
         timeout: 10000,
         retryEnabled: true
     }
