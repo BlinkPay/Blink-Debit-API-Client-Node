@@ -51,6 +51,7 @@ jobs:
       - name: Test
         run: npm test
         env:
+          BLINKPAY_DEBIT_URL: ${{ vars.DEBIT_URL }}
           BLINKPAY_CLIENT_ID: ${{ vars.CLIENT_ID }}
           BLINKPAY_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
 
