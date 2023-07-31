@@ -109,7 +109,7 @@ module.exports = function override(config, env) {
     return config;
 };
 ```
-Create an Axios instance e.g. `axiosInstance.ts`:
+Create an Axios instance e.g. `axiosInstance.js`:
 ```javascript
 import axios from 'axios';
 
@@ -122,8 +122,40 @@ const globalAxios = axios.create({
 
 export default globalAxios;
 ```
-Create the BlinkDebitClient e.g. `blinkDebitClientInstance.ts`:
+or `axiosInstance.ts`:
+```typescript
+import axios, {AxiosInstance} from 'axios';
+
+const globalAxios: AxiosInstance = axios.create({
+    headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    }
+});
+
+export default globalAxios;
+```
+Create the BlinkDebitClient e.g. `blinkDebitClientInstance.js`:
 ```javascript
+import {BlinkDebitClient} from 'blink-debit-api-client-typescript';
+import globalAxios from './axiosInstance';
+
+const blinkPayConfig = {
+    blinkpay: {
+        debitUrl: process.env.REACT_APP_BLINKPAY_DEBIT_URL || '',
+        clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID || '',
+        clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET || '',
+        timeout: 10000,
+        retryEnabled: true
+    }
+};
+
+const client = new BlinkDebitClient(globalAxios, blinkPayConfig);
+
+export default client;
+```
+or `blinkDebitClientInstance.ts`:
+```typescript
 import {BlinkPayConfig, BlinkDebitClient} from 'blink-debit-api-client-typescript';
 import globalAxios from './axiosInstance';
 
@@ -139,42 +171,199 @@ const blinkPayConfig: BlinkPayConfig = {
 
 export const client = new BlinkDebitClient(globalAxios, blinkPayConfig);
 ```
-In your component, create a function for submitting a form:
+Create a function for submitting a form e.g. `cart.jsx`:
 ```javascript
-async submitForm(e: React.FormEvent) {
-    e.preventDefault();
+import React, {Component} from 'react';
+import lollipop from '../lollipop.jpg';
+import {
+    AmountCurrencyEnum,
+    AuthFlowDetailTypeEnum,
+    ConsentDetailTypeEnum
+} from 'blink-debit-api-client-typescript';
+import client from '../blinkDebitClientInstance';
 
-    this.setState({
-        errorResponse: {},
-        disabled: true
-    });
+class Cart extends Component {
 
-    const request = {
-        type: ConsentDetailTypeEnum.Single,
-        flow: {
-            detail: {
-                type: AuthFlowDetailTypeEnum.Gateway,
-                redirectUri: window.location.origin + "/redirect"
-            }
-        },
-        amount: {
-            currency: AmountCurrencyEnum.NZD,
-            total: "0.01"
-        },
-        pcr: {
-            particulars: "particulars",
-            code: "code",
-            reference: "reference"
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            errorResponse: {},
+            disabled: false
         }
-    };
 
-    const qpCreateResponse = await client.createQuickPayment(request);
-    // redirect to gateway
-    const redirectUri = qpCreateResponse.redirectUri;
-    if (redirectUri !== undefined) {
-        window.location.assign(redirectUri);
+        this.submitForm = this.submitForm.bind(this);
+    }
+
+    async submitForm(e) {
+        e.preventDefault();
+
+        this.setState({
+            errorResponse: {},
+            disabled: true
+        });
+
+        const request = {
+            type: ConsentDetailTypeEnum.Single,
+            flow: {
+                detail: {
+                    type: AuthFlowDetailTypeEnum.Gateway,
+                    redirectUri: window.location.origin + "/redirect"
+                }
+            },
+            amount: {
+                currency: AmountCurrencyEnum.NZD,
+                total: "0.40"
+            },
+            pcr: {
+                particulars: "lollipop",
+                code: "code",
+                reference: "reference"
+            }
+        };
+
+        const qpCreateResponse = await client.createQuickPayment(request);
+        // redirect to gateway
+        const redirectUri = qpCreateResponse.redirectUri;
+        if (redirectUri !== undefined) {
+            window.location.assign(redirectUri);
+        }
+    }
+
+    render() {
+        return (
+            <div className="container">
+                <h3>Shopping Cart</h3>
+                <form onSubmit={this.submitForm} className="form">
+                    <table className="table">
+                        <tbody>
+                        <tr>
+                            <td className="border">
+                                <img src={lollipop} alt="lollipop" width="200"/>
+                            </td>
+                            <td className="border">
+                                Red Heart Lollipop, unwrapped
+                            </td>
+                            <td className="border">
+                                $0.40
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <br/>
+                    <div className="form-group form-row align-items-center justify-content-center">
+                        <button type="submit" className="btn btn-primary ml-1 mr-1"
+                                disabled={this.state.disabled}>Checkout
+                        </button>
+                    </div>
+                </form>
+            </div>);
     }
 }
+
+export default Cart;
+```
+or `cart.tsx`:
+```typescript
+import React, {Component} from 'react';
+import lollipop from '../lollipop.jpg';
+import {
+    Amount,
+    AmountCurrencyEnum,
+    AuthFlow,
+    AuthFlowDetailTypeEnum,
+    ConsentDetailTypeEnum,
+    GatewayFlow,
+    Pcr,
+    QuickPaymentRequest
+} from 'blink-debit-api-client-typescript';
+import {client} from '../blinkDebitClientInstance';
+
+interface State {
+    errorResponse: any,
+    disabled: boolean
+}
+
+class Cart extends Component<{}, State> {
+
+    constructor(props: {}) {
+        super(props);
+
+        this.state = {
+            errorResponse: {},
+            disabled: false
+        }
+
+        this.submitForm = this.submitForm.bind(this);
+    }
+
+    async submitForm(e: React.FormEvent) {
+        e.preventDefault();
+
+        this.setState({
+            errorResponse: {},
+            disabled: true
+        });
+
+        const request: QuickPaymentRequest = {
+            type: ConsentDetailTypeEnum.Single,
+            flow: {
+                detail: {
+                    type: AuthFlowDetailTypeEnum.Gateway,
+                    redirectUri: window.location.origin + "/redirect"
+                } as GatewayFlow
+            } as AuthFlow,
+            amount: {
+                currency: AmountCurrencyEnum.NZD,
+                total: "0.40"
+            } as Amount,
+            pcr: {
+                particulars: "lollipop",
+                code: "code",
+                reference: "reference"
+            } as Pcr
+        };
+
+        const qpCreateResponse = await client.createQuickPayment(request);
+        // redirect to gateway
+        const redirectUri = qpCreateResponse.redirectUri;
+        if (redirectUri !== undefined) {
+            window.location.assign(redirectUri);
+        }
+    }
+
+    render() {
+        return (
+            <div className="container">
+                <h3>Shopping Cart</h3>
+                <form onSubmit={this.submitForm} className="form">
+                    <table className="table">
+                        <tbody>
+                            <tr>
+                                <td className="border">
+                                    <img src={lollipop} alt="lollipop" width="200"/>
+                                </td>
+                                <td className="border">
+                                    Red Heart Lollipop, unwrapped
+                                </td>
+                                <td className="border">
+                                    $0.40
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <br/>
+                    <div className="form-group form-row align-items-center justify-content-center">
+                        <button type="submit" className="btn btn-primary ml-1 mr-1"
+                        disabled={this.state.disabled}>Checkout
+                        </button>
+                    </div>
+                </form>
+            </div>);
+    }
+}
+
+export default Cart;
 ```
 
 ## Configuration
