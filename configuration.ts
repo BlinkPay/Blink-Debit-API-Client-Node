@@ -143,16 +143,16 @@ export class Configuration {
 
             this.debitUrl = process.env.BLINKPAY_DEBIT_URL
                 ? process.env.BLINKPAY_DEBIT_URL
-                : (config.blinkpay && config.blinkpay.debitUrl);
+                : (config && config.blinkpay && config.blinkpay.debitUrl);
             timeout = process.env.BLINKPAY_TIMEOUT
                 ? process.env.BLINKPAY_TIMEOUT
-                : (config.blinkpay && config.blinkpay.timeout) || 10000;
+                : (config && config.blinkpay && config.blinkpay.timeout) || 10000;
             retryEnabled = process.env.BLINKPAY_RETRY_ENABLED
                 ? process.env.BLINKPAY_RETRY_ENABLED
-                : (config.blinkpay && config.blinkpay.retryEnabled) || true;
+                : (config && config.blinkpay && config.blinkpay.retryEnabled) || true;
             this.clientId = process.env.BLINKPAY_CLIENT_ID
                 ? process.env.BLINKPAY_CLIENT_ID
-                : (config.blinkpay && config.blinkpay.clientId);
+                : (config && config.blinkpay && config.blinkpay.clientId);
             this.clientSecret = process.env.BLINKPAY_CLIENT_SECRET;
         } else {
             config = configDirectoryOrConfig as BlinkPayConfig;
