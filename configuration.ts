@@ -146,10 +146,10 @@ export class Configuration {
                 : (config.blinkpay && config.blinkpay.debitUrl);
             timeout = process.env.BLINKPAY_TIMEOUT
                 ? process.env.BLINKPAY_TIMEOUT
-                : (config.blinkpay && config.blinkpay.timeout);
+                : (config.blinkpay && config.blinkpay.timeout) || 10000;
             retryEnabled = process.env.BLINKPAY_RETRY_ENABLED
                 ? process.env.BLINKPAY_RETRY_ENABLED
-                : (config.blinkpay && config.blinkpay.retryEnabled);
+                : (config.blinkpay && config.blinkpay.retryEnabled) || true;
             this.clientId = process.env.BLINKPAY_CLIENT_ID
                 ? process.env.BLINKPAY_CLIENT_ID
                 : (config.blinkpay && config.blinkpay.clientId);
@@ -192,7 +192,7 @@ export class Configuration {
         } else if (typeof retryEnabled === 'string') {
             this._retryEnabled = retryEnabled.toLowerCase() === 'true';
         } else {
-            this._retryEnabled = false;
+            this._retryEnabled = true;
         }
 
         this.configureAxios(axios);
