@@ -18,7 +18,7 @@
 10. [Individual API Call Examples](#individual-api-call-examples)
 
 ## Introduction
-This SDK allows merchants with TypeScript- or JavaScript-based e-commerce site to integrate with Blink PayNow and Blink AutoPay.
+This SDK allows merchants with TypeScript- or JavaScript-based e.g. React e-commerce site to integrate with Blink PayNow and Blink AutoPay.
 
 This SDK was written in TypeScript 5.
 

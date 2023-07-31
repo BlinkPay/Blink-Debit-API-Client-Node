@@ -20,13 +20,13 @@
  * SOFTWARE.
  */
 
-import {AxiosInstance, AxiosRequestConfig} from 'axios';
-import {AccessTokenResponse} from './src/dto/v1/access-token-response';
+import {AxiosInstance} from 'axios';
 import qs from 'qs';
 import {camelizeKeys, decamelizeKeys} from 'humps';
 import {
     BlinkClientException,
     BlinkForbiddenException,
+    BlinkInvalidValueException,
     BlinkNotImplementedException,
     BlinkRateLimitExceededException,
     BlinkResourceNotFoundException,
@@ -46,27 +46,6 @@ if (typeof process !== 'undefined') {
  * The configuration.
  */
 export class Configuration {
-    /**
-     * parameter for apiKey security
-     *
-     * @param name security name
-     * @memberof Configuration
-     */
-    apiKey?: string | Promise<string> | ((name: string) => string) | ((name: string) => Promise<string>);
-    /**
-     * parameter for basic security
-     *
-     * @type {string}
-     * @memberof Configuration
-     */
-    username?: string;
-    /**
-     * parameter for basic security
-     *
-     * @type {string}
-     * @memberof Configuration
-     */
-    password?: string;
     /**
      * parameter for OAuth2 security
      *
@@ -103,9 +82,10 @@ export class Configuration {
     /**
      * The Blink Debit URL
      *
-     * @private
+     * @type {string}
+     * @memberof Configuration
      */
-    private readonly _debitUrl: string;
+    readonly debitUrl: string;
     /**
      * The Axios request timeout
      *
@@ -121,15 +101,17 @@ export class Configuration {
     /**
      * The OAuth2 client ID
      *
-     * @private
+     * @type {string}
+     * @memberof Configuration
      */
-    private readonly _clientId: string;
+    readonly clientId: string;
     /**
      * The OAuth2 client secret
      *
-     * @private
+     * @type {string}
+     * @memberof Configuration
      */
-    private readonly _clientSecret: string;
+    readonly clientSecret: string;
 
     private static instance: Configuration;
 
@@ -137,7 +119,7 @@ export class Configuration {
 
     private constructor(axios: AxiosInstance, configDirectory?: string, configFile?: string);
 
-    private constructor(axios: AxiosInstance, configDirectoryOrConfig?: string | BlinkPayConfig,  configFile?: string) {
+    private constructor(axios: AxiosInstance, configDirectoryOrConfig?: string | BlinkPayConfig, configFile?: string) {
         let config;
         let timeout;
         let retryEnabled;
@@ -153,11 +135,13 @@ export class Configuration {
             } else {
                 // load properties from config.json
                 // environment variables from .env have higher priority
-                const configPath = this.getConfigPath(undefined, configFile);
-                config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+                if (configFile) {
+                    const configPath = this.getConfigPath(undefined, configFile);
+                    config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+                }
             }
 
-            this._debitUrl = process.env.BLINKPAY_DEBIT_URL
+            this.debitUrl = process.env.BLINKPAY_DEBIT_URL
                 ? process.env.BLINKPAY_DEBIT_URL
                 : (config.blinkpay && config.blinkpay.debitUrl);
             timeout = process.env.BLINKPAY_TIMEOUT
@@ -166,22 +150,35 @@ export class Configuration {
             retryEnabled = process.env.BLINKPAY_RETRY_ENABLED
                 ? process.env.BLINKPAY_RETRY_ENABLED
                 : (config.blinkpay && config.blinkpay.retryEnabled);
-            this._clientId = process.env.BLINKPAY_CLIENT_ID
+            this.clientId = process.env.BLINKPAY_CLIENT_ID
                 ? process.env.BLINKPAY_CLIENT_ID
                 : (config.blinkpay && config.blinkpay.clientId);
-            this._clientSecret = process.env.BLINKPAY_CLIENT_SECRET;
+            this.clientSecret = process.env.BLINKPAY_CLIENT_SECRET;
         } else {
             config = configDirectoryOrConfig as BlinkPayConfig;
 
-            this._debitUrl = config.blinkpay.debitUrl;
+            this.debitUrl = config.blinkpay.debitUrl;
             timeout = config.blinkpay.timeout;
             retryEnabled = config.blinkpay.retryEnabled;
-            this._clientId = config.blinkpay.clientId;
-            this._clientSecret = config.blinkpay.clientSecret;
+            this.clientId = config.blinkpay.clientId;
+            this.clientSecret = config.blinkpay.clientSecret;
+        }
+
+        // validate required fields
+        if (!this.debitUrl) {
+            throw new BlinkInvalidValueException("Blink Debit URL is not configured");
+        }
+
+        if (!this.clientId) {
+            throw new BlinkInvalidValueException("Blink Debit client ID is not configured");
+        }
+
+        if (!this.clientSecret) {
+            throw new BlinkInvalidValueException("Blink Debit client secret is not configured");
         }
 
         // configure base path
-        this.basePath = this._debitUrl + '/payments/v1';
+        this.basePath = this.debitUrl + '/payments/v1';
 
         // configure timeout, defaults to 10,000 milliseconds
         this._timeout = Number(timeout);
@@ -219,7 +216,12 @@ export class Configuration {
 
             if (request.data) {
                 request.data = decamelizeKeys(request.data);
-                log.debug(`Data: ${qs.stringify(request.data, {arrayFormat: 'brackets'})}`);
+
+                const data = {...request.data};
+                if (data.client_secret) {
+                    data.client_secret = '***REDACTED CLIENT SECRET***';
+                }
+                log.info(`Data: ${qs.stringify(data, {arrayFormat: 'brackets'})}`);
             }
 
             return request;
@@ -303,49 +305,6 @@ export class Configuration {
             }
         }
         return Configuration.instance;
-    }
-
-    async getAccessToken(axios: AxiosInstance): Promise<string | ((name?: string, scopes?: string[]) => string) | ((name?: string, scopes?: string[]) => Promise<string>)> {
-        // If token is undefined or expired, refresh it
-        if (!this.accessToken || new Date() >= this.expirationDate) {
-            await this.refreshToken(axios);
-        }
-
-        return this.accessToken;
-    }
-
-    private async refreshToken(axios: AxiosInstance): Promise<void> {
-        const clientId = this._clientId;
-        const clientSecret = this._clientSecret;
-        const tokenEndpoint = this._debitUrl + '/oauth2/token';
-
-        const axiosConfig: AxiosRequestConfig = {
-            method: 'POST',
-            url: tokenEndpoint,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            data: {
-                'client_id': clientId,
-                'client_secret': clientSecret,
-                'grant_type': 'client_credentials'
-            }
-        };
-
-        try {
-            const response = await axios.request<AccessTokenResponse>(axiosConfig);
-            const accessTokenResponse = response.data;
-            this.accessToken = accessTokenResponse.accessToken;
-            this.expirationDate = new Date(Date.now() + (response.data.expiresIn * 1000));
-
-            axios.interceptors.request.use(async (config) => {
-                const token = await this.getAccessToken(axios);
-                config.headers.Authorization = `Bearer ${token}`;
-                return config;
-            });
-        } catch (error) {
-            log.error(`Encountered: ${error}`);
-        }
     }
 
     private static sanitiseHeaders(headers: any): Record<string, string> {

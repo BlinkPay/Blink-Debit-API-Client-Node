@@ -24,6 +24,8 @@ import {AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios';
 import {Configuration} from '../../../configuration';
 import {BaseAPI, RequestArgs} from '../../../base';
 import {BankMetadata} from '../../dto';
+import {BlinkInvalidValueException} from "../../exceptions";
+import {TokenAPI} from './token-api';
 
 /**
  * BankMetadataApi - axios parameter creator
@@ -31,6 +33,10 @@ import {BankMetadata} from '../../dto';
  * @export
  */
 export const BankMetadataApiAxiosParamCreator = function (axios: AxiosInstance, configuration?: Configuration) {
+    if (!axios) {
+        throw new BlinkInvalidValueException("Axios instance is required");
+    }
+
     return {
         /**
          * The available banks, features available for the banks, and relevant fields.
@@ -53,8 +59,8 @@ export const BankMetadataApiAxiosParamCreator = function (axios: AxiosInstance, 
 
             // authentication Bearer required
             // oauth required
-            await configuration.getAccessToken(axios);
-            if (configuration) {
+            await TokenAPI.getInstance(axios, configuration).getAccessToken();
+            if (configuration && configuration.accessToken) {
                 const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
                     ? await configuration.accessToken("Bearer", ["create:single_consent", "view:single_consent", "revoke:single_consent", "create:enduring_consent", "view:enduring_consent", "revoke:enduring_consent", "create:payment", "view:payment", "view:metadata", "view:transaction", "create:quick_payment", "view:quick_payment", "create:refund", "view:refund"])
                     : await configuration.accessToken;
@@ -121,7 +127,7 @@ export const BankMetadataApiFp = function (axios: AxiosInstance, configuration?:
  * BankMetadataApi - factory interface
  * @export
  */
-export const BankMetadataApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+export const BankMetadataApiFactory = function (axios: AxiosInstance, configuration?: Configuration, basePath?: string) {
     return {
         /**
          * The available banks, features available for the banks, and relevant fields.

@@ -33,6 +33,7 @@ import {
     BlinkConsentFailureException,
     BlinkConsentRejectedException,
     BlinkConsentTimeoutException,
+    BlinkInvalidValueException,
     BlinkPaymentFailureException,
     BlinkPaymentRejectedException,
     BlinkPaymentTimeoutException,
@@ -78,14 +79,18 @@ export class BlinkDebitClient {
     constructor(axios: AxiosInstance, configDirectory?: string, configFile?: string);
 
     constructor(axios: AxiosInstance, configDirectoryOrConfig?: string | BlinkPayConfig, configFile?: string) {
+        if (!axios) {
+            throw new BlinkInvalidValueException("Axios instance is required");
+        }
+
         const configuration = Configuration.getInstance(axios, configDirectoryOrConfig, configFile);
 
-        this._singleConsentsApi = SingleConsentsApiFactory(configuration, undefined, axios);
-        this._enduringConsentsApi = EnduringConsentsApiFactory(configuration, undefined, axios);
-        this._quickPaymentsApi = QuickPaymentsApiFactory(configuration, undefined, axios);
-        this._paymentsApi = PaymentsApiFactory(configuration, undefined, axios);
-        this._refundsApi = RefundsApiFactory(configuration, undefined, axios);
-        this._bankMetadataApi = BankMetadataApiFactory(configuration, undefined, axios);
+        this._singleConsentsApi = SingleConsentsApiFactory(axios, configuration, undefined);
+        this._enduringConsentsApi = EnduringConsentsApiFactory(axios, configuration, undefined);
+        this._quickPaymentsApi = QuickPaymentsApiFactory(axios, configuration, undefined);
+        this._paymentsApi = PaymentsApiFactory(axios, configuration, undefined);
+        this._refundsApi = RefundsApiFactory(axios, configuration, undefined);
+        this._bankMetadataApi = BankMetadataApiFactory(axios, configuration, undefined);
     }
 
     /**
@@ -447,9 +452,25 @@ export class BlinkDebitClient {
                 throw new BlinkRetryableException();
             })
             .then(response => response.data)
-            .catch(error => {
+            .catch(async error => {
                 if (error instanceof BlinkRetryableException) {
-                    throw new BlinkConsentTimeoutException();
+                    const blinkConsentTimeoutException = new BlinkConsentTimeoutException();
+
+                    try {
+                        await this.revokeEnduringConsentAsync(consentId);
+                        log.info(
+                            "The max wait time was reached while waiting for the enduring consent to complete and the payment has been revoked with the server. Enduring consent ID: ",
+                            consentId);
+                    } catch (revokeException) {
+                        if (revokeException != undefined) {
+                            log.error(
+                                "Waiting for the enduring consent was not successful and it was also not able to be revoked with the server due to: ",
+                                revokeException.message);
+                            throw new AggregateError([blinkConsentTimeoutException, revokeException]);
+                        }
+                    }
+
+                    throw blinkConsentTimeoutException;
                 } else if (error instanceof BlinkConsentFailureException || error instanceof BlinkServiceException) {
                     throw error;
                 } else if (error && error.innerException) {
@@ -530,9 +551,25 @@ export class BlinkDebitClient {
                         throw new BlinkRetryableException(`Enduring consent [${consentId}] is waiting for authorisation`);
                 }
             })
-            .catch(error => {
+            .catch(async error => {
                 if (error instanceof BlinkRetryableException) {
-                    throw new BlinkConsentTimeoutException();
+                    const blinkConsentTimeoutException = new BlinkConsentTimeoutException();
+
+                    try {
+                        await this.revokeEnduringConsentAsync(consentId);
+                        log.info(
+                            "The max wait time was reached while waiting for the enduring consent to complete and the payment has been revoked with the server. Enduring consent ID: ",
+                            consentId);
+                    } catch (revokeException) {
+                        if (revokeException != undefined) {
+                            log.error(
+                                "Waiting for the enduring consent was not successful and it was also not able to be revoked with the server due to: ",
+                                revokeException.message);
+                            throw new AggregateError([blinkConsentTimeoutException, revokeException]);
+                        }
+                    }
+
+                    throw blinkConsentTimeoutException;
                 } else if (error instanceof BlinkConsentFailureException || error instanceof BlinkServiceException) {
                     throw error;
                 } else if (error && error.innerException) {

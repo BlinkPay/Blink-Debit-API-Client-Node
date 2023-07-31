@@ -33,7 +33,7 @@ describe('BankMetadataApi Integration Test', () => {
     beforeAll(async () => {
         const configuration = Configuration.getInstance(globalAxios);
 
-        apiInstance = BankMetadataApiFactory(configuration, undefined, globalAxios);
+        apiInstance = BankMetadataApiFactory(globalAxios, configuration, undefined);
     });
 
     it('Verify that bank metadata is retrieved', async () => {

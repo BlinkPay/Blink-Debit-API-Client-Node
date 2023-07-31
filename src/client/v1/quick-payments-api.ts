@@ -26,6 +26,7 @@ import {BaseAPI, RequestArgs} from '../../../base';
 import {CreateQuickPaymentResponse, QuickPaymentRequest, QuickPaymentResponse} from '../../dto';
 import {decamelizeKeys} from 'humps';
 import {BlinkInvalidValueException} from '../../exceptions';
+import {TokenAPI} from './token-api';
 
 /**
  * QuickPaymentsApi - axios parameter creator
@@ -33,6 +34,10 @@ import {BlinkInvalidValueException} from '../../exceptions';
  * @export
  */
 export const QuickPaymentsApiAxiosParamCreator = function (axios: AxiosInstance, configuration?: Configuration) {
+    if (!axios) {
+        throw new BlinkInvalidValueException("Axios instance is required");
+    }
+
     return {
         /**
          * Create a quick payment, which both obtains the consent and debits the requested one-off payment.  This endpoint begins the customer consent process. Once the consent is authorised, Blink automatically attempts to debit the payment.  A successful response does **not** indicate a successful debit. The payment status can be checked by subsequent calls to the single payment endpoint.
@@ -44,7 +49,7 @@ export const QuickPaymentsApiAxiosParamCreator = function (axios: AxiosInstance,
          * @param {string} [idempotencyKey] An optional idempotency key to prevent duplicate submissions.
          * @param {*} [options] Override http request option.
          */
-        createQuickPayment: async (body?: QuickPaymentRequest, requestId?: string, xCorrelationId?: string, xCustomerIp?: string, idempotencyKey?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        createQuickPayment: async (body: QuickPaymentRequest, requestId?: string, xCorrelationId?: string, xCustomerIp?: string, idempotencyKey?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/quick-payments`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
@@ -58,7 +63,7 @@ export const QuickPaymentsApiAxiosParamCreator = function (axios: AxiosInstance,
 
             // authentication Bearer required
             // oauth required
-            await configuration.getAccessToken(axios);
+            await TokenAPI.getInstance(axios, configuration).getAccessToken();
             if (configuration && configuration.accessToken) {
                 const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
                     ? await configuration.accessToken("Bearer", ["create:single_consent", "view:single_consent", "revoke:single_consent", "create:enduring_consent", "view:enduring_consent", "revoke:enduring_consent", "create:payment", "view:payment", "view:metadata", "view:transaction", "create:quick_payment", "view:quick_payment", "create:refund", "view:refund"])
@@ -129,7 +134,7 @@ export const QuickPaymentsApiAxiosParamCreator = function (axios: AxiosInstance,
 
             // authentication Bearer required
             // oauth required
-            await configuration.getAccessToken(axios);
+            await TokenAPI.getInstance(axios, configuration).getAccessToken();
             if (configuration && configuration.accessToken) {
                 const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
                     ? await configuration.accessToken("Bearer", ["create:single_consent", "view:single_consent", "revoke:single_consent", "create:enduring_consent", "view:enduring_consent", "revoke:enduring_consent", "create:payment", "view:payment", "view:metadata", "view:transaction", "create:quick_payment", "view:quick_payment", "create:refund", "view:refund"])
@@ -188,7 +193,7 @@ export const QuickPaymentsApiAxiosParamCreator = function (axios: AxiosInstance,
 
             // authentication Bearer required
             // oauth required
-            await configuration.getAccessToken(axios);
+            await TokenAPI.getInstance(axios, configuration).getAccessToken();
             if (configuration && configuration.accessToken) {
                 const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
                     ? await configuration.accessToken("Bearer", ["create:single_consent", "view:single_consent", "revoke:single_consent", "create:enduring_consent", "view:enduring_consent", "revoke:enduring_consent", "create:payment", "view:payment", "view:metadata", "view:transaction", "create:quick_payment", "view:quick_payment", "create:refund", "view:refund"])
@@ -239,7 +244,7 @@ export const QuickPaymentsApiFp = function (axios: AxiosInstance, configuration?
          * @param {string} [idempotencyKey] An optional idempotency key to prevent duplicate submissions.
          * @param {*} [options] Override http request option.
          */
-        async createQuickPayment(body?: QuickPaymentRequest, requestId?: string, xCorrelationId?: string, xCustomerIp?: string, idempotencyKey?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<CreateQuickPaymentResponse>>> {
+        async createQuickPayment(body: QuickPaymentRequest, requestId?: string, xCorrelationId?: string, xCustomerIp?: string, idempotencyKey?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<CreateQuickPaymentResponse>>> {
             const localVarAxiosArgs = await QuickPaymentsApiAxiosParamCreator(axios, configuration).createQuickPayment(body, requestId, xCorrelationId, xCustomerIp, idempotencyKey, options);
             return (axios: AxiosInstance, basePath: string = configuration.basePath) => {
                 const axiosRequestArgs: AxiosRequestConfig = {
@@ -301,7 +306,7 @@ export const QuickPaymentsApiFp = function (axios: AxiosInstance, configuration?
  * QuickPaymentsApi - factory interface
  * @export
  */
-export const QuickPaymentsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+export const QuickPaymentsApiFactory = function (axios: AxiosInstance, configuration?: Configuration, basePath?: string) {
     return {
         /**
          * Create a quick payment, which both obtains the consent and debits the requested one-off payment.  This endpoint begins the customer consent process. Once the consent is authorised, Blink automatically attempts to debit the payment.  A successful response does **not** indicate a successful debit. The payment status can be checked by subsequent calls to the single payment endpoint.
@@ -313,7 +318,7 @@ export const QuickPaymentsApiFactory = function (configuration?: Configuration, 
          * @param {string} [idempotencyKey] An optional idempotency key to prevent duplicate submissions.
          * @param {*} [options] Override http request option.
          */
-        async createQuickPayment(body?: QuickPaymentRequest, requestId?: string, xCorrelationId?: string, xCustomerIp?: string, idempotencyKey?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<CreateQuickPaymentResponse>> {
+        async createQuickPayment(body: QuickPaymentRequest, requestId?: string, xCorrelationId?: string, xCustomerIp?: string, idempotencyKey?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<CreateQuickPaymentResponse>> {
             return QuickPaymentsApiFp(axios, configuration).createQuickPayment(body, requestId, xCorrelationId, xCustomerIp, idempotencyKey, options).then((request) => request(axios, basePath));
         },
         /**
@@ -359,7 +364,7 @@ export class QuickPaymentsApi extends BaseAPI {
      * @param {*} [options] Override http request option.
      * @memberof QuickPaymentsApi
      */
-    public async createQuickPayment(body?: QuickPaymentRequest, requestId?: string, xCorrelationId?: string, xCustomerIp?: string, idempotencyKey?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<CreateQuickPaymentResponse>> {
+    public async createQuickPayment(body: QuickPaymentRequest, requestId?: string, xCorrelationId?: string, xCustomerIp?: string, idempotencyKey?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<CreateQuickPaymentResponse>> {
         return QuickPaymentsApiFp(this.axios, this.configuration).createQuickPayment(body, requestId, xCorrelationId, xCustomerIp, idempotencyKey, options).then((request) => request(this.axios, this.basePath));
     }
 

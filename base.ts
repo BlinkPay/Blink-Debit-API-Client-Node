@@ -22,6 +22,7 @@
 
 import {Configuration} from './configuration';
 import {AxiosInstance, AxiosRequestConfig} from 'axios';
+import {BlinkInvalidValueException} from './src';
 
 /**
  * The request arguments.
@@ -42,9 +43,14 @@ export interface RequestArgs {
  */
 export class BaseAPI {
     protected configuration: Configuration | undefined;
-    protected axios: AxiosInstance | undefined;
+    protected axios: AxiosInstance;
 
-    constructor(configuration?: Configuration, protected basePath?: string, axios?: AxiosInstance) {
+    constructor(axios: AxiosInstance, configuration?: Configuration, protected basePath?: string) {
+        if (!axios) {
+            throw new BlinkInvalidValueException("Axios instance is required");
+        }
+        this.axios = axios;
+
         if (configuration) {
             this.configuration = configuration;
             this.basePath = configuration.basePath || this.basePath;

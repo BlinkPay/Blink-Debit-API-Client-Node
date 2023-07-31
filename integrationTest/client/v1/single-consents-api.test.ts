@@ -54,7 +54,7 @@ describe('SingleConsentsApi Integration Test', () => {
     beforeAll(async () => {
         const configuration = Configuration.getInstance(globalAxios);
 
-        apiInstance = SingleConsentsApiFactory(configuration, undefined, globalAxios);
+        apiInstance = SingleConsentsApiFactory(globalAxios, configuration, undefined);
     });
 
     it('Verify that single consent with redirect flow is created in PNZ', async () => {
