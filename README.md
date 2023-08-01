@@ -28,7 +28,6 @@ We welcome contributions from the community. Your pull request will be reviewed 
 This project is licensed under the MIT License.
 
 ## Minimum Requirements
-- TypeScript 5.1
 - Axios 1.4
 - Node.js 18.16 LTS (tested on 20.3)
 
@@ -79,10 +78,10 @@ async function createQuickPayment() {
     const qpCreateResponse = await client.createQuickPayment(request);
     log.info("Redirect URL: {}", qpCreateResponse.redirectUri); // Redirect the consumer to this URL
     const qpId = qpCreateResponse.quickPaymentId;
-    const qpResponse = client.awaitSuccessfulQuickPaymentOrThrowException(qpId, 300); // Will throw an exception if the payment was not successful after 5min
+    const qpResponse = await client.awaitSuccessfulQuickPaymentOrThrowException(qpId, 300); // Will throw an exception if the payment was not successful after 5min
 }
 
-createQuickPayment();
+await createQuickPayment();
 ```
 ### Option 2: Browser environment e.g. React
 Append the BlinkPay environment variables to your `.env` file. Notice the `REACT_APP_` prefix.
@@ -93,7 +92,7 @@ REACT_APP_BLINKPAY_CLIENT_SECRET=...
 REACT_APP_BLINKPAY_RETRY_ENABLED=true
 REACT_APP_BLINKPAY_TIMEOUT=10000
 ```
-You may need to install `react-app-rewired` and other dependencies to override the default webpack configuration and to disable path and fs which only work for Node.js environment. Create a `config-overrides.js` file:
+You may need to install `react-app-rewired` and other dependencies to override the default webpack configuration and to disable path and fs which only work for `Node.js environment`. Create a `config-overrides.js` file:
 ```javascript
 module.exports = function override(config, env) {
     config.resolve.fallback = {
@@ -109,33 +108,54 @@ module.exports = function override(config, env) {
     return config;
 };
 ```
-Create an Axios instance e.g. `axiosInstance.js`:
+Create an Axios instance:
+<table>
+<tr>
+<th>axiosInstance.js</th>
+<th>axiosInstance.ts</th>
+</tr>
+<tr>
+<td>
+
 ```javascript
 import axios from 'axios';
 
 const globalAxios = axios.create({
     headers: {
-        'Content-Type': 'application/json',
         'Accept': 'application/json'
     }
 });
 
 export default globalAxios;
 ```
-or `axiosInstance.ts`:
+
+</td>
+<td>
+
 ```typescript
 import axios, {AxiosInstance} from 'axios';
 
 const globalAxios: AxiosInstance = axios.create({
     headers: {
-        'Content-Type': 'application/json',
         'Accept': 'application/json'
     }
 });
 
 export default globalAxios;
 ```
-Create the BlinkDebitClient e.g. `blinkDebitClientInstance.js`:
+
+</td>
+</tr>
+</table>
+Create the BlinkDebitClient instance:
+<table>
+<tr>
+<th>blinkDebitClientInstance.js</th>
+<th>blinkDebitClientInstance.ts</th>
+</tr>
+<tr>
+<td>
+
 ```javascript
 import {BlinkDebitClient} from 'blink-debit-api-client-typescript';
 import globalAxios from './axiosInstance';
@@ -154,7 +174,10 @@ const client = new BlinkDebitClient(globalAxios, blinkPayConfig);
 
 export default client;
 ```
-or `blinkDebitClientInstance.ts`:
+
+</td>
+<td>
+
 ```typescript
 import {BlinkPayConfig, BlinkDebitClient} from 'blink-debit-api-client-typescript';
 import globalAxios from './axiosInstance';
@@ -171,7 +194,12 @@ const blinkPayConfig: BlinkPayConfig = {
 
 export const client = new BlinkDebitClient(globalAxios, blinkPayConfig);
 ```
+
+</td>
+</tr>
+</table>
 Create a function for submitting a form e.g. `cart.jsx`:
+
 ```javascript
 import React, {Component} from 'react';
 import lollipop from '../lollipop.jpg';
@@ -264,6 +292,7 @@ class Cart extends Component {
 export default Cart;
 ```
 or `cart.tsx`:
+
 ```typescript
 import React, {Component} from 'react';
 import lollipop from '../lollipop.jpg';
@@ -375,7 +404,7 @@ export default Cart;
 ### Configuration precedence
 Configuration will be detected and loaded according to the hierarchy -
 1. `.env`
-2. `config.json` (Node.js environment)
+2. `config.json` (`Node.js environment`)
 3. Default values
 
 ### Configuration examples
@@ -403,19 +432,44 @@ Substitute the correct values in your `config.json` file. Since this file can be
 ```
 
 ## Client creation
-In a Node.js environment, if you've configured the `.env` file locally or via CI/CD, you can just create the client with:
-```typescript
+In a `Node.js environment`, if you've configured the `.env` file locally or via CI/CD, you can just create the client with:
+```javascript
 const client = new BlinkDebitClient(axios);
 ```
 
 Another way is to pass the path to a JSON configuration file:
-```typescript
+```javascript
 const directory = '/path/to/config/directory';
 const fileName = 'my-config.json'
 const client = new BlinkDebitClient(axios, directory, fileName);
 ```
 
-In a browser environment, the client can be created by passing the BlinkPayConfig:
+In a `browser environment`, the client can be created by passing the BlinkPayConfig:
+
+<table>
+<tr>
+<th>JavaScript</th>
+<th>TypeScript</th>
+</tr>
+<tr>
+<td>
+
+```javascript
+const blinkPayConfig = {
+    blinkpay: {
+        debitUrl: process.env.REACT_APP_BLINKPAY_DEBIT_URL || '',
+        clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID || '',
+        clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET || '',
+        timeout: 10000,
+        retryEnabled: true
+    }
+};
+const client = new BlinkDebitClient(axios, blinkPayConfig);
+```
+
+</td>
+<td>
+
 ```typescript
 const blinkPayConfig: BlinkPayConfig = {
     blinkpay: {
@@ -429,6 +483,17 @@ const blinkPayConfig: BlinkPayConfig = {
 const client = new BlinkDebitClient(axios, blinkPayConfig);
 ```
 
+</td>
+</tr>
+</table>
+
+or by providing the required parameters:
+
+```javascript
+const client = new BlinkDebitClient(axios, process.env.REACT_APP_BLINKPAY_DEBIT_URL,
+    process.env.REACT_APP_BLINKPAY_CLIENT_ID, process.env.REACT_APP_BLINKPAY_CLIENT_SECRET);
+```
+
 ## Request ID, Correlation ID and Idempotency Key
 An optional request ID, correlation ID and idempotency key can be added as arguments to API calls. They will be generated for you automatically if they are not provided.
 
@@ -438,61 +503,61 @@ A request can have one request ID and one idempotency key but multiple correlati
 > **Note:** For error handling, a BlinkServiceException can be caught.
 ### Quick payment (one-off payment), using Gateway flow
 A quick payment is a one-off payment that combines the API calls needed for both the consent and the payment.
-```typescript
-const request: QuickPaymentRequest = {
+```javascript
+const request = {
     type: ConsentDetailTypeEnum.Single,
     flow: {
         detail: {
             type: AuthFlowDetailTypeEnum.Gateway,
             redirectUri: 'https://www.blinkpay.co.nz/sample-merchant-return-page'
-        } as GatewayFlow
-    } as AuthFlow,
+        }
+    },
     amount: {
         currency: AmountCurrencyEnum.NZD,
         total: '0.01'
-    } as Amount,
+    },
     pcr: {
         particulars: 'particulars',
         code: 'code',
         reference: reference
-    } as Pcr
+    }
 };
 
-const qpCreateResponse = client.createQuickPayment(request);
+const qpCreateResponse = await client.createQuickPayment(request);
 _logger.LogInformation("Redirect URL: {}", qpCreateResponseredirectUri); // Redirect the consumer to this URL
 const qpId = qpCreateResponse.quickPaymentId;
-const qpResponse = client.awaitSuccessfulQuickPaymentOrThrowException(qpId, 300); // Will throw an exception if the payment was not successful after 5min
+const qpResponse = await client.awaitSuccessfulQuickPaymentOrThrowException(qpId, 300); // Will throw an exception if the payment was not successful after 5min
 ```
 
 ### Single consent followed by one-off payment, using Gateway flow
-```typescript
-const request: SingleConsentRequest = {
+```javascript
+const request = {
     type: ConsentDetailTypeEnum.Single,
     flow: {
         detail: {
             type: AuthFlowDetailTypeEnum.Redirect,
             bank: Bank.BNZ,
             redirectUri: 'https://www.blinkpay.co.nz/sample-merchant-return-page'
-        } as RedirectFlow
-    } as AuthFlow,
+        }
+    },
     amount: {
         currency: AmountCurrencyEnum.NZD,
         total: '0.01'
-    } as Amount,
+    },
     pcr: {
         particulars: 'particulars'
-    } as Pcr
+    }
 };
 
-const createConsentResponse = client.createSingleConsent(request);
+const createConsentResponse = await client.createSingleConsent(request);
 const redirectUri = createConsentResponse.redirectUri; // Redirect the consumer to this URL
 const paymentRequest = new PaymentRequest
 {
     consentId = createConsentResponse.consentId
 };
 
-const paymentResponse = client.createPayment(paymentRequest);
-_logger.LogInformation("Payment Status: {}", client.getPayment(paymentResponse.paymentId).status);
+const paymentResponse = await client.createPayment(paymentRequest);
+_logger.LogInformation("Payment Status: {}", await client.getPayment(paymentResponse.paymentId).status);
 // TODO inspect the payment result status
 ```
 
@@ -500,36 +565,36 @@ _logger.LogInformation("Payment Status: {}", client.getPayment(paymentResponse.p
 ### Bank Metadata
 Supplies the supported banks and supported flows on your account.
 ```typescript
-const bankMetadataList = client.getMeta();
+const bankMetadataList = await client.getMeta();
 ```
 
 ### Quick Payments
 #### Gateway Flow
-```typescript
-const request: QuickPaymentRequest = {
+```javascript
+const request = {
     type: ConsentDetailTypeEnum.Single,
     flow: {
         detail: {
             type: AuthFlowDetailTypeEnum.Gateway,
             redirectUri: redirectUri
-        } as GatewayFlow
-    } as AuthFlow,
+        }
+    },
     amount: {
         currency: AmountCurrencyEnum.NZD,
         total: total
-    } as Amount,
+    },
     pcr: {
         particulars: particulars,
         code: code,
         reference: reference
-    } as Pcr
+    }
 };
 
-const createQuickPaymentResponse = client.createQuickPayment(request);
+const createQuickPaymentResponse = await client.createQuickPayment(request);
 ```
 #### Gateway Flow - Redirect Flow Hint
-```typescript
-const request: QuickPaymentRequest = {
+```javascript
+const request = {
     type: ConsentDetailTypeEnum.Single,
     flow: {
         detail: {
@@ -538,25 +603,25 @@ const request: QuickPaymentRequest = {
             flowHint: {
                 type: FlowHintTypeEnum.Redirect,
                 bank: bank
-            } as RedirectFlowHint
-        } as GatewayFlow
-    } as AuthFlow,
+            }
+        }
+    },
     amount: {
         currency: AmountCurrencyEnum.NZD,
         total: total
-    } as Amount,
+    },
     pcr: {
         particulars: particulars,
         code: code,
         reference: reference
-    } as Pcr
+    }
 };
 
-const createQuickPaymentResponse = client.createQuickPayment(request);
+const createQuickPaymentResponse = await client.createQuickPayment(request);
 ```
 #### Gateway Flow - Decoupled Flow Hint
-```typescript
-const request: QuickPaymentRequest = {
+```javascript
+const request = {
     type: ConsentDetailTypeEnum.Single,
     flow: {
         detail: {
@@ -567,49 +632,49 @@ const request: QuickPaymentRequest = {
                 bank: bank,
                 identifierType: identifierType,
                 identifierValue: identifierValue
-            } as DecoupledFlowHint
-        } as GatewayFlow
-    } as AuthFlow,
+            }
+        }
+    },
     amount: {
         currency: AmountCurrencyEnum.NZD,
         total: total
-    } as Amount,
+    },
     pcr: {
         particulars: particulars,
         code: code,
         reference: reference
-    } as Pcr
+    }
 };
 
-const createQuickPaymentResponse = client.createQuickPayment(request);
+const createQuickPaymentResponse = await client.createQuickPayment(request);
 ```
 #### Redirect Flow
-```typescript
-const request: QuickPaymentRequest = {
+```javascript
+const request = {
     type: ConsentDetailTypeEnum.Single,
     flow: {
         detail: {
             type: AuthFlowDetailTypeEnum.Redirect,
             bank: bank,
             redirectUri: redirectUri
-        } as RedirectFlow
-    } as AuthFlow,
+        }
+    },
     amount: {
         currency: AmountCurrencyEnum.NZD,
         total: total
-    } as Amount,
+    },
     pcr: {
         particulars: particulars,
         code: code,
         reference: reference
-    } as Pcr
+    }
 };
 
-const createQuickPaymentResponse = client.createQuickPayment(request);
+const createQuickPaymentResponse = await client.createQuickPayment(request);
 ```
 #### Decoupled Flow
-```typescript
-const request: QuickPaymentRequest = {
+```javascript
+const request = {
     type: ConsentDetailTypeEnum.Single,
     flow: {
         detail: {
@@ -618,57 +683,57 @@ const request: QuickPaymentRequest = {
             identifierType: identifierType,
             identifierValue: identifierValue,
             callbackUrl: callbackUrl
-        } as DecoupledFlow
-    } as AuthFlow,
+        }
+    },
     amount: {
         currency: AmountCurrencyEnum.NZD,
         total: total
-    } as Amount,
+    },
     pcr: {
         particulars: particulars,
         code: code,
         reference: reference
-    } as Pcr
+    }
 };
 
-const createQuickPaymentResponse = client.createQuickPayment(request);
+const createQuickPaymentResponse = await client.createQuickPayment(request);
 ```
 #### Retrieval
 ```typescript
-const quickPaymentResponse = client.getQuickPayment(quickPaymentId);
+const quickPaymentResponse = await client.getQuickPayment(quickPaymentId);
 ```
 #### Revocation
-```typescript
-client.revokeQuickPayment(quickPaymentId);
+```javascript
+await client.revokeQuickPayment(quickPaymentId);
 ```
 
 ### Single/One-Off Consents
 #### Gateway Flow
-```typescript
-const request: SingleConsentRequest = {
+```javascript
+const request = {
     type: ConsentDetailTypeEnum.Single,
     flow: {
         detail: {
             type: AuthFlowDetailTypeEnum.Gateway,
             redirectUri: redirectUri
-        } as GatewayFlow
-    } as AuthFlow,
+        }
+    },
     amount: {
         currency: AmountCurrencyEnum.NZD,
         total: total
-    } as Amount,
+    },
     pcr: {
         particulars: particulars,
         code: code,
         reference: reference
-    } as Pcr
+    }
 };
 
-const createConsentResponse = client.createSingleConsent(request);
+const createConsentResponse = await client.createSingleConsent(request);
 ```
 #### Gateway Flow - Redirect Flow Hint
-```typescript
-const request: SingleConsentRequest = {
+```javascript
+const request = {
     type: ConsentDetailTypeEnum.Single,
     flow: {
         detail: {
@@ -677,25 +742,25 @@ const request: SingleConsentRequest = {
             flowHint: {
                 type: FlowHintTypeEnum.Redirect,
                 bank: Bank.PNZ
-            } as RedirectFlowHint
-        } as GatewayFlow
-    } as AuthFlow,
+            }
+        }
+    },
     amount: {
         currency: AmountCurrencyEnum.NZD,
         total: total
-    } as Amount,
+    },
     pcr: {
         particulars: particulars,
         code: code,
         reference: reference
-    } as Pcr
+    }
 };
 
-const createConsentResponse = client.createSingleConsent(request);
+const createConsentResponse = await client.createSingleConsent(request);
 ```
 #### Gateway Flow - Decoupled Flow Hint
-```typescript
-const request: SingleConsentRequest = {
+```javascript
+const request = {
     type: ConsentDetailTypeEnum.Single,
     flow: {
         detail: {
@@ -706,54 +771,54 @@ const request: SingleConsentRequest = {
                 bank: bank,
                 identifierType: identifierType,
                 identifierValue: identifierValue
-            } as DecoupledFlowHint
-        } as GatewayFlow
-    } as AuthFlow,
+            }
+        }
+    },
     amount: {
         currency: AmountCurrencyEnum.NZD,
         total: total
-    } as Amount,
+    },
     pcr: {
         particulars: particulars,
         code: code,
         reference: reference
-    } as Pcr
+    }
 };
 
-const createConsentResponse = client.createSingleConsent(request);
+const createConsentResponse = await client.createSingleConsent(request);
 ```
 #### Redirect Flow
 Suitable for most consents.
-```typescript
-const request: SingleConsentRequest = {
+```javascript
+const request = {
     type: ConsentDetailTypeEnum.Single,
     flow: {
         detail: {
             type: AuthFlowDetailTypeEnum.Redirect,
             bank: bank,
             redirectUri: redirectUri
-        } as RedirectFlow
-    } as AuthFlow,
+        }
+    },
     amount: {
         currency: AmountCurrencyEnum.NZD,
         total: total
-    } as Amount,
+    },
     pcr: {
         particulars: particulars,
         code: code,
         reference: reference
-    } as Pcr
+    }
 };
 
-const createConsentResponse = client.createSingleConsent(request);
+const createConsentResponse = await client.createSingleConsent(request);
 ```
 #### Decoupled Flow
 This flow type allows better support for mobile by allowing the supply of a mobile number or previous consent ID to identify the customer with their bank.
 
 The customer will receive the consent request directly to their online banking app. This flow does not send the user through a web redirect flow.
 
-```typescript
-const request: SingleConsentRequest = {
+```javascript
+const request = {
     type: ConsentDetailTypeEnum.Single,
     flow: {
         detail: {
@@ -762,29 +827,29 @@ const request: SingleConsentRequest = {
             identifierType: identifierType,
             identifierValue: identifierValue,
             callbackUrl: callbackUrl
-        } as DecoupledFlow
-    } as AuthFlow,
+        }
+    },
     amount: {
         currency: AmountCurrencyEnum.NZD,
         total: total
-    } as Amount,
+    },
     pcr: {
         particulars: particulars,
         code: code,
         reference: reference
-    } as Pcr
+    }
 };
 
-const createConsentResponse = client.createSingleConsent(request);
+const createConsentResponse = await client.createSingleConsent(request);
 ```
 #### Retrieval
 Get the consent including its status
 ```typescript
-const consent = client.getSingleConsent(consentId);
+const consent = await client.getSingleConsent(consentId);
 ```
 #### Revocation
 ```typescript
-client.revokeSingleConsent(consentId);
+await client.revokeSingleConsent(consentId);
 ```
 
 ### Blink AutoPay - Enduring/Recurring Consents
@@ -792,29 +857,29 @@ Request an ongoing authorisation from the customer to debit their account on a r
 
 Note that such an authorisation can be revoked by the customer in their mobile banking app.
 #### Gateway Flow
-```typescript
-const request: EnduringConsentRequest = {
+```javascript
+const request = {
     type: ConsentDetailTypeEnum.Enduring,
     flow: {
         detail: {
             type: AuthFlowDetailTypeEnum.Gateway,
             redirectUri: redirectUri
-        } as GatewayFlow
-    } as AuthFlow,
+        }
+    },
     maximumAmountPeriod: {
         currency: AmountCurrencyEnum.NZD,
         total: total
-    } as Amount,
+    },
     fromTimestamp: startDate,
     expiryTimestamp: endDate,
     period: period
 };
 
-const createConsentResponse = client.createEnduringConsent(request);
+const createConsentResponse = await client.createEnduringConsent(request);
 ```
 #### Gateway Flow - Redirect Flow Hint
-```typescript
-const request: EnduringConsentRequest = {
+```javascript
+const request = {
     type: ConsentDetailTypeEnum.Enduring,
     flow: {
         detail: {
@@ -823,24 +888,23 @@ const request: EnduringConsentRequest = {
             flowHint: {
                 type: FlowHintTypeEnum.Redirect,
                 bank: Bank.PNZ
-            } as RedirectFlowHint
-        } as GatewayFlow
-    } as AuthFlow,
+            }
+        }
+    },
     maximumAmountPeriod: {
         currency: AmountCurrencyEnum.NZD,
         total: total
-    } as Amount,
+    },
     fromTimestamp: startDate,
     expiryTimestamp: endDate,
     period: period
 };
 
-const createConsentResponse = client.createEnduringConsent(request);
+const createConsentResponse = await client.createEnduringConsent(request);
 ```
 #### Gateway Flow - Decoupled Flow Hint
-
-```typescript
-const request: EnduringConsentRequest = {
+```javascript
+const request = {
     type: ConsentDetailTypeEnum.Enduring,
     flow: {
         detail: {
@@ -851,45 +915,45 @@ const request: EnduringConsentRequest = {
                 bank: bank,
                 identifierType: identifierType,
                 identifierValue: identifierValue
-            } as DecoupledFlowHint
-        } as GatewayFlow
-    } as AuthFlow,
+            }
+        }
+    },
     maximumAmountPeriod: {
         currency: AmountCurrencyEnum.NZD,
         total: total
-    } as Amount,
+    },
     fromTimestamp: startDate,
     expiryTimestamp: endDate,
     period: period
 };
 
-const createConsentResponse = client.createEnduringConsent(request);
+const createConsentResponse = await client.createEnduringConsent(request);
 ```
 #### Redirect Flow
-```typescript
-const request: EnduringConsentRequest = {
+```javascript
+const request = {
     type: ConsentDetailTypeEnum.Enduring,
     flow: {
         detail: {
             type: AuthFlowDetailTypeEnum.Redirect,
             bank: bank,
             redirectUri: redirectUri
-        } as RedirectFlow
-    } as AuthFlow,
+        }
+    },
     maximumAmountPeriod: {
         currency: AmountCurrencyEnum.NZD,
         total: total
-    } as Amount,
+    },
     fromTimestamp: startDate,
     expiryTimestamp: endDate,
     period: period
 };
 
-const createConsentResponse = client.createEnduringConsent(request);
+const createConsentResponse = await client.createEnduringConsent(request);
 ```
 #### Decoupled Flow
-```typescript
-const request: EnduringConsentRequest = {
+```javascript
+const request = {
     type: ConsentDetailTypeEnum.Enduring,
     flow: {
         detail: {
@@ -898,120 +962,120 @@ const request: EnduringConsentRequest = {
             identifierType: identifierType,
             identifierValue: identifierValue,
             callbackUrl: callbackUrl
-        } as DecoupledFlow
-    } as AuthFlow,
+        }
+    },
     maximumAmountPeriod: {
         currency: AmountCurrencyEnum.NZD,
         total: total
-    } as Amount,
+    },
     fromTimestamp: startDate,
     expiryTimestamp: endDate,
     period: period
 };
     
-const createConsentResponse = client.createEnduringConsent(request);
+const createConsentResponse = await client.createEnduringConsent(request);
 ```
 #### Retrieval
-```typescript
-const consent = client.getEnduringConsent(consentId);
+```javascript
+const consent = await client.getEnduringConsent(consentId);
 ```
 #### Revocation
-```typescript
-client.revokeEnduringConsent(consentId);
+```javascript
+await client.revokeEnduringConsent(consentId);
 ```
 
 ### Payments
 The completion of a payment requires a consent to be in the Authorised status.
 #### Single/One-Off
-```typescript
-const paymentRequest: PaymentRequest = {
+```javascript
+const paymentRequest = {
     consentId: consentId
 };
 
-const paymentResponse = client.createPayment(request);
+const paymentResponse = await client.createPayment(request);
 ```
 #### Enduring/Recurring
 If you already have an approved consent, you can run a Payment against that consent at the frequency as authorised in the consent.
-```typescript
-const paymentRequest: PaymentRequest = {
+```javascript
+const paymentRequest = {
     consentId: consentId,
     enduringPayment: {
         amount: {
             total: total,
             currency: AmountCurrencyEnum.NZD
-        } as Amount,
+        },
         pcr: {
             particulars: particulars,
             code: code,
             reference: reference
-        } as Pcr
+        }
     }
 };
 
-const paymentResponse = client.createPayment(request);
+const paymentResponse = await client.createPayment(request);
 ```
 #### Westpac
 Westpac requires you to specify which account of the customers to debit.
 
 The available selection of accounts is supplied to you in the consent response of an Authorised Westpac consent object, and the ID of the selected account in supplied here.
-```typescript
-const paymentRequest: PaymentRequest = {
+```javascript
+const paymentRequest = {
     consentId: consentId,
     accountReferenceId: accountReferenceId
 };
 
-const paymentResponse = client.createWestpacPayment(request);
+const paymentResponse = await client.createWestpacPayment(request);
 ```
 #### Retrieval
-```typescript
-const payment = client.getPayment(paymentId);
+```javascript
+const payment = await client.getPayment(paymentId);
 ```
 
 ### Refunds
 #### Account Number Refund
-```typescript
-const refundRequest: AccountNumberRefundRequest = {
+```javascript
+const refundRequest = {
     type: RefundDetailTypeEnum.AccountNumber,
     paymentId: paymentId
 }
 
-const refundResponse = client.createRefund(request);
+const refundResponse = await client.createRefund(request);
 ```
 #### Full Refund (Not yet implemented)
-```typescript
-const refundRequest: FullRefundRequest = {
+```javascript
+const refundRequest = {
     type: RefundDetailTypeEnum.FullRefund,
     paymentId: paymentId,
     pcr: {
         particulars: particulars,
         code: code,
         reference: reference
-    } as Pcr,
+    },
     consentRedirect: redirectUri
 }
 
-const refundResponse = client.createRefund(request);
+const refundResponse = await client.createRefund(request);
 ```
 #### Partial Refund (Not yet implemented)
-```typescript
-const refundRequest: PartialRefundRequest = {
+```javascript
+const refundRequest = {
     type: RefundDetailTypeEnum.PartialRefund,
     paymentId: paymentId,
     pcr: {
         particulars: particulars,
         code: code,
         reference: reference
-    } as Pcr,
+    },
     consentRedirect: redirectUri,
     amount: {
         total: total,
         currency: AmountCurrencyEnum.NZD
-    } as Amount
+    }
 }
 
-const refundResponse = client.createRefund(request);
+const refundResponse = await client.createRefund(request);
 ```
 #### Retrieval
-```typescript
-const refund = client.getRefund(refundId);
+```javascript
+const refund = await client.getRefund(refundId);
 ```

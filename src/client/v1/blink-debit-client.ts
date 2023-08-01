@@ -40,7 +40,7 @@ import {
     BlinkRetryableException,
     BlinkServiceException
 } from '../../exceptions';
-import {AxiosInstance, AxiosResponse} from 'axios';
+import globalAxios, {AxiosInstance, AxiosResponse} from 'axios';
 import {
     BankMetadata,
     Consent,
@@ -74,11 +74,66 @@ export class BlinkDebitClient {
     private _refundsApi: ReturnType<typeof RefundsApiFactory>;
     private _bankMetadataApi: ReturnType<typeof BankMetadataApiFactory>;
 
+    constructor();
+
+    constructor(axios: AxiosInstance);
+
     constructor(axios: AxiosInstance, config: BlinkPayConfig);
 
-    constructor(axios: AxiosInstance, configDirectory?: string, configFile?: string);
+    constructor(axios: AxiosInstance, configDirectory: string, configFile: string);
 
-    constructor(axios: AxiosInstance, configDirectoryOrConfig?: string | BlinkPayConfig, configFile?: string) {
+    constructor(axios?: AxiosInstance, configDirectoryOrConfigOrDebitUrl?: string | BlinkPayConfig, configFileOrClientId?: string, clientSecret?: string) {
+        let configDirectoryOrConfig;
+        let configFile;
+        if (!axios && !configDirectoryOrConfigOrDebitUrl && !configFileOrClientId && !clientSecret) {
+            // Handle no-arg constructor logic here
+            axios = globalAxios.create({
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+            configDirectoryOrConfig = {
+                blinkpay: {
+                    debitUrl: process.env.REACT_APP_BLINKPAY_DEBIT_URL || '',
+                    clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID || '',
+                    clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET || '',
+                    timeout: 10000,
+                    retryEnabled: true
+                }
+            };
+        } else
+        if (axios && !configDirectoryOrConfigOrDebitUrl && !configFileOrClientId && !clientSecret) {
+            // Handle axios constructor logic here
+            configDirectoryOrConfig = {
+                blinkpay: {
+                    debitUrl: process.env.REACT_APP_BLINKPAY_DEBIT_URL || '',
+                    clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID || '',
+                    clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET || '',
+                    timeout: 10000,
+                    retryEnabled: true
+                }
+            };
+        } else if (axios && typeof configDirectoryOrConfigOrDebitUrl === 'object') {
+            // Handle axios, config constructor logic here
+            configDirectoryOrConfig = configDirectoryOrConfigOrDebitUrl;
+        } else if (axios && typeof configDirectoryOrConfigOrDebitUrl === 'string' && typeof configFileOrClientId === 'string') {
+            // Handle axios, configDirectory, configFile constructor logic here
+            configDirectoryOrConfig = configDirectoryOrConfigOrDebitUrl;
+            configFile = configFileOrClientId;
+        } else if (axios && typeof configDirectoryOrConfigOrDebitUrl === 'string' && typeof configFileOrClientId === 'string' && clientSecret) {
+            // Handle axios, debitUrl, clientId, clientSecret constructor logic here
+            // In this case, configDirectoryOrConfig is debitUrl, and configFileOrClientId is clientId
+            configDirectoryOrConfig = {
+                blinkpay: {
+                    debitUrl: configDirectoryOrConfigOrDebitUrl,
+                    clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID || '',
+                    clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET || '',
+                    timeout: 10000,
+                    retryEnabled: true
+                }
+            };
+        }
+
         if (!axios) {
             throw new BlinkInvalidValueException("Axios instance is required");
         }
