@@ -48,6 +48,54 @@ BLINKPAY_RETRY_ENABLED=true
 BLINKPAY_TIMEOUT=10000
 ```
 
+Create and use the client:
+<table>
+<tr>
+<th>sample.js</th>
+<th>sample.ts</th>
+</tr>
+<tr>
+<td>
+
+```javascript
+import axios from 'axios';
+import log from 'loglevel';
+import { BlinkDebitClient, ConsentDetailTypeEnum, AuthFlowDetailTypeEnum, AmountCurrencyEnum } from 'blink-debit-api-client-node';
+
+const client = new BlinkDebitClient(axios);
+
+const request = {
+    type: ConsentDetailTypeEnum.Single,
+    flow: {
+        detail: {
+            type: AuthFlowDetailTypeEnum.Gateway,
+            redirectUri: "https://www.blinkpay.co.nz/sample-merchant-return-page"
+        }
+    },
+    amount: {
+        currency: AmountCurrencyEnum.NZD,
+        total: '0.01'
+    },
+    pcr: {
+        particulars: 'particulars',
+        code: 'code',
+        reference: 'reference'
+    }
+};
+
+async function createQuickPayment() {
+    const qpCreateResponse = await client.createQuickPayment(request);
+    log.info("Redirect URL: {}", qpCreateResponse.redirectUri); // Redirect the consumer to this URL
+    const qpId = qpCreateResponse.quickPaymentId;
+    const qpResponse = await client.awaitSuccessfulQuickPaymentOrThrowException(qpId, 300); // Will throw an exception if the payment was not successful after 5min
+}
+
+await createQuickPayment();
+```
+
+</td>
+<td>
+
 ```typescript
 import axios from 'axios';
 import log from 'loglevel';
@@ -83,6 +131,11 @@ async function createQuickPayment() {
 
 await createQuickPayment();
 ```
+
+</td>
+</tr>
+</table>
+
 ### Option 2: Browser environment e.g. React
 Append the BlinkPay environment variables to your `.env` file. Notice the `REACT_APP_` prefix.
 ```dotenv
