@@ -1,8 +1,8 @@
-# Blink-Debit-API-Client-TypeScript
-[![CI](https://github.com/BlinkPay/Blink-Debit-API-Client-TypeScript/actions/workflows/build.yml/badge.svg)](https://github.com/BlinkPay/Blink-Debit-API-Client-TypeScript/actions/workflows/build.yml)
-[![NPM](https://img.shields.io/npm/v/blink-debit-api-client-typescript.svg)](https://npmjs.org/package/blink-debit-api-client-typescript)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=blink-debit-api-client-typescript&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=blink-debit-api-client-typescript)
-[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=blink-debit-api-client-typescript&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=blink-debit-api-client-typescript)
+# Blink-Debit-API-Client-Node
+[![CI](https://github.com/BlinkPay/Blink-Debit-API-Client-Node/actions/workflows/build.yml/badge.svg)](https://github.com/BlinkPay/Blink-Debit-API-Client-Node/actions/workflows/build.yml)
+[![NPM](https://img.shields.io/npm/v/blink-debit-api-client-node.svg)](https://npmjs.org/package/blink-debit-api-client-node)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=blink-debit-api-client-node&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=blink-debit-api-client-node)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=blink-debit-api-client-node&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=blink-debit-api-client-node)
 [![Snyk security](https://img.shields.io/badge/Snyk_security-monitored-9043C6)](https://app.snyk.io/org/blinkpay-zw9/project/79852dcd-f05b-4481-b4de-a692e767286a)
 
 # Table of Contents
@@ -34,7 +34,7 @@ This project is licensed under the MIT License.
 ## Adding the dependency
 - Install via NPM
 ```shell
-npm install blink-debit-api-client-typescript --save
+npm install blink-debit-api-client-node --save
 ```
 
 ## Quick Start
@@ -51,7 +51,7 @@ BLINKPAY_TIMEOUT=10000
 ```typescript
 import axios from 'axios';
 import log from 'loglevel';
-import { BlinkDebitClient, QuickPaymentRequest, ConsentDetailTypeEnum, AuthFlowDetailTypeEnum, GatewayFlow, AuthFlow, AmountCurrencyEnum, Amount, Pcr } from 'blink-debit-api-client-typescript';
+import { BlinkDebitClient, QuickPaymentRequest, ConsentDetailTypeEnum, AuthFlowDetailTypeEnum, GatewayFlow, AuthFlow, AmountCurrencyEnum, Amount, Pcr } from 'blink-debit-api-client-node';
 
 const client = new BlinkDebitClient(axios);
 
@@ -157,7 +157,7 @@ Create the BlinkDebitClient instance:
 <td>
 
 ```javascript
-import {BlinkDebitClient} from 'blink-debit-api-client-typescript';
+import {BlinkDebitClient} from 'blink-debit-api-client-node';
 import globalAxios from './axiosInstance';
 
 const blinkPayConfig = {
@@ -179,7 +179,7 @@ export default client;
 <td>
 
 ```typescript
-import {BlinkPayConfig, BlinkDebitClient} from 'blink-debit-api-client-typescript';
+import {BlinkPayConfig, BlinkDebitClient} from 'blink-debit-api-client-node';
 import globalAxios from './axiosInstance';
 
 const blinkPayConfig: BlinkPayConfig = {
@@ -198,7 +198,14 @@ export const client = new BlinkDebitClient(globalAxios, blinkPayConfig);
 </td>
 </tr>
 </table>
-Create a function for submitting a form e.g. `cart.jsx`:
+In your component, create a function for submitting a form:
+<table>
+<tr>
+<th>cart.jsx</th>
+<th>cart.tsx</th>
+</tr>
+<tr>
+<td>
 
 ```javascript
 import React, {Component} from 'react';
@@ -207,7 +214,7 @@ import {
     AmountCurrencyEnum,
     AuthFlowDetailTypeEnum,
     ConsentDetailTypeEnum
-} from 'blink-debit-api-client-typescript';
+} from 'blink-debit-api-client-node';
 import client from '../blinkDebitClientInstance';
 
 class Cart extends Component {
@@ -291,7 +298,9 @@ class Cart extends Component {
 
 export default Cart;
 ```
-or `cart.tsx`:
+
+</td>
+<td>
 
 ```typescript
 import React, {Component} from 'react';
@@ -305,7 +314,7 @@ import {
     GatewayFlow,
     Pcr,
     QuickPaymentRequest
-} from 'blink-debit-api-client-typescript';
+} from 'blink-debit-api-client-node';
 import {client} from '../blinkDebitClientInstance';
 
 interface State {
@@ -394,6 +403,10 @@ class Cart extends Component<{}, State> {
 
 export default Cart;
 ```
+
+</td>
+</tr>
+</table>
 
 ## Configuration
 - Customise/supply the required properties in your `config.json` and `.env`. This file should be available in your project folder.

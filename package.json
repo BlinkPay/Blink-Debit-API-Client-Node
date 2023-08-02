@@ -1,7 +1,7 @@
 {
-  "name": "blink-debit-api-client-typescript",
+  "name": "blink-debit-api-client-node",
   "version": "1.0.0",
-  "description": "The Blink Debit API client for TypeScript",
+  "description": "The Blink Debit API client for Node.js",
   "author": "Rey Vincent Babilonia (rey.babilonia@blinkpay.co.nz)",
   "keywords": [
     "blink debit",
