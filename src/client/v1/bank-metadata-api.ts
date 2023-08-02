@@ -20,17 +20,23 @@
  * SOFTWARE.
  */
 
-import globalAxios, {AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios';
+import {AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios';
 import {Configuration} from '../../../configuration';
 import {BaseAPI, RequestArgs} from '../../../base';
 import {BankMetadata} from '../../dto';
+import {BlinkInvalidValueException} from "../../exceptions";
+import {TokenAPI} from './token-api';
 
 /**
  * BankMetadataApi - axios parameter creator
  *
  * @export
  */
-export const BankMetadataApiAxiosParamCreator = function (configuration?: Configuration) {
+export const BankMetadataApiAxiosParamCreator = function (axios: AxiosInstance, configuration?: Configuration) {
+    if (!axios) {
+        throw new BlinkInvalidValueException("Axios instance is required");
+    }
+
     return {
         /**
          * The available banks, features available for the banks, and relevant fields.
@@ -53,8 +59,8 @@ export const BankMetadataApiAxiosParamCreator = function (configuration?: Config
 
             // authentication Bearer required
             // oauth required
-            await configuration.getAccessToken();
-            if (configuration) {
+            await TokenAPI.getInstance(axios, configuration).getAccessToken();
+            if (configuration && configuration.accessToken) {
                 const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
                     ? await configuration.accessToken("Bearer", ["create:single_consent", "view:single_consent", "revoke:single_consent", "create:enduring_consent", "view:enduring_consent", "revoke:enduring_consent", "create:payment", "view:payment", "view:metadata", "view:transaction", "create:quick_payment", "view:quick_payment", "create:refund", "view:refund"])
                     : await configuration.accessToken;
@@ -92,7 +98,7 @@ export const BankMetadataApiAxiosParamCreator = function (configuration?: Config
  * BankMetadataApi - functional programming interface
  * @export
  */
-export const BankMetadataApiFp = function (configuration?: Configuration) {
+export const BankMetadataApiFp = function (axios: AxiosInstance, configuration?: Configuration) {
     return {
         /**
          * The available banks, features available for the banks, and relevant fields.
@@ -102,8 +108,8 @@ export const BankMetadataApiFp = function (configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          */
         async getMeta(requestId?: string, xCorrelationId?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Array<BankMetadata>>>> {
-            const localVarAxiosArgs = await BankMetadataApiAxiosParamCreator(configuration).getMeta(requestId, xCorrelationId, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = configuration.basePath) => {
+            const localVarAxiosArgs = await BankMetadataApiAxiosParamCreator(axios, configuration).getMeta(requestId, xCorrelationId, options);
+            return (axios: AxiosInstance, basePath: string = configuration.basePath) => {
                 const axiosRequestArgs: AxiosRequestConfig = {
                     ...localVarAxiosArgs.options,
                     url: basePath + localVarAxiosArgs.url
@@ -121,7 +127,7 @@ export const BankMetadataApiFp = function (configuration?: Configuration) {
  * BankMetadataApi - factory interface
  * @export
  */
-export const BankMetadataApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+export const BankMetadataApiFactory = function (axios: AxiosInstance, configuration?: Configuration, basePath?: string) {
     return {
         /**
          * The available banks, features available for the banks, and relevant fields.
@@ -131,7 +137,7 @@ export const BankMetadataApiFactory = function (configuration?: Configuration, b
          * @param {*} [options] Override http request option.
          */
         async getMeta(requestId?: string, xCorrelationId?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Array<BankMetadata>>> {
-            return BankMetadataApiFp(configuration).getMeta(requestId, xCorrelationId, options).then((request) => request(axios, basePath));
+            return BankMetadataApiFp(axios, configuration).getMeta(requestId, xCorrelationId, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -152,6 +158,6 @@ export class BankMetadataApi extends BaseAPI {
      * @memberof BankMetadataApi
      */
     public async getMeta(requestId?: string, xCorrelationId?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Array<BankMetadata>>> {
-        return BankMetadataApiFp(this.configuration).getMeta(requestId, xCorrelationId, options).then((request) => request(this.axios, this.basePath));
+        return BankMetadataApiFp(this.axios, this.configuration).getMeta(requestId, xCorrelationId, options).then((request) => request(this.axios, this.basePath));
     }
 }

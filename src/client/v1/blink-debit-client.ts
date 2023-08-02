@@ -33,13 +33,14 @@ import {
     BlinkConsentFailureException,
     BlinkConsentRejectedException,
     BlinkConsentTimeoutException,
+    BlinkInvalidValueException,
     BlinkPaymentFailureException,
     BlinkPaymentRejectedException,
     BlinkPaymentTimeoutException,
     BlinkRetryableException,
     BlinkServiceException
 } from '../../exceptions';
-import globalAxios, {AxiosResponse} from 'axios';
+import globalAxios, {AxiosInstance, AxiosResponse} from 'axios';
 import {
     BankMetadata,
     Consent,
@@ -58,14 +59,14 @@ import {
     RefundResponse,
     SingleConsentRequest
 } from '../../dto';
-import * as log4js from 'log4js';
 import {Configuration} from '../../../configuration';
+import {BlinkPayConfig} from '../../../blinkpay-config';
+import log from 'loglevel';
 
 /**
  * The facade for accessing all client methods from one place.
  */
 export class BlinkDebitClient {
-    private _logger: log4js.Logger;
     private _singleConsentsApi: ReturnType<typeof SingleConsentsApiFactory>;
     private _enduringConsentsApi: ReturnType<typeof EnduringConsentsApiFactory>;
     private _quickPaymentsApi: ReturnType<typeof QuickPaymentsApiFactory>;
@@ -73,21 +74,78 @@ export class BlinkDebitClient {
     private _refundsApi: ReturnType<typeof RefundsApiFactory>;
     private _bankMetadataApi: ReturnType<typeof BankMetadataApiFactory>;
 
-    constructor(configDirectory?: string, configFile?: string) {
-        log4js.configure({
-            appenders: {file: {type: 'file', filename: 'logs/blink-debit-api-client.log'}},
-            categories: {default: {appenders: ['file'], level: 'debug'}}
-        });
-        this._logger = log4js.getLogger('blink-debit-client');
+    constructor();
 
-        const configuration = Configuration.getInstance(configDirectory, configFile);
+    constructor(axios: AxiosInstance);
 
-        this._singleConsentsApi = SingleConsentsApiFactory(configuration, undefined, globalAxios);
-        this._enduringConsentsApi = EnduringConsentsApiFactory(configuration, undefined, globalAxios);
-        this._quickPaymentsApi = QuickPaymentsApiFactory(configuration, undefined, globalAxios);
-        this._paymentsApi = PaymentsApiFactory(configuration, undefined, globalAxios);
-        this._refundsApi = RefundsApiFactory(configuration, undefined, globalAxios);
-        this._bankMetadataApi = BankMetadataApiFactory(configuration, undefined, globalAxios);
+    constructor(axios: AxiosInstance, config: BlinkPayConfig);
+
+    constructor(axios: AxiosInstance, configDirectory: string, configFile: string);
+
+    constructor(axios?: AxiosInstance, configDirectoryOrConfigOrDebitUrl?: string | BlinkPayConfig, configFileOrClientId?: string, clientSecret?: string) {
+        let configDirectoryOrConfig;
+        let configFile;
+        if (!axios && !configDirectoryOrConfigOrDebitUrl && !configFileOrClientId && !clientSecret) {
+            // Handle no-arg constructor logic here
+            axios = globalAxios.create({
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+            configDirectoryOrConfig = {
+                blinkpay: {
+                    debitUrl: process.env.REACT_APP_BLINKPAY_DEBIT_URL || '',
+                    clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID || '',
+                    clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET || '',
+                    timeout: 10000,
+                    retryEnabled: true
+                }
+            };
+        } else
+        if (axios && !configDirectoryOrConfigOrDebitUrl && !configFileOrClientId && !clientSecret) {
+            // Handle axios constructor logic here
+            configDirectoryOrConfig = {
+                blinkpay: {
+                    debitUrl: process.env.REACT_APP_BLINKPAY_DEBIT_URL || '',
+                    clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID || '',
+                    clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET || '',
+                    timeout: 10000,
+                    retryEnabled: true
+                }
+            };
+        } else if (axios && typeof configDirectoryOrConfigOrDebitUrl === 'object') {
+            // Handle axios, config constructor logic here
+            configDirectoryOrConfig = configDirectoryOrConfigOrDebitUrl;
+        } else if (axios && typeof configDirectoryOrConfigOrDebitUrl === 'string' && typeof configFileOrClientId === 'string') {
+            // Handle axios, configDirectory, configFile constructor logic here
+            configDirectoryOrConfig = configDirectoryOrConfigOrDebitUrl;
+            configFile = configFileOrClientId;
+        } else if (axios && typeof configDirectoryOrConfigOrDebitUrl === 'string' && typeof configFileOrClientId === 'string' && clientSecret) {
+            // Handle axios, debitUrl, clientId, clientSecret constructor logic here
+            // In this case, configDirectoryOrConfig is debitUrl, and configFileOrClientId is clientId
+            configDirectoryOrConfig = {
+                blinkpay: {
+                    debitUrl: configDirectoryOrConfigOrDebitUrl,
+                    clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID || '',
+                    clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET || '',
+                    timeout: 10000,
+                    retryEnabled: true
+                }
+            };
+        }
+
+        if (!axios) {
+            throw new BlinkInvalidValueException("Axios instance is required");
+        }
+
+        const configuration = Configuration.getInstance(axios, configDirectoryOrConfig, configFile);
+
+        this._singleConsentsApi = SingleConsentsApiFactory(axios, configuration, undefined);
+        this._enduringConsentsApi = EnduringConsentsApiFactory(axios, configuration, undefined);
+        this._quickPaymentsApi = QuickPaymentsApiFactory(axios, configuration, undefined);
+        this._paymentsApi = PaymentsApiFactory(axios, configuration, undefined);
+        this._refundsApi = RefundsApiFactory(axios, configuration, undefined);
+        this._bankMetadataApi = BankMetadataApiFactory(axios, configuration, undefined);
     }
 
     /**
@@ -214,7 +272,7 @@ export class BlinkDebitClient {
                 const consent = await this.getSingleConsentAsync(consentId);
 
                 const status = consent.data.status;
-                this._logger.debug(`The last status polled was: ${status} \tfor Single Consent ID: ${consentId}`);
+                log.debug(`The last status polled was: ${status} \tfor Single Consent ID: ${consentId}`);
 
                 if (status === ConsentStatusEnum.Authorised) {
                     return consent;
@@ -288,12 +346,12 @@ export class BlinkDebitClient {
                 const consent = await this.getSingleConsentAsync(consentId);
 
                 const status = consent.data.status;
-                this._logger.debug(`The last status polled was: ${status} \tfor Single Consent ID: ${consentId}`);
+                log.debug(`The last status polled was: ${status} \tfor Single Consent ID: ${consentId}`);
 
                 switch (status) {
                     case ConsentStatusEnum.Authorised:
                     case ConsentStatusEnum.Consumed:
-                        this._logger.debug(`Single consent completed for ID: ${consentId}`);
+                        log.debug(`Single consent completed for ID: ${consentId}`);
                         return consent;
                     case ConsentStatusEnum.Rejected:
                     case ConsentStatusEnum.Revoked:
@@ -440,7 +498,7 @@ export class BlinkDebitClient {
                 const consent = await this.getEnduringConsentAsync(consentId);
 
                 const status = consent.data.status;
-                this._logger.debug(`The last status polled was: ${status} \tfor Enduring Consent ID: ${consentId}`);
+                log.debug(`The last status polled was: ${status} \tfor Enduring Consent ID: ${consentId}`);
 
                 if (status === ConsentStatusEnum.Authorised) {
                     return consent;
@@ -449,9 +507,25 @@ export class BlinkDebitClient {
                 throw new BlinkRetryableException();
             })
             .then(response => response.data)
-            .catch(error => {
+            .catch(async error => {
                 if (error instanceof BlinkRetryableException) {
-                    throw new BlinkConsentTimeoutException();
+                    const blinkConsentTimeoutException = new BlinkConsentTimeoutException();
+
+                    try {
+                        await this.revokeEnduringConsentAsync(consentId);
+                        log.info(
+                            "The max wait time was reached while waiting for the enduring consent to complete and the payment has been revoked with the server. Enduring consent ID: ",
+                            consentId);
+                    } catch (revokeException) {
+                        if (revokeException != undefined) {
+                            log.error(
+                                "Waiting for the enduring consent was not successful and it was also not able to be revoked with the server due to: ",
+                                revokeException.message);
+                            throw new AggregateError([blinkConsentTimeoutException, revokeException]);
+                        }
+                    }
+
+                    throw blinkConsentTimeoutException;
                 } else if (error instanceof BlinkConsentFailureException || error instanceof BlinkServiceException) {
                     throw error;
                 } else if (error && error.innerException) {
@@ -514,12 +588,12 @@ export class BlinkDebitClient {
                 const consent = await this.getEnduringConsentAsync(consentId);
 
                 const status = consent.data.status;
-                this._logger.debug(`The last status polled was: ${status} \tfor Enduring Consent ID: ${consentId}`);
+                log.debug(`The last status polled was: ${status} \tfor Enduring Consent ID: ${consentId}`);
 
                 switch (status) {
                     case ConsentStatusEnum.Authorised:
                     case ConsentStatusEnum.Consumed:
-                        this._logger.debug(`Enduring consent completed for ID: ${consentId}`);
+                        log.debug(`Enduring consent completed for ID: ${consentId}`);
                         return consent;
                     case ConsentStatusEnum.Rejected:
                     case ConsentStatusEnum.Revoked:
@@ -532,9 +606,25 @@ export class BlinkDebitClient {
                         throw new BlinkRetryableException(`Enduring consent [${consentId}] is waiting for authorisation`);
                 }
             })
-            .catch(error => {
+            .catch(async error => {
                 if (error instanceof BlinkRetryableException) {
-                    throw new BlinkConsentTimeoutException();
+                    const blinkConsentTimeoutException = new BlinkConsentTimeoutException();
+
+                    try {
+                        await this.revokeEnduringConsentAsync(consentId);
+                        log.info(
+                            "The max wait time was reached while waiting for the enduring consent to complete and the payment has been revoked with the server. Enduring consent ID: ",
+                            consentId);
+                    } catch (revokeException) {
+                        if (revokeException != undefined) {
+                            log.error(
+                                "Waiting for the enduring consent was not successful and it was also not able to be revoked with the server due to: ",
+                                revokeException.message);
+                            throw new AggregateError([blinkConsentTimeoutException, revokeException]);
+                        }
+                    }
+
+                    throw blinkConsentTimeoutException;
                 } else if (error instanceof BlinkConsentFailureException || error instanceof BlinkServiceException) {
                     throw error;
                 } else if (error && error.innerException) {
@@ -675,7 +765,7 @@ export class BlinkDebitClient {
                 const quickPayment = await this.getQuickPaymentAsync(quickPaymentId);
 
                 const status = quickPayment.data.consent.status;
-                this._logger.debug(`The last status polled was: ${status} \tfor Quick Payment ID: ${quickPaymentId}`);
+                log.debug(`The last status polled was: ${status} \tfor Quick Payment ID: ${quickPaymentId}`);
 
                 if (status === ConsentStatusEnum.Authorised) {
                     return quickPayment;
@@ -690,12 +780,12 @@ export class BlinkDebitClient {
 
                     try {
                         await this.revokeQuickPaymentAsync(quickPaymentId);
-                        this._logger.info(
+                        log.info(
                             "The max wait time was reached while waiting for the quick payment to complete and the payment has been revoked with the server. Quick payment ID: ",
                             quickPaymentId);
                     } catch (revokeException) {
                         if (revokeException != undefined) {
-                            this._logger.error(
+                            log.error(
                                 "Waiting for the quick payment was not successful and it was also not able to be revoked with the server due to: ",
                                 revokeException.message);
                             throw new AggregateError([blinkConsentTimeoutException, revokeException]);
@@ -765,12 +855,12 @@ export class BlinkDebitClient {
                 const quickPayment = await this.getQuickPaymentAsync(quickPaymentId);
 
                 const status = quickPayment.data.consent.status;
-                this._logger.debug(`The last status polled was: ${status} \tfor Quick Payment ID: ${quickPaymentId}`);
+                log.debug(`The last status polled was: ${status} \tfor Quick Payment ID: ${quickPaymentId}`);
 
                 switch (status) {
                     case ConsentStatusEnum.Authorised:
                     case ConsentStatusEnum.Consumed:
-                        this._logger.debug(`Quick payment completed for ID: ${quickPaymentId}`);
+                        log.debug(`Quick payment completed for ID: ${quickPaymentId}`);
                         return quickPayment;
                     case ConsentStatusEnum.Rejected:
                     case ConsentStatusEnum.Revoked:
@@ -789,12 +879,12 @@ export class BlinkDebitClient {
 
                     try {
                         await this.revokeQuickPaymentAsync(quickPaymentId);
-                        this._logger.info(
+                        log.info(
                             "The max wait time was reached while waiting for the quick payment to complete and the payment has been revoked with the server. Quick payment ID: ",
                             quickPaymentId);
                     } catch (revokeException) {
                         if (revokeException != undefined) {
-                            this._logger.error(
+                            log.error(
                                 "Waiting for the quick payment was not successful and it was also not able to be revoked with the server due to: ",
                                 revokeException.message);
                             throw new AggregateError([blinkConsentTimeoutException, revokeException]);
@@ -976,7 +1066,7 @@ export class BlinkDebitClient {
                 const payment = await this.getPaymentAsync(paymentId);
 
                 const status = payment.data.status;
-                this._logger.debug(`The last status polled was: ${status} \tfor Payment ID: ${paymentId}`);
+                log.debug(`The last status polled was: ${status} \tfor Payment ID: ${paymentId}`);
 
                 if (status === PaymentStatusEnum.AcceptedSettlementCompleted) {
                     return payment;
@@ -1050,11 +1140,11 @@ export class BlinkDebitClient {
                 const payment = await this.getPaymentAsync(paymentId);
 
                 const status = payment.data.status;
-                this._logger.debug(`The last status polled was: ${status} \tfor Payment ID: ${paymentId}`);
+                log.debug(`The last status polled was: ${status} \tfor Payment ID: ${paymentId}`);
 
                 switch (status) {
                     case PaymentStatusEnum.AcceptedSettlementCompleted:
-                        this._logger.debug(`Payment completed for ID: ${paymentId}`);
+                        log.debug(`Payment completed for ID: ${paymentId}`);
                         return payment;
                     case PaymentStatusEnum.Rejected:
                         throw new BlinkPaymentRejectedException(`Payment [${paymentId}] has been rejected`);

@@ -52,9 +52,9 @@ describe('QuickPaymentsApi Integration Test', () => {
     let apiInstance: ReturnType<typeof QuickPaymentsApiFactory>;
 
     beforeAll(async () => {
-        const configuration = Configuration.getInstance();
+        const configuration = Configuration.getInstance(globalAxios);
 
-        apiInstance = QuickPaymentsApiFactory(configuration, undefined, globalAxios);
+        apiInstance = QuickPaymentsApiFactory(globalAxios, configuration, undefined);
     });
 
     it('Verify that quick payment with redirect flow is created in PNZ', async () => {

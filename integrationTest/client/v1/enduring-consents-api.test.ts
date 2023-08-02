@@ -53,9 +53,9 @@ describe('EnduringConsentsApi Integration Test', () => {
     let apiInstance: ReturnType<typeof EnduringConsentsApiFactory>;
 
     beforeAll(async () => {
-        const configuration = Configuration.getInstance();
+        const configuration = Configuration.getInstance(globalAxios);
 
-        apiInstance = EnduringConsentsApiFactory(configuration, undefined, globalAxios);
+        apiInstance = EnduringConsentsApiFactory(globalAxios, configuration, undefined);
     });
 
     it('Verify that enduring consent with redirect flow is created in PNZ', async () => {

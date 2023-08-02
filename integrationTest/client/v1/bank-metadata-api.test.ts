@@ -31,9 +31,9 @@ describe('BankMetadataApi Integration Test', () => {
     let apiInstance: ReturnType<typeof BankMetadataApiFactory>;
 
     beforeAll(async () => {
-        const configuration = Configuration.getInstance();
+        const configuration = Configuration.getInstance(globalAxios);
 
-        apiInstance = BankMetadataApiFactory(configuration, undefined, globalAxios);
+        apiInstance = BankMetadataApiFactory(globalAxios, configuration, undefined);
     });
 
     it('Verify that bank metadata is retrieved', async () => {

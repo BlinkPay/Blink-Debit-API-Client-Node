@@ -56,11 +56,11 @@ describe('PaymentsApi Integration Test', () => {
     let apiInstance: ReturnType<typeof PaymentsApiFactory>;
 
     beforeAll(async () => {
-        const configuration = Configuration.getInstance();
+        const configuration = Configuration.getInstance(globalAxios);
 
-        singleConsentsApiInstance = SingleConsentsApiFactory(configuration, undefined, globalAxios);
-        enduringConsentsApiInstance = EnduringConsentsApiFactory(configuration, undefined, globalAxios);
-        apiInstance = PaymentsApiFactory(configuration, undefined, globalAxios);
+        singleConsentsApiInstance = SingleConsentsApiFactory(globalAxios, configuration, undefined);
+        enduringConsentsApiInstance = EnduringConsentsApiFactory(globalAxios, configuration, undefined);
+        apiInstance = PaymentsApiFactory(globalAxios, configuration, undefined);
     });
 
     it('Verify that payment for single consent with decoupled flow is created and retrieved', async () => {

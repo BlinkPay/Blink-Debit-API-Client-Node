@@ -20,14 +20,13 @@
  * SOFTWARE.
  */
 
-import globalAxios, {AxiosRequestConfig} from 'axios';
-import dotenv from 'dotenv';
-import {AccessTokenResponse} from './src/dto/v1/access-token-response';
+import {AxiosInstance} from 'axios';
 import qs from 'qs';
 import {camelizeKeys, decamelizeKeys} from 'humps';
 import {
     BlinkClientException,
     BlinkForbiddenException,
+    BlinkInvalidValueException,
     BlinkNotImplementedException,
     BlinkRateLimitExceededException,
     BlinkResourceNotFoundException,
@@ -35,38 +34,18 @@ import {
     BlinkServiceException,
     BlinkUnauthorisedException
 } from './src';
-import * as log4js from 'log4js';
 import {ExponentialBackoff, handleType, retry, RetryPolicy} from 'cockatiel';
-import fs from 'fs';
-import path from 'path';
+import {BlinkPayConfig} from './blinkpay-config';
+import log from 'loglevel';
 
-dotenv.config();
+if (typeof process !== 'undefined') {
+    require('dotenv').config();
+}
 
 /**
  * The configuration.
  */
 export class Configuration {
-    /**
-     * parameter for apiKey security
-     *
-     * @param name security name
-     * @memberof Configuration
-     */
-    apiKey?: string | Promise<string> | ((name: string) => string) | ((name: string) => Promise<string>);
-    /**
-     * parameter for basic security
-     *
-     * @type {string}
-     * @memberof Configuration
-     */
-    username?: string;
-    /**
-     * parameter for basic security
-     *
-     * @type {string}
-     * @memberof Configuration
-     */
-    password?: string;
     /**
      * parameter for OAuth2 security
      *
@@ -101,17 +80,12 @@ export class Configuration {
      */
     retryPolicy: RetryPolicy;
     /**
-     * The logger
-     *
-     * @private
-     */
-    private _logger: log4js.Logger;
-    /**
      * The Blink Debit URL
      *
-     * @private
+     * @type {string}
+     * @memberof Configuration
      */
-    private readonly _debitUrl: string;
+    readonly debitUrl: string;
     /**
      * The Axios request timeout
      *
@@ -127,45 +101,84 @@ export class Configuration {
     /**
      * The OAuth2 client ID
      *
-     * @private
+     * @type {string}
+     * @memberof Configuration
      */
-    private readonly _clientId: string;
+    readonly clientId: string;
     /**
      * The OAuth2 client secret
      *
-     * @private
+     * @type {string}
+     * @memberof Configuration
      */
-    private readonly _clientSecret: string;
+    readonly clientSecret: string;
 
     private static instance: Configuration;
 
-    private constructor(configDirectory?: string, configFile?: string) {
-        log4js.configure({
-            appenders: {file: {type: 'file', filename: 'logs/blink-debit-api-client.log'}},
-            categories: {default: {appenders: ['file'], level: 'debug'}}
-        });
-        this._logger = log4js.getLogger('configuration');
+    private constructor(axios: AxiosInstance, config: BlinkPayConfig);
 
-        // load properties from config.json
-        // environment variables from .env have higher priority
-        const configPath = this.getConfigPath(configDirectory, configFile);
-        const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-        this._debitUrl = process.env.BLINKPAY_DEBIT_URL
-            ? process.env.BLINKPAY_DEBIT_URL
-            : (config.blinkpay && config.blinkpay.debitUrl);
-        const timeout = process.env.BLINKPAY_TIMEOUT
-            ? process.env.BLINKPAY_TIMEOUT
-            : (config.blinkpay && config.blinkpay.timeout);
-        const retryEnabled = process.env.BLINKPAY_RETRY_ENABLED
-            ? process.env.BLINKPAY_RETRY_ENABLED
-            : (config.blinkpay && config.blinkpay.retryEnabled);
-        this._clientId = process.env.BLINKPAY_CLIENT_ID
-            ? process.env.BLINKPAY_CLIENT_ID
-            : (config.blinkpay && config.blinkpay.clientId);
-        this._clientSecret = process.env.BLINKPAY_CLIENT_SECRET;
+    private constructor(axios: AxiosInstance, configDirectory?: string, configFile?: string);
+
+    private constructor(axios: AxiosInstance, configDirectoryOrConfig?: string | BlinkPayConfig, configFile?: string) {
+        let config;
+        let timeout;
+        let retryEnabled;
+        // check if it's not a browser environment
+        if (typeof window === 'undefined') {
+            const fs = require('fs');
+
+            if (typeof configDirectoryOrConfig === 'string') {
+                // load properties from config.json
+                // environment variables from .env have higher priority
+                const configPath = this.getConfigPath(configDirectoryOrConfig, configFile);
+                config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+            } else {
+                // load properties from config.json
+                // environment variables from .env have higher priority
+                if (configFile) {
+                    const configPath = this.getConfigPath(undefined, configFile);
+                    config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+                }
+            }
+
+            this.debitUrl = process.env.BLINKPAY_DEBIT_URL
+                ? process.env.BLINKPAY_DEBIT_URL
+                : (config && config.blinkpay && config.blinkpay.debitUrl);
+            timeout = process.env.BLINKPAY_TIMEOUT
+                ? process.env.BLINKPAY_TIMEOUT
+                : (config && config.blinkpay && config.blinkpay.timeout) || 10000;
+            retryEnabled = process.env.BLINKPAY_RETRY_ENABLED
+                ? process.env.BLINKPAY_RETRY_ENABLED
+                : (config && config.blinkpay && config.blinkpay.retryEnabled) || true;
+            this.clientId = process.env.BLINKPAY_CLIENT_ID
+                ? process.env.BLINKPAY_CLIENT_ID
+                : (config && config.blinkpay && config.blinkpay.clientId);
+            this.clientSecret = process.env.BLINKPAY_CLIENT_SECRET;
+        } else {
+            config = configDirectoryOrConfig as BlinkPayConfig;
+
+            this.debitUrl = config.blinkpay.debitUrl;
+            timeout = config.blinkpay.timeout;
+            retryEnabled = config.blinkpay.retryEnabled;
+            this.clientId = config.blinkpay.clientId;
+            this.clientSecret = config.blinkpay.clientSecret;
+        }
+
+        // validate required fields
+        if (!this.debitUrl) {
+            throw new BlinkInvalidValueException("Blink Debit URL is not configured");
+        }
+
+        if (!this.clientId) {
+            throw new BlinkInvalidValueException("Blink Debit client ID is not configured");
+        }
+
+        if (!this.clientSecret) {
+            throw new BlinkInvalidValueException("Blink Debit client secret is not configured");
+        }
 
         // configure base path
-        this.basePath = this._debitUrl + '/payments/v1';
+        this.basePath = this.debitUrl + '/payments/v1';
 
         // configure timeout, defaults to 10,000 milliseconds
         this._timeout = Number(timeout);
@@ -179,83 +192,91 @@ export class Configuration {
         } else if (typeof retryEnabled === 'string') {
             this._retryEnabled = retryEnabled.toLowerCase() === 'true';
         } else {
-            this._retryEnabled = false;
+            this._retryEnabled = true;
         }
 
-        this.configureAxios();
+        this.configureAxios(axios);
         this.configureRetry();
     }
 
-    private configureAxios() {
+    private configureAxios(axios: AxiosInstance) {
         // configure timeout
-        globalAxios.defaults.timeout = this._timeout;
+        axios.defaults.timeout = this._timeout;
 
         // intercept request
-        globalAxios.interceptors.request.use(request => {
-            this._logger.debug(`Outbound request: ${request.method.toUpperCase()} ${request.url}`);
+        axios.interceptors.request.use(request => {
+            log.debug(`Outbound request: ${request.method.toUpperCase()} ${request.url}`);
 
             const headers = Configuration.sanitiseHeaders({...request.headers});
-            this._logger.debug(`Headers: ${JSON.stringify(headers)}`);
+            log.debug(`Headers: ${JSON.stringify(headers)}`);
 
             if (request.params) {
-                this._logger.debug(`Parameters: ${qs.stringify(request.params, {arrayFormat: 'brackets'})}`);
+                log.debug(`Parameters: ${qs.stringify(request.params, {arrayFormat: 'brackets'})}`);
             }
 
             if (request.data) {
                 request.data = decamelizeKeys(request.data);
-                this._logger.debug(`Data: ${qs.stringify(request.data, {arrayFormat: 'brackets'})}`);
+
+                const data = {...request.data};
+                if (data.client_secret) {
+                    data.client_secret = '***REDACTED CLIENT SECRET***';
+                }
+                log.info(`Data: ${qs.stringify(data, {arrayFormat: 'brackets'})}`);
             }
 
             return request;
         });
 
         // intercept response
-        globalAxios.interceptors.response.use(response => {
-            this._logger.debug('Inbound response: ' + response.status + ' ' + response.statusText);
+        axios.interceptors.response.use(response => {
+            log.debug('Inbound response: ' + response.status + ' ' + response.statusText);
 
-            this._logger.debug(`Headers: ${JSON.stringify(response.headers)}`);
+            log.debug(`Headers: ${JSON.stringify(response.headers)}`);
 
             if (response.data) {
                 response.data = camelizeKeys(response.data);
-                this._logger.debug(`Data: ${qs.stringify(response.data, {arrayFormat: 'brackets'})}`);
+                log.debug(`Data: ${qs.stringify(response.data, {arrayFormat: 'brackets'})}`);
             }
 
             return response;
         }, error => {
+            if (error.response === undefined) {
+                return Promise.reject(error);
+            }
             const status = error.response.status;
             const headers = error.response.headers;
             const body = error.response.data ? error.response.data : error.message;
             switch (status) {
                 case 401:
-                    this._logger.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
+                    log.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
                     throw new BlinkUnauthorisedException(body.message);
                 case 403:
-                    this._logger.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
+                    log.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
                     throw new BlinkForbiddenException(body.message);
                 case 404:
-                    this._logger.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
+                    log.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
                     throw new BlinkResourceNotFoundException(body.message);
                 case 408:
-                    this._logger.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
+                    log.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
                     throw new BlinkRetryableException(body.message);
                 case 422:
-                    this._logger.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
+                    log.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
                     throw new BlinkUnauthorisedException(body.message);
                 case 429:
-                    this._logger.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
+                    log.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
                     throw new BlinkRateLimitExceededException(body.message);
                 case 501:
-                    this._logger.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
+                    log.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
                     throw new BlinkNotImplementedException(body.message);
                 case 502:
-                    this._logger.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
+                    log.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
                     throw new BlinkServiceException(`Service call to Blink Debit failed with error: ${body.message}, please contact BlinkPay with the correlation ID: ${headers['x-correlation-id']}`);
                 default:
                     if (status >= 400 && status < 500) {
-                        this._logger.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
+                        log.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
                         throw new BlinkClientException(body.message);
                     } else if (status >= 500) {
-                        this._logger.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
+                        log.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
                         throw new BlinkRetryableException(body.message);
                     }
             }
@@ -273,54 +294,17 @@ export class Configuration {
         });
     }
 
-    static getInstance(configDirectory?: string, configFile?: string): Configuration {
+    static getInstance(axios: AxiosInstance, configDirectoryOrConfig?: string | BlinkPayConfig, configFile?: string): Configuration {
         if (!Configuration.instance) {
-            Configuration.instance = new Configuration(configDirectory, configFile);
+            if (typeof configDirectoryOrConfig === 'string') {
+                Configuration.instance = new Configuration(axios, configDirectoryOrConfig, configFile);
+            } else if (configDirectoryOrConfig === undefined) {
+                Configuration.instance = new Configuration(axios, undefined, configFile);
+            } else {
+                Configuration.instance = new Configuration(axios, configDirectoryOrConfig);
+            }
         }
         return Configuration.instance;
-    }
-
-    async getAccessToken(): Promise<string | ((name?: string, scopes?: string[]) => string) | ((name?: string, scopes?: string[]) => Promise<string>)> {
-        // If token is undefined or expired, refresh it
-        if (!this.accessToken || new Date() >= this.expirationDate) {
-            await this.refreshToken();
-        }
-
-        return this.accessToken;
-    }
-
-    private async refreshToken(): Promise<void> {
-        const clientId = this._clientId;
-        const clientSecret = this._clientSecret;
-        const tokenEndpoint = this._debitUrl + '/oauth2/token';
-
-        const axiosConfig: AxiosRequestConfig = {
-            method: 'POST',
-            url: tokenEndpoint,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            data: {
-                'client_id': clientId,
-                'client_secret': clientSecret,
-                'grant_type': 'client_credentials'
-            }
-        };
-
-        try {
-            const response = await globalAxios.request<AccessTokenResponse>(axiosConfig);
-            const accessTokenResponse = response.data;
-            this.accessToken = accessTokenResponse.accessToken;
-            this.expirationDate = new Date(Date.now() + (response.data.expiresIn * 1000));
-
-            globalAxios.interceptors.request.use(async (config) => {
-                const token = await this.getAccessToken();
-                config.headers.Authorization = `Bearer ${token}`;
-                return config;
-            });
-        } catch (error) {
-            this._logger.error(`Encountered: ${error}`);
-        }
     }
 
     private static sanitiseHeaders(headers: any): Record<string, string> {
@@ -334,10 +318,14 @@ export class Configuration {
     }
 
     private getConfigPath(directory: string | undefined, filename: string = 'config.json'): string {
-        if (directory) {
-            return path.resolve(__dirname, directory, filename);
-        } else {
-            return path.resolve(__dirname, filename);
+        // check if it's not a browser environment
+        if (typeof window === 'undefined') {
+            const path = require('path');
+            if (directory) {
+                return path.resolve(__dirname, directory, filename);
+            } else {
+                return path.resolve(__dirname, filename);
+            }
         }
     }
 }

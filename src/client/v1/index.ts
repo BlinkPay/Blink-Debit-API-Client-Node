@@ -5,3 +5,4 @@ export * from './payments-api';
 export * from './quick-payments-api';
 export * from './refunds-api';
 export * from './single-consents-api';
+export * from './token-api';

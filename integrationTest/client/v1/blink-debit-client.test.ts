@@ -51,6 +51,7 @@ import {
 } from '../../../src';
 import {v4 as uuidv4} from 'uuid';
 import {DateTime} from 'luxon';
+import globalAxios from 'axios';
 
 require('dotenv').config();
 jest.setTimeout(180000);
@@ -61,7 +62,7 @@ describe('BlinkDebitClient Integration Tests', () => {
     let instance: BlinkDebitClient;
 
     beforeAll(() => {
-        instance = new BlinkDebitClient();
+        instance = new BlinkDebitClient(globalAxios);
     });
 
     it('Verify that bank metadata is retrieved', async () => {

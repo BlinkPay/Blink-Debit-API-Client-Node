@@ -50,7 +50,7 @@ import {v4 as uuidv4} from 'uuid';
 import {DateTime} from 'luxon';
 
 require('dotenv').config();
-jest.setTimeout(60000);
+jest.setTimeout(120000);
 
 describe('RefundsApi Integration Test', () => {
     const callbackUrl = 'https://www.mymerchant.co.nz/callback';
@@ -60,12 +60,12 @@ describe('RefundsApi Integration Test', () => {
     let apiInstance: ReturnType<typeof RefundsApiFactory>;
 
     beforeAll(async () => {
-        const configuration = Configuration.getInstance();
+        const configuration = Configuration.getInstance(globalAxios);
 
-        singleConsentsApiInstance = SingleConsentsApiFactory(configuration, undefined, globalAxios);
-        enduringConsentsApiInstance = EnduringConsentsApiFactory(configuration, undefined, globalAxios);
-        paymentsApiInstance = PaymentsApiFactory(configuration, undefined, globalAxios);
-        apiInstance = RefundsApiFactory(configuration, undefined, globalAxios);
+        singleConsentsApiInstance = SingleConsentsApiFactory(globalAxios, configuration, undefined);
+        enduringConsentsApiInstance = EnduringConsentsApiFactory(globalAxios, configuration, undefined);
+        paymentsApiInstance = PaymentsApiFactory(globalAxios, configuration, undefined);
+        apiInstance = RefundsApiFactory(globalAxios, configuration, undefined);
     });
 
     it('Verify that account number refund for single consent with decoupled flow is created and retrieved', async () => {

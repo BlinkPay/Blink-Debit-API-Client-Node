@@ -1,7 +1,0 @@
-{
-  "blinkpay": {
-    "debitUrl": "https://sandbox.debit.blinkpay.co.nz",
-    "timeout": 10000,
-    "retryEnabled": true
-  }
-}
