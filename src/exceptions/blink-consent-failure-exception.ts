@@ -36,6 +36,4 @@ export class BlinkConsentFailureException extends BlinkServiceException {
         this.innerException = innerException;
         Object.setPrototypeOf(this, BlinkConsentFailureException.prototype);
     }
-
-    innerException?: Error;
 }

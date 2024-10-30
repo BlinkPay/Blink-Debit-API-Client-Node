@@ -26,9 +26,9 @@ import {Bank} from './bank';
  * Optionally include a hint to the Gateway of which flow should be used, allowing the customers details to be prefilled in order to make the checkout experience faster. You can also use Gateway flow hint to instruct Gateway to identify a customer using their last consent ID for mobile payments.
  *
  * @export
- * @interface FlowHint
+ * @class FlowHint
  */
-export interface FlowHint {
+export class FlowHint {
     /**
      * The flow hint type, i.e. Redirect or Decoupled.
      * @type {string}
@@ -40,7 +40,7 @@ export interface FlowHint {
      * @type {Bank}
      * @memberof FlowHint
      */
-    bank: Bank;
+    bank?: Bank;
 }
 
 /**

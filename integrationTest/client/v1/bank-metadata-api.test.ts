@@ -30,7 +30,7 @@ jest.setTimeout(30000);
 describe('BankMetadataApi Integration Test', () => {
     let apiInstance: ReturnType<typeof BankMetadataApiFactory>;
 
-    beforeAll(async () => {
+    beforeAll(async (): Promise<void> => {
         const configuration = Configuration.getInstance(globalAxios);
 
         apiInstance = BankMetadataApiFactory(globalAxios, configuration, undefined);
@@ -46,7 +46,10 @@ describe('BankMetadataApi Integration Test', () => {
         const bnz: BankMetadata = {
             name: Bank.BNZ,
             features: {
-                enduringConsent: undefined,
+                enduringConsent: {
+                    consentIndefinite: false,
+                    enabled: true
+                },
                 decoupledFlow: {
                     enabled: true,
                     availableIdentifiers: [
@@ -107,7 +110,10 @@ describe('BankMetadataApi Integration Test', () => {
         const asb: BankMetadata = {
             name: Bank.ASB,
             features: {
-                enduringConsent: undefined,
+                enduringConsent: {
+                    consentIndefinite: false,
+                    enabled: true
+                },
                 decoupledFlow: undefined
             },
             redirectFlow: {

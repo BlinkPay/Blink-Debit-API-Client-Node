@@ -62,4 +62,10 @@ export interface EnduringConsentRequest extends ConsentDetail {
      * @memberof EnduringConsentRequest
      */
     maximumAmountPeriod: Amount;
+    /**
+     * The hashed unique ID of the customer e.g. customer internal ID. SHA-256 is recommended.
+     * @type {string}
+     * @memberof EnduringConsentRequest
+     */
+    hashedCustomerIdentifier?: string;
 }

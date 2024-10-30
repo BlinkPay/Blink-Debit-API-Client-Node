@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import { AxiosInstance, AxiosRequestConfig } from 'axios';
+import {AxiosInstance, AxiosRequestConfig} from 'axios';
 import log from 'loglevel';
 import {Configuration} from '../../../configuration';
 import {AccessTokenResponse} from '../../dto/v1/access-token-response';

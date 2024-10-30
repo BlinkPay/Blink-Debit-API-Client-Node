@@ -48,24 +48,35 @@ import {Configuration} from '../../../configuration';
 import globalAxios from 'axios';
 import {v4 as uuidv4} from 'uuid';
 import {DateTime} from 'luxon';
+import {GenericParameters} from "../../../src/util/types";
 
 require('dotenv').config();
 jest.setTimeout(120000);
 
 describe('RefundsApi Integration Test', () => {
     const callbackUrl = 'https://www.mymerchant.co.nz/callback';
+    const params: GenericParameters = {
+        xCustomerIp: "192.168.0.1",
+        xCustomerUserAgent: "demo-api-client"
+    };
     let singleConsentsApiInstance: ReturnType<typeof SingleConsentsApiFactory>;
     let enduringConsentsApiInstance: ReturnType<typeof EnduringConsentsApiFactory>;
     let paymentsApiInstance: ReturnType<typeof PaymentsApiFactory>;
     let apiInstance: ReturnType<typeof RefundsApiFactory>;
 
-    beforeAll(async () => {
-        const configuration = Configuration.getInstance(globalAxios);
+    beforeAll(async (): Promise<void> => {
+        const configuration: Configuration = Configuration.getInstance(globalAxios);
 
         singleConsentsApiInstance = SingleConsentsApiFactory(globalAxios, configuration, undefined);
         enduringConsentsApiInstance = EnduringConsentsApiFactory(globalAxios, configuration, undefined);
         paymentsApiInstance = PaymentsApiFactory(globalAxios, configuration, undefined);
         apiInstance = RefundsApiFactory(globalAxios, configuration, undefined);
+    });
+
+    beforeEach((): void => {
+        params.requestId = uuidv4();
+        params.xCorrelationId = uuidv4();
+        params.idempotencyKey = uuidv4();
     });
 
     it('Verify that account number refund for single consent with decoupled flow is created and retrieved', async () => {
@@ -77,7 +88,7 @@ describe('RefundsApi Integration Test', () => {
                     type: AuthFlowDetailTypeEnum.Decoupled,
                     bank: Bank.PNZ,
                     identifierType: IdentifierType.PhoneNumber,
-                    identifierValue: '+6449144425',
+                    identifierValue: '+64-259531933',
                     callbackUrl: callbackUrl
                 } as DecoupledFlow
             } as AuthFlow,
@@ -93,7 +104,7 @@ describe('RefundsApi Integration Test', () => {
         };
 
         const createConsentResponseAxiosResponse = await singleConsentsApiInstance.createSingleConsent(request,
-            uuidv4(), uuidv4(), "192.168.0.1", uuidv4());
+                params);
         expect(createConsentResponseAxiosResponse).not.toBeNull();
         const createConsentResponse = createConsentResponseAxiosResponse.data;
         expect(createConsentResponse).not.toBeNull();
@@ -107,11 +118,12 @@ describe('RefundsApi Integration Test', () => {
             consentId: consentId
         };
         let paymentId;
+        params.idempotencyKey = uuidv4();
         for (let i = 1; i <= 10; i++) {
             console.log(`attempt: ${i}`);
             try {
                 const paymentResponse = await paymentsApiInstance.createPayment(paymentRequest,
-                    uuidv4(), uuidv4(), uuidv4());
+                        params);
 
                 expect(paymentResponse).not.toBeNull();
                 const payment = paymentResponse.data;
@@ -164,7 +176,7 @@ describe('RefundsApi Integration Test', () => {
                     type: AuthFlowDetailTypeEnum.Decoupled,
                     bank: Bank.PNZ,
                     identifierType: IdentifierType.PhoneNumber,
-                    identifierValue: '+6449144425',
+                    identifierValue: '+64-259531933',
                     callbackUrl: callbackUrl
                 } as DecoupledFlow
             } as AuthFlow,
@@ -177,7 +189,7 @@ describe('RefundsApi Integration Test', () => {
         };
 
         const createConsentResponseAxiosResponse = await enduringConsentsApiInstance.createEnduringConsent(request,
-            uuidv4(), uuidv4(), "192.168.0.1", uuidv4());
+                params);
         expect(createConsentResponseAxiosResponse).not.toBeNull();
         const createConsentResponse = createConsentResponseAxiosResponse.data;
         expect(createConsentResponse).not.toBeNull();
@@ -202,11 +214,12 @@ describe('RefundsApi Integration Test', () => {
             }
         };
         let paymentId;
+        params.idempotencyKey = uuidv4();
         for (let i = 1; i <= 10; i++) {
             console.log(`attempt: ${i}`);
             try {
                 const paymentResponse = await paymentsApiInstance.createPayment(paymentRequest,
-                    uuidv4(), uuidv4(), uuidv4());
+                        params);
 
                 expect(paymentResponse).not.toBeNull();
                 const payment = paymentResponse.data;
@@ -258,7 +271,7 @@ describe('RefundsApi Integration Test', () => {
                     type: AuthFlowDetailTypeEnum.Decoupled,
                     bank: Bank.PNZ,
                     identifierType: IdentifierType.PhoneNumber,
-                    identifierValue: '+6449144425',
+                    identifierValue: '+64-259531933',
                     callbackUrl: callbackUrl
                 } as DecoupledFlow
             } as AuthFlow,
@@ -274,7 +287,7 @@ describe('RefundsApi Integration Test', () => {
         };
 
         const createConsentResponseAxiosResponse = await singleConsentsApiInstance.createSingleConsent(request,
-            uuidv4(), uuidv4(), "192.168.0.1", uuidv4());
+                params);
         expect(createConsentResponseAxiosResponse).not.toBeNull();
         const createConsentResponse = createConsentResponseAxiosResponse.data;
         expect(createConsentResponse).not.toBeNull();
@@ -288,11 +301,12 @@ describe('RefundsApi Integration Test', () => {
             consentId: consentId
         };
         let paymentId;
+        params.idempotencyKey = uuidv4();
         for (let i = 1; i <= 10; i++) {
             console.log(`attempt: ${i}`);
             try {
                 const paymentResponse = await paymentsApiInstance.createPayment(paymentRequest,
-                    uuidv4(), uuidv4(), uuidv4());
+                        params);
 
                 expect(paymentResponse).not.toBeNull();
                 const payment = paymentResponse.data;
@@ -336,7 +350,7 @@ describe('RefundsApi Integration Test', () => {
                     type: AuthFlowDetailTypeEnum.Decoupled,
                     bank: Bank.PNZ,
                     identifierType: IdentifierType.PhoneNumber,
-                    identifierValue: '+6449144425',
+                    identifierValue: '+64-259531933',
                     callbackUrl: callbackUrl
                 } as DecoupledFlow
             } as AuthFlow,
@@ -352,7 +366,7 @@ describe('RefundsApi Integration Test', () => {
         };
 
         const createConsentResponseAxiosResponse = await singleConsentsApiInstance.createSingleConsent(request,
-            uuidv4(), uuidv4(), "192.168.0.1", uuidv4());
+                params);
         expect(createConsentResponseAxiosResponse).not.toBeNull();
         const createConsentResponse = createConsentResponseAxiosResponse.data;
         expect(createConsentResponse).not.toBeNull();
@@ -366,11 +380,12 @@ describe('RefundsApi Integration Test', () => {
             consentId: consentId
         };
         let paymentId;
+        params.idempotencyKey = uuidv4();
         for (let i = 1; i <= 10; i++) {
             console.log(`attempt: ${i}`);
             try {
                 const paymentResponse = await paymentsApiInstance.createPayment(paymentRequest,
-                    uuidv4(), uuidv4(), uuidv4());
+                        params);
 
                 expect(paymentResponse).not.toBeNull();
                 const payment = paymentResponse.data;

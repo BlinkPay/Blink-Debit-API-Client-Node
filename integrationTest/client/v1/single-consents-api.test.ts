@@ -42,6 +42,7 @@ import {
 import {Configuration} from '../../../configuration';
 import globalAxios from 'axios';
 import {v4 as uuidv4} from 'uuid';
+import {GenericParameters} from "../../../src/util/types";
 
 require('dotenv').config();
 jest.setTimeout(60000);
@@ -49,12 +50,22 @@ jest.setTimeout(60000);
 describe('SingleConsentsApi Integration Test', () => {
     const redirectUri = 'https://www.blinkpay.co.nz/sample-merchant-return-page';
     const callbackUrl = 'https://www.mymerchant.co.nz/callback';
+    const params: GenericParameters = {
+        xCustomerIp: "192.168.0.1",
+        xCustomerUserAgent: "demo-api-client"
+    };
     let apiInstance: ReturnType<typeof SingleConsentsApiFactory>;
 
-    beforeAll(async () => {
-        const configuration = Configuration.getInstance(globalAxios);
+    beforeAll(async (): Promise<void> => {
+        const configuration: Configuration = Configuration.getInstance(globalAxios);
 
         apiInstance = SingleConsentsApiFactory(globalAxios, configuration, undefined);
+    });
+
+    beforeEach((): void => {
+        params.requestId = uuidv4();
+        params.xCorrelationId = uuidv4();
+        params.idempotencyKey = uuidv4();
     });
 
     it('Verify that single consent with redirect flow is created in PNZ', async () => {
@@ -80,19 +91,14 @@ describe('SingleConsentsApi Integration Test', () => {
         };
 
         const createConsentResponseAxiosResponse = await apiInstance.createSingleConsent(request,
-            uuidv4(), uuidv4(), "192.168.0.1", uuidv4());
+                params);
         const createConsentResponse = createConsentResponseAxiosResponse.data;
         expect(createConsentResponse).not.toBeNull();
 
         const consentId = createConsentResponse.consentId;
         expect(consentId).not.toBeNull();
         expect(createConsentResponse.redirectUri).not.toEqual('');
-        expect(createConsentResponse.redirectUri.startsWith('https://api-nomatls.apicentre.middleware.co.nz/middleware-nz-sandbox/v2.0/oauth/authorize?scope=openid%20payments&response_type=code%20id_token')).toBeTruthy();
-        expect(createConsentResponse.redirectUri.includes('&request=')).toBeTruthy();
-        expect(createConsentResponse.redirectUri.includes('&state=')).toBeTruthy();
-        expect(createConsentResponse.redirectUri.includes('&nonce=')).toBeTruthy();
-        expect(createConsentResponse.redirectUri.includes('&redirect_uri=')).toBeTruthy();
-        expect(createConsentResponse.redirectUri.includes('&client_id=')).toBeTruthy();
+        expect(createConsentResponse.redirectUri.startsWith('https://obabank.glueware.dev/auth/login?oba_request=')).toBeTruthy();
 
         // retrieve
         let consentAxiosResponse = await apiInstance.getSingleConsent(consentId);
@@ -210,7 +216,7 @@ describe('SingleConsentsApi Integration Test', () => {
                     type: AuthFlowDetailTypeEnum.Decoupled,
                     bank: Bank.PNZ,
                     identifierType: IdentifierType.PhoneNumber,
-                    identifierValue: '+6449144425',
+                    identifierValue: '+64-259531933',
                     callbackUrl: callbackUrl
                 } as DecoupledFlow
             } as AuthFlow,
@@ -226,7 +232,7 @@ describe('SingleConsentsApi Integration Test', () => {
         };
 
         const createConsentResponseAxiosResponse = await apiInstance.createSingleConsent(request,
-            uuidv4(), uuidv4(), "192.168.0.1", uuidv4());
+                params);
         expect(createConsentResponseAxiosResponse).not.toBeNull();
         const createConsentResponse = createConsentResponseAxiosResponse.data;
         expect(createConsentResponse).not.toBeNull();
@@ -258,7 +264,7 @@ describe('SingleConsentsApi Integration Test', () => {
                 expect(flow.bank).toEqual(Bank.PNZ);
                 expect(flow.callbackUrl).toEqual(callbackUrl);
                 expect(flow.identifierType).toEqual(IdentifierType.PhoneNumber);
-                expect(flow.identifierValue).toEqual('+6449144425');
+                expect(flow.identifierValue).toEqual('+64-259531933');
             }
 
             expect(detail.pcr).not.toBeNull();
@@ -296,7 +302,7 @@ describe('SingleConsentsApi Integration Test', () => {
                 expect(flow.bank).toEqual(Bank.PNZ);
                 expect(flow.callbackUrl).toEqual(callbackUrl);
                 expect(flow.identifierType).toEqual(IdentifierType.PhoneNumber);
-                expect(flow.identifierValue).toEqual('+6449144425');
+                expect(flow.identifierValue).toEqual('+64-259531933');
             }
 
             expect(detail.pcr).not.toBeNull();
@@ -336,7 +342,7 @@ describe('SingleConsentsApi Integration Test', () => {
         };
 
         const createConsentResponseAxiosResponse = await apiInstance.createSingleConsent(request,
-            uuidv4(), uuidv4(), "192.168.0.1", uuidv4());
+                params);
         const createConsentResponse = createConsentResponseAxiosResponse.data;
         expect(createConsentResponse).not.toBeNull();
 
@@ -440,7 +446,7 @@ describe('SingleConsentsApi Integration Test', () => {
                         type: FlowHintTypeEnum.Decoupled,
                         bank: Bank.PNZ,
                         identifierType: IdentifierType.PhoneNumber,
-                        identifierValue: '+6449144425'
+                        identifierValue: '+64-259531933'
                     } as DecoupledFlowHint
                 } as GatewayFlow
             } as AuthFlow,
@@ -456,7 +462,7 @@ describe('SingleConsentsApi Integration Test', () => {
         };
 
         const createConsentResponseAxiosResponse = await apiInstance.createSingleConsent(request,
-            uuidv4(), uuidv4(), "192.168.0.1", uuidv4());
+                params);
         expect(createConsentResponseAxiosResponse).not.toBeNull();
         const createConsentResponse = createConsentResponseAxiosResponse.data;
         expect(createConsentResponse).not.toBeNull();
@@ -493,7 +499,7 @@ describe('SingleConsentsApi Integration Test', () => {
                     expect(flowHint.type).toEqual(FlowHintTypeEnum.Decoupled)
                     expect(flowHint.bank).toEqual(Bank.PNZ);
                     expect(flowHint.identifierType).toEqual(IdentifierType.PhoneNumber);
-                    expect(flowHint.identifierValue).toEqual('+6449144425');
+                    expect(flowHint.identifierValue).toEqual('+64-259531933');
                 }
             }
 
@@ -537,7 +543,7 @@ describe('SingleConsentsApi Integration Test', () => {
                     expect(flowHint.type).toEqual(FlowHintTypeEnum.Decoupled)
                     expect(flowHint.bank).toEqual(Bank.PNZ);
                     expect(flowHint.identifierType).toEqual(IdentifierType.PhoneNumber);
-                    expect(flowHint.identifierValue).toEqual('+6449144425');
+                    expect(flowHint.identifierValue).toEqual('+64-259531933');
                 }
             }
 

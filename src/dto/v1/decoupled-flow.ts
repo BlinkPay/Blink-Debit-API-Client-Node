@@ -24,25 +24,30 @@ import {AuthFlowDetail} from './auth-flow-detail';
 import {Bank} from './bank';
 import {IdentifierType} from './identifier-type';
 import {IdentifierValue} from './identifier-value';
+import {Transform} from "class-transformer";
+import {PaymentAcceptedReasonEnum} from "./payment";
 
 /**
  * The details for a Decoupled flow.
  *
  * @export
- * @interface DecoupledFlow
+ * @class DecoupledFlow
  */
-export interface DecoupledFlow extends AuthFlowDetail {
+export class DecoupledFlow extends AuthFlowDetail {
     /**
      *
      * @type {Bank}
      * @memberof DecoupledFlow
      */
-    bank: Bank;
+    bank?: Bank;
     /**
      *
      * @type {IdentifierType}
      * @memberof DecoupledFlow
      */
+    @Transform(({value}) => {
+        return Object.values(IdentifierType).find(status => status === value)
+    })
     identifierType: IdentifierType;
     /**
      *

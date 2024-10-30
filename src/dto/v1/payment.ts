@@ -19,17 +19,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 import {PaymentRequest} from './payment-request';
 import {Refund} from './refund';
+import {Transform} from "class-transformer";
 
 /**
  * The model for a payment.
  *
  * @export
- * @interface Payment
+ * @class Payment
  */
-export interface Payment {
+export class Payment {
     /**
      * The payment ID
      * @type {string}
@@ -53,6 +53,9 @@ export interface Payment {
      * @type {string}
      * @memberof Payment
      */
+    @Transform(({value}) => {
+        return Object.values(PaymentAcceptedReasonEnum).find(status => status === value)
+    })
     acceptedReason?: PaymentAcceptedReasonEnum;
     /**
      * The timestamp that the payment was created.

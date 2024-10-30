@@ -26,7 +26,7 @@ import {FlowHint} from './flow-hint';
  * Redirect flow hint.
  *
  * @export
- * @interface RedirectFlowHint
+ * @class RedirectFlowHint
  */
-export interface RedirectFlowHint extends FlowHint {
+export class RedirectFlowHint extends FlowHint {
 }

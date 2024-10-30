@@ -6,15 +6,21 @@
       "jest"
     ],
     "declaration": true,
-    "target": "es5",
-    "module": "commonjs",
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "sourceMap": true,
+//    "strict": true, // TODO this breaks a lot of things
+    "noEmit": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "noImplicitAny": true,
     "outDir": "dist",
     "rootDir": ".",
     "lib": [
-      "es6",
-      "dom",
-      "es2021.promise"
+      "ESNext",
+      "ESNext.AsyncIterable",
+      "DOM"
     ],
     "typeRoots": [
       "node_modules/@types"

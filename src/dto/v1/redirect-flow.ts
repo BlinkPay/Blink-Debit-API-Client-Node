@@ -27,9 +27,9 @@ import {Bank} from './bank';
  * The details for a Redirect flow.
  *
  * @export
- * @interface RedirectFlow
+ * @class RedirectFlow
  */
-export interface RedirectFlow extends AuthFlowDetail {
+export class RedirectFlow extends AuthFlowDetail {
     /**
      * The URI to redirect back to once the consent is completed. App-based workflows may use deep/universal links. The `cid` (Consent ID) will be added as a URL parameter. If there is an error, an `error` parameter will be appended also.
      * @type {string}
@@ -42,4 +42,10 @@ export interface RedirectFlow extends AuthFlowDetail {
      * @memberof RedirectFlow
      */
     bank: Bank;
+    /**
+     * Whether the redirect URI goes back to an app directly. If this value is true, the app will receive code and state parameters with this redirection. The app must pass these through to us at: https://debit.blinkpay.co.nz/bank/1.0/return?state={state}&code={code}, along with other query parameters like error. Applies only to Redirect flow.
+     * @type {boolean}
+     * @memberof RedirectFlow
+     */
+    redirectToApp?: boolean;
 }

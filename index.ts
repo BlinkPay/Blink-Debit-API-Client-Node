@@ -1,3 +1,5 @@
+import 'reflect-metadata';
+
 /* tslint:disable */
 /* eslint-disable */
 /**

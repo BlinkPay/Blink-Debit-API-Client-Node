@@ -36,6 +36,4 @@ export class BlinkPaymentFailureException extends BlinkServiceException {
         this.innerException = innerException;
         Object.setPrototypeOf(this, BlinkPaymentFailureException.prototype);
     }
-
-    innerException?: Error;
 }
