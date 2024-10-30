@@ -10,8 +10,6 @@
     "module": "ESNext",
     "moduleResolution": "Node",
     "sourceMap": true,
-//    "strict": true, // TODO this breaks a lot of things
-    "noEmit": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "noImplicitAny": true,
