@@ -28,8 +28,8 @@ We welcome contributions from the community. Your pull request will be reviewed 
 This project is licensed under the MIT License.
 
 ## Minimum Requirements
-- Axios 1.4
-- Node.js 18.16 LTS (tested on 20.3)
+- Axios 1.7
+- Node.js 22.10 LTS
 
 ## Adding the dependency
 - Install via NPM
@@ -49,14 +49,7 @@ BLINKPAY_TIMEOUT=10000
 ```
 
 Create and use the client:
-<table>
-<tr>
-<th>sample.js</th>
-<th>sample.ts</th>
-</tr>
-<tr>
-<td>
-
+- `sample.js`
 ```javascript
 import axios from 'axios';
 import log from 'loglevel';
@@ -92,10 +85,7 @@ async function createQuickPayment() {
 
 await createQuickPayment();
 ```
-
-</td>
-<td>
-
+- `sample.ts`
 ```typescript
 import axios from 'axios';
 import log from 'loglevel';
@@ -132,10 +122,6 @@ async function createQuickPayment() {
 await createQuickPayment();
 ```
 
-</td>
-</tr>
-</table>
-
 ### Option 2: Browser environment e.g. React
 Append the BlinkPay environment variables to your `.env` file. Notice the `REACT_APP_` prefix.
 ```dotenv
@@ -162,14 +148,7 @@ module.exports = function override(config, env) {
 };
 ```
 Create an Axios instance:
-<table>
-<tr>
-<th>axiosInstance.js</th>
-<th>axiosInstance.ts</th>
-</tr>
-<tr>
-<td>
-
+- `axiosInstance.js`
 ```javascript
 import axios from 'axios';
 
@@ -181,10 +160,7 @@ const globalAxios = axios.create({
 
 export default globalAxios;
 ```
-
-</td>
-<td>
-
+- `axiosInstance.ts`
 ```typescript
 import axios, {AxiosInstance} from 'axios';
 
@@ -197,18 +173,8 @@ const globalAxios: AxiosInstance = axios.create({
 export default globalAxios;
 ```
 
-</td>
-</tr>
-</table>
 Create the BlinkDebitClient instance:
-<table>
-<tr>
-<th>blinkDebitClientInstance.js</th>
-<th>blinkDebitClientInstance.ts</th>
-</tr>
-<tr>
-<td>
-
+- `blinkDebitClientInstance.js`
 ```javascript
 import {BlinkDebitClient} from 'blink-debit-api-client-node';
 import globalAxios from './axiosInstance';
@@ -227,10 +193,7 @@ const client = new BlinkDebitClient(globalAxios, blinkPayConfig);
 
 export default client;
 ```
-
-</td>
-<td>
-
+- `blinkDebitClientInstance.ts`
 ```typescript
 import {BlinkPayConfig, BlinkDebitClient} from 'blink-debit-api-client-node';
 import globalAxios from './axiosInstance';
@@ -248,18 +211,8 @@ const blinkPayConfig: BlinkPayConfig = {
 export const client = new BlinkDebitClient(globalAxios, blinkPayConfig);
 ```
 
-</td>
-</tr>
-</table>
 In your component, create a function for submitting a form:
-<table>
-<tr>
-<th>cart.jsx</th>
-<th>cart.tsx</th>
-</tr>
-<tr>
-<td>
-
+- `cart.jsx`
 ```javascript
 import React, {Component} from 'react';
 import lollipop from '../lollipop.jpg';
@@ -351,10 +304,7 @@ class Cart extends Component {
 
 export default Cart;
 ```
-
-</td>
-<td>
-
+- `cart.tsx`
 ```typescript
 import React, {Component} from 'react';
 import lollipop from '../lollipop.jpg';
@@ -457,10 +407,6 @@ class Cart extends Component<{}, State> {
 export default Cart;
 ```
 
-</td>
-</tr>
-</table>
-
 ## Configuration
 - Customise/supply the required properties in your `config.json` and `.env`. This file should be available in your project folder.
 - The BlinkPay **Sandbox** debit URL is `https://sandbox.debit.blinkpay.co.nz` and the **production** debit URL is `https://debit.blinkpay.co.nz`.
@@ -511,15 +457,7 @@ const client = new BlinkDebitClient(axios, directory, fileName);
 ```
 
 In a `browser environment`, the client can be created by passing the BlinkPayConfig:
-
-<table>
-<tr>
-<th>JavaScript</th>
-<th>TypeScript</th>
-</tr>
-<tr>
-<td>
-
+- `JavaScript`
 ```javascript
 const blinkPayConfig = {
     blinkpay: {
@@ -532,10 +470,7 @@ const blinkPayConfig = {
 };
 const client = new BlinkDebitClient(axios, blinkPayConfig);
 ```
-
-</td>
-<td>
-
+- `TypeScript`
 ```typescript
 const blinkPayConfig: BlinkPayConfig = {
     blinkpay: {
@@ -548,10 +483,6 @@ const blinkPayConfig: BlinkPayConfig = {
 };
 const client = new BlinkDebitClient(axios, blinkPayConfig);
 ```
-
-</td>
-</tr>
-</table>
 
 or by providing the required parameters:
 
@@ -1079,18 +1010,6 @@ const paymentRequest = {
 };
 
 const paymentResponse = await client.createPayment(request);
-```
-#### Westpac
-Westpac requires you to specify which account of the customers to debit.
-
-The available selection of accounts is supplied to you in the consent response of an Authorised Westpac consent object, and the ID of the selected account in supplied here.
-```javascript
-const paymentRequest = {
-    consentId: consentId,
-    accountReferenceId: accountReferenceId
-};
-
-const paymentResponse = await client.createWestpacPayment(request);
 ```
 #### Retrieval
 ```javascript

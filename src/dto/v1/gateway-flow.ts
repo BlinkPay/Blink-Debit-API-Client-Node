@@ -28,9 +28,9 @@ import {RedirectFlowHint} from './redirect-flow-hint';
  * The details for a Gateway flow.
  *
  * @export
- * @interface GatewayFlow
+ * @class GatewayFlow
  */
-export interface GatewayFlow extends AuthFlowDetail {
+export class GatewayFlow extends AuthFlowDetail {
     /**
      * The URL to redirect back to once the payment is completed through the gateway. The `cid` (Consent ID) will be added as a URL parameter. If there is an error, an `error` parameter will be appended also.
      * @type {string}

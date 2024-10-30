@@ -19,13 +19,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import {Transform} from 'class-transformer';
 
 /**
  * The refund detail model.
  * @export
- * @interface RefundDetail
+ * @class RefundDetail
  */
-export interface RefundDetail {
+export class RefundDetail {
     /**
      * The payment ID. The payment must have a status of `AcceptedSettlementCompleted`.
      * @type {string}
@@ -37,6 +38,9 @@ export interface RefundDetail {
      * @type {string}
      * @memberof RefundDetail
      */
+    @Transform(({value}) => {
+        return Object.values(RefundDetailTypeEnum).find(status => status === value)
+    })
     type: RefundDetailTypeEnum;
 }
 

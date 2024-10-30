@@ -31,7 +31,7 @@ import {
     BlinkConsentTimeoutException,
     BlinkDebitClient,
     BlinkResourceNotFoundException,
-    BlinkServiceException,
+    BlinkServiceException, Consent,
     ConsentDetailTypeEnum,
     ConsentStatusEnum,
     DecoupledFlow,
@@ -45,13 +45,14 @@ import {
     PaymentTypeEnum,
     Pcr,
     Period,
-    QuickPaymentRequest,
+    QuickPaymentRequest, QuickPaymentResponse,
     RedirectFlow,
     SingleConsentRequest
 } from '../../../src';
 import {v4 as uuidv4} from 'uuid';
 import {DateTime} from 'luxon';
 import globalAxios from 'axios';
+import {GenericParameters} from "../../../src/util/types";
 
 require('dotenv').config();
 jest.setTimeout(180000);
@@ -59,10 +60,20 @@ jest.setTimeout(180000);
 describe('BlinkDebitClient Integration Tests', () => {
     const redirectUrl = "https://www.blinkpay.co.nz/sample-merchant-return-page";
     const callbackUrl = "https://www.mymerchant.co.nz/callback";
+    const params: GenericParameters = {
+        xCustomerIp: "192.168.0.1",
+        xCustomerUserAgent: "demo-api-client"
+    };
     let instance: BlinkDebitClient;
 
-    beforeAll(() => {
+    beforeAll((): void => {
         instance = new BlinkDebitClient(globalAxios);
+    });
+
+    beforeEach((): void => {
+        params.requestId = uuidv4();
+        params.xCorrelationId = uuidv4();
+        params.idempotencyKey = uuidv4();
     });
 
     it('Verify that bank metadata is retrieved', async () => {
@@ -73,7 +84,10 @@ describe('BlinkDebitClient Integration Tests', () => {
         const bnz: BankMetadata = {
             name: Bank.BNZ,
             features: {
-                enduringConsent: undefined,
+                enduringConsent: {
+                    enabled: true,
+                    consentIndefinite: false
+                },
                 decoupledFlow: {
                     enabled: true,
                     availableIdentifiers: [
@@ -134,7 +148,10 @@ describe('BlinkDebitClient Integration Tests', () => {
         const asb: BankMetadata = {
             name: Bank.ASB,
             features: {
-                enduringConsent: undefined,
+                enduringConsent: {
+                    enabled: true,
+                    consentIndefinite: false
+                },
                 decoupledFlow: undefined
             },
             redirectFlow: {
@@ -190,18 +207,13 @@ describe('BlinkDebitClient Integration Tests', () => {
         };
 
         const createConsentResponse = await instance.createSingleConsent(request,
-            uuidv4(), uuidv4(), "192.168.0.1", uuidv4());
+                params);
         expect(createConsentResponse).not.toBeNull();
 
         const consentId = createConsentResponse.consentId;
         expect(consentId).not.toBeNull();
         expect(createConsentResponse.redirectUri).not.toEqual('');
-        expect(createConsentResponse.redirectUri.startsWith('https://api-nomatls.apicentre.middleware.co.nz/middleware-nz-sandbox/v2.0/oauth/authorize?scope=openid%20payments&response_type=code%20id_token')).toBeTruthy();
-        expect(createConsentResponse.redirectUri.includes('&request=')).toBeTruthy();
-        expect(createConsentResponse.redirectUri.includes('&state=')).toBeTruthy();
-        expect(createConsentResponse.redirectUri.includes('&nonce=')).toBeTruthy();
-        expect(createConsentResponse.redirectUri.includes('&redirect_uri=')).toBeTruthy();
-        expect(createConsentResponse.redirectUri.includes('&client_id=')).toBeTruthy();
+        expect(createConsentResponse.redirectUri.startsWith('https://obabank.glueware.dev/auth/login?oba_request=')).toBeTruthy();
 
         // retrieve
         try {
@@ -232,7 +244,7 @@ describe('BlinkDebitClient Integration Tests', () => {
                     type: AuthFlowDetailTypeEnum.Decoupled,
                     bank: Bank.PNZ,
                     identifierType: IdentifierType.PhoneNumber,
-                    identifierValue: '+6449144425',
+                    identifierValue: '+64-259531933',
                     callbackUrl: callbackUrl
                 } as DecoupledFlow
             } as AuthFlow,
@@ -248,7 +260,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         };
 
         const createConsentResponse = await instance.createSingleConsent(request,
-            uuidv4(), uuidv4(), "192.168.0.1", uuidv4());
+                params);
         expect(createConsentResponse).not.toBeNull();
 
         const consentId = createConsentResponse.consentId;
@@ -274,7 +286,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         expect(flow.bank).toEqual(Bank.PNZ);
         expect(flow.callbackUrl).toEqual(callbackUrl);
         expect(flow.identifierType).toEqual(IdentifierType.PhoneNumber);
-        expect(flow.identifierValue).toEqual('+6449144425');
+        expect(flow.identifierValue).toEqual('+64-259531933');
 
         expect(detail.pcr).not.toBeNull();
         expect(detail.pcr.particulars).toEqual('particulars');
@@ -308,19 +320,13 @@ describe('BlinkDebitClient Integration Tests', () => {
             } as Pcr
         };
 
-        const createConsentResponse = await instance.createSingleConsent(request,
-            uuidv4(), uuidv4(), "192.168.0.1", uuidv4());
+        const createConsentResponse = await instance.createSingleConsent(request, params);
         expect(createConsentResponse).not.toBeNull();
 
         const consentId = createConsentResponse.consentId;
         expect(consentId).not.toBeNull();
         expect(createConsentResponse.redirectUri).not.toEqual('');
-        expect(createConsentResponse.redirectUri.startsWith('https://api-nomatls.apicentre.middleware.co.nz/middleware-nz-sandbox/v2.0/oauth/authorize?scope=openid%20payments&response_type=code%20id_token')).toBeTruthy();
-        expect(createConsentResponse.redirectUri.includes('&request=')).toBeTruthy();
-        expect(createConsentResponse.redirectUri.includes('&state=')).toBeTruthy();
-        expect(createConsentResponse.redirectUri.includes('&nonce=')).toBeTruthy();
-        expect(createConsentResponse.redirectUri.includes('&redirect_uri=')).toBeTruthy();
-        expect(createConsentResponse.redirectUri.includes('&client_id=')).toBeTruthy();
+        expect(createConsentResponse.redirectUri.startsWith('https://obabank.glueware.dev/auth/login?oba_request=')).toBeTruthy();
 
         // retrieve
         try {
@@ -351,7 +357,7 @@ describe('BlinkDebitClient Integration Tests', () => {
                     type: AuthFlowDetailTypeEnum.Decoupled,
                     bank: Bank.PNZ,
                     identifierType: IdentifierType.PhoneNumber,
-                    identifierValue: '+6449144425',
+                    identifierValue: '+64-259531933',
                     callbackUrl: callbackUrl
                 } as DecoupledFlow
             } as AuthFlow,
@@ -367,7 +373,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         };
 
         const createConsentResponse = await instance.createSingleConsent(request,
-            uuidv4(), uuidv4(), "192.168.0.1", uuidv4());
+                params);
         expect(createConsentResponse).not.toBeNull();
 
         const consentId = createConsentResponse.consentId;
@@ -393,7 +399,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         expect(flow.bank).toEqual(Bank.PNZ);
         expect(flow.callbackUrl).toEqual(callbackUrl);
         expect(flow.identifierType).toEqual(IdentifierType.PhoneNumber);
-        expect(flow.identifierValue).toEqual('+6449144425');
+        expect(flow.identifierValue).toEqual('+64-259531933');
 
         expect(detail.pcr).not.toBeNull();
         expect(detail.pcr.particulars).toEqual('particulars');
@@ -426,18 +432,13 @@ describe('BlinkDebitClient Integration Tests', () => {
         };
 
         const createConsentResponse = await instance.createEnduringConsent(request,
-            uuidv4(), uuidv4(), "192.168.0.1", uuidv4());
+                params);
         expect(createConsentResponse).not.toBeNull();
 
         const consentId = createConsentResponse.consentId;
         expect(consentId).not.toBeNull();
         expect(createConsentResponse.redirectUri).not.toEqual('');
-        expect(createConsentResponse.redirectUri.startsWith('https://api-nomatls.apicentre.middleware.co.nz/middleware-nz-sandbox/v2.0/oauth/authorize?scope=openid%20payments&response_type=code%20id_token')).toBeTruthy();
-        expect(createConsentResponse.redirectUri.includes('&request=')).toBeTruthy();
-        expect(createConsentResponse.redirectUri.includes('&state=')).toBeTruthy();
-        expect(createConsentResponse.redirectUri.includes('&nonce=')).toBeTruthy();
-        expect(createConsentResponse.redirectUri.includes('&redirect_uri=')).toBeTruthy();
-        expect(createConsentResponse.redirectUri.includes('&client_id=')).toBeTruthy();
+        expect(createConsentResponse.redirectUri.startsWith('https://obabank.glueware.dev/auth/login?oba_request=')).toBeTruthy();
 
         // retrieve
         try {
@@ -470,7 +471,7 @@ describe('BlinkDebitClient Integration Tests', () => {
                     type: AuthFlowDetailTypeEnum.Decoupled,
                     bank: Bank.PNZ,
                     identifierType: IdentifierType.PhoneNumber,
-                    identifierValue: '+6449144425',
+                    identifierValue: '+64-259531933',
                     callbackUrl: callbackUrl
                 } as DecoupledFlow
             } as AuthFlow,
@@ -483,7 +484,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         };
 
         const createConsentResponse = await instance.createEnduringConsent(request,
-            uuidv4(), uuidv4(), "192.168.0.1", uuidv4());
+                params);
         expect(createConsentResponse).not.toBeNull();
 
         const consentId = createConsentResponse.consentId;
@@ -509,7 +510,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         expect(flow.bank).toEqual(Bank.PNZ);
         expect(flow.callbackUrl).toEqual(callbackUrl);
         expect(flow.identifierType).toEqual(IdentifierType.PhoneNumber);
-        expect(flow.identifierValue).toEqual('+6449144425');
+        expect(flow.identifierValue).toEqual('+64-259531933');
 
         expect(detail.period).toEqual(Period.Fortnightly);
 
@@ -538,22 +539,17 @@ describe('BlinkDebitClient Integration Tests', () => {
         };
 
         const createConsentResponse = await instance.createEnduringConsent(request,
-            uuidv4(), uuidv4(), "192.168.0.1", uuidv4());
+                params);
         expect(createConsentResponse).not.toBeNull();
 
         const consentId = createConsentResponse.consentId;
         expect(consentId).not.toBeNull();
         expect(createConsentResponse.redirectUri).not.toEqual('');
-        expect(createConsentResponse.redirectUri.startsWith('https://api-nomatls.apicentre.middleware.co.nz/middleware-nz-sandbox/v2.0/oauth/authorize?scope=openid%20payments&response_type=code%20id_token')).toBeTruthy();
-        expect(createConsentResponse.redirectUri.includes('&request=')).toBeTruthy();
-        expect(createConsentResponse.redirectUri.includes('&state=')).toBeTruthy();
-        expect(createConsentResponse.redirectUri.includes('&nonce=')).toBeTruthy();
-        expect(createConsentResponse.redirectUri.includes('&redirect_uri=')).toBeTruthy();
-        expect(createConsentResponse.redirectUri.includes('&client_id=')).toBeTruthy();
+        expect(createConsentResponse.redirectUri.startsWith('https://obabank.glueware.dev/auth/login?oba_request=')).toBeTruthy();
 
         // retrieve
         try {
-            await instance.awaitAuthorisedEnduringConsentOrThrowException(consentId, 5);
+            await instance.awaitAuthorisedEnduringConsentOrThrowException(consentId, 1);
         } catch (e) {
             expect(e).toBeInstanceOf(BlinkConsentTimeoutException);
             expect(e.message).toBe("Consent timed out");
@@ -581,7 +577,7 @@ describe('BlinkDebitClient Integration Tests', () => {
                     type: AuthFlowDetailTypeEnum.Decoupled,
                     bank: Bank.PNZ,
                     identifierType: IdentifierType.PhoneNumber,
-                    identifierValue: '+6449144425',
+                    identifierValue: '+64-259531933',
                     callbackUrl: callbackUrl
                 } as DecoupledFlow
             } as AuthFlow,
@@ -594,7 +590,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         };
 
         const createConsentResponse = await instance.createEnduringConsent(request,
-            uuidv4(), uuidv4(), "192.168.0.1", uuidv4());
+                params);
         expect(createConsentResponse).not.toBeNull();
 
         const consentId = createConsentResponse.consentId;
@@ -620,7 +616,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         expect(flow.bank).toEqual(Bank.PNZ);
         expect(flow.callbackUrl).toEqual(callbackUrl);
         expect(flow.identifierType).toEqual(IdentifierType.PhoneNumber);
-        expect(flow.identifierValue).toEqual('+6449144425');
+        expect(flow.identifierValue).toEqual('+64-259531933');
 
         expect(detail.period).toEqual(Period.Fortnightly);
 
@@ -652,7 +648,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         };
 
         const createQuickPaymentResponse = await instance.createQuickPayment(request,
-            uuidv4(), uuidv4(), "192.168.0.1", uuidv4());
+                params);
 
         expect(createQuickPaymentResponse).toBeDefined();
 
@@ -689,7 +685,7 @@ describe('BlinkDebitClient Integration Tests', () => {
                     type: AuthFlowDetailTypeEnum.Decoupled,
                     bank: Bank.PNZ,
                     identifierType: IdentifierType.PhoneNumber,
-                    identifierValue: "+6449144425",
+                    identifierValue: "+64-259531933",
                     callbackUrl: callbackUrl
                 } as DecoupledFlow
             } as AuthFlow,
@@ -705,7 +701,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         };
 
         const createQuickPaymentResponse = await instance.createQuickPayment(request,
-            uuidv4(), uuidv4(), "192.168.0.1", uuidv4());
+                params);
 
         expect(createQuickPaymentResponse).toBeDefined();
 
@@ -717,9 +713,17 @@ describe('BlinkDebitClient Integration Tests', () => {
         const quickPayment = await instance.awaitSuccessfulQuickPayment(quickPaymentId, 60);
         expect(quickPayment).not.toBeNull();
         const consent = quickPayment.consent;
-        expect(consent.status).toEqual(ConsentStatusEnum.Authorised);
+        expect(consent.status).toEqual(ConsentStatusEnum.Consumed);
         expect(consent.accounts).toBeUndefined();
-        expect(consent.payments).toEqual([]);
+        expect(consent.payments).toHaveLength(1);
+        const payment = consent.payments[0];
+        expect(payment.paymentId).not.toBeNull();
+        expect(payment.type).toBe(PaymentTypeEnum.Single);
+        expect(payment.status).toBe(PaymentStatusEnum.AcceptedSettlementCompleted);
+        expect(payment.acceptedReason).toBe(PaymentAcceptedReasonEnum.SourceBankPaymentSent);
+        expect(payment.refunds).toHaveLength(0);
+        expect(payment.creationTimestamp).not.toBe(new Date(0));
+        expect(payment.statusUpdatedTimestamp).not.toBe(new Date(0));
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
 
@@ -733,7 +737,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         expect(flow.bank).toEqual(Bank.PNZ);
         expect(flow.callbackUrl).toEqual(callbackUrl);
         expect(flow.identifierType).toEqual(IdentifierType.PhoneNumber);
-        expect(flow.identifierValue).toEqual('+6449144425');
+        expect(flow.identifierValue).toEqual('+64-259531933');
 
         expect(detail.pcr).not.toBeNull();
         expect(detail.pcr.particulars).toEqual('particulars');
@@ -768,7 +772,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         };
 
         const createQuickPaymentResponse = await instance.createQuickPayment(request,
-            uuidv4(), uuidv4(), "192.168.0.1", uuidv4());
+                params);
 
         expect(createQuickPaymentResponse).toBeDefined();
 
@@ -778,7 +782,7 @@ describe('BlinkDebitClient Integration Tests', () => {
 
         // retrieve
         try {
-            await instance.awaitSuccessfulQuickPaymentOrThrowException(quickPaymentId, 5);
+            await instance.awaitSuccessfulQuickPaymentOrThrowException(quickPaymentId, 2);
         } catch (e) {
             expect(e).toBeInstanceOf(BlinkConsentTimeoutException);
             expect(e.message).toEqual('Consent timed out');
@@ -805,7 +809,7 @@ describe('BlinkDebitClient Integration Tests', () => {
                     type: AuthFlowDetailTypeEnum.Decoupled,
                     bank: Bank.PNZ,
                     identifierType: IdentifierType.PhoneNumber,
-                    identifierValue: "+6449144425",
+                    identifierValue: "+64-259531933",
                     callbackUrl: callbackUrl
                 } as DecoupledFlow
             } as AuthFlow,
@@ -821,7 +825,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         };
 
         const createQuickPaymentResponse = await instance.createQuickPayment(request,
-            uuidv4(), uuidv4(), "192.168.0.1", uuidv4());
+                params);
 
         expect(createQuickPaymentResponse).toBeDefined();
 
@@ -854,7 +858,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         expect(flow.bank).toEqual(Bank.PNZ);
         expect(flow.callbackUrl).toEqual(callbackUrl);
         expect(flow.identifierType).toEqual(IdentifierType.PhoneNumber);
-        expect(flow.identifierValue).toEqual('+6449144425');
+        expect(flow.identifierValue).toEqual('+64-259531933');
 
         expect(detail.pcr).not.toBeNull();
         expect(detail.pcr.particulars).toEqual('particulars');
@@ -892,7 +896,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         };
 
         const createQuickPaymentResponse = await instance.createQuickPayment(request,
-            uuidv4(), uuidv4(), "192.168.0.1", uuidv4());
+                params);
         expect(createQuickPaymentResponse).not.toBeNull();
 
         const quickPaymentId = createQuickPaymentResponse.quickPaymentId;
@@ -922,7 +926,7 @@ describe('BlinkDebitClient Integration Tests', () => {
                     type: AuthFlowDetailTypeEnum.Decoupled,
                     bank: Bank.PNZ,
                     identifierType: IdentifierType.PhoneNumber,
-                    identifierValue: '+6449144425',
+                    identifierValue: '+64-259531933',
                     callbackUrl: callbackUrl
                 } as DecoupledFlow
             } as AuthFlow,
@@ -938,7 +942,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         };
 
         const createConsentResponse = await instance.createSingleConsent(request,
-            uuidv4(), uuidv4(), "192.168.0.1", uuidv4());
+                params);
         expect(createConsentResponse).not.toBeNull();
 
         const consentId = createConsentResponse.consentId;
@@ -964,7 +968,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         expect(flow.bank).toEqual(Bank.PNZ);
         expect(flow.callbackUrl).toEqual(callbackUrl);
         expect(flow.identifierType).toEqual(IdentifierType.PhoneNumber);
-        expect(flow.identifierValue).toEqual('+6449144425');
+        expect(flow.identifierValue).toEqual('+64-259531933');
 
         expect(detail.pcr).not.toBeNull();
         expect(detail.pcr.particulars).toEqual('particulars');
@@ -1018,7 +1022,7 @@ describe('BlinkDebitClient Integration Tests', () => {
                     type: AuthFlowDetailTypeEnum.Decoupled,
                     bank: Bank.PNZ,
                     identifierType: IdentifierType.PhoneNumber,
-                    identifierValue: '+6449144425',
+                    identifierValue: '+64-259531933',
                     callbackUrl: callbackUrl
                 } as DecoupledFlow
             } as AuthFlow,
@@ -1034,7 +1038,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         };
 
         const createConsentResponse = await instance.createSingleConsent(request,
-            uuidv4(), uuidv4(), "192.168.0.1", uuidv4());
+                params);
         expect(createConsentResponse).not.toBeNull();
 
         const consentId = createConsentResponse.consentId;
@@ -1060,7 +1064,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         expect(flow.bank).toEqual(Bank.PNZ);
         expect(flow.callbackUrl).toEqual(callbackUrl);
         expect(flow.identifierType).toEqual(IdentifierType.PhoneNumber);
-        expect(flow.identifierValue).toEqual('+6449144425');
+        expect(flow.identifierValue).toEqual('+64-259531933');
 
         expect(detail.pcr).not.toBeNull();
         expect(detail.pcr.particulars).toEqual('particulars');
@@ -1113,7 +1117,7 @@ describe('BlinkDebitClient Integration Tests', () => {
                     type: AuthFlowDetailTypeEnum.Decoupled,
                     bank: Bank.PNZ,
                     identifierType: IdentifierType.PhoneNumber,
-                    identifierValue: '+6449144425',
+                    identifierValue: '+64-259531933',
                     callbackUrl: callbackUrl
                 } as DecoupledFlow
             } as AuthFlow,
@@ -1129,7 +1133,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         };
 
         const createConsentResponse = await instance.createSingleConsent(request,
-            uuidv4(), uuidv4(), "192.168.0.1", uuidv4());
+                params);
         expect(createConsentResponse).not.toBeNull();
 
         const consentId = createConsentResponse.consentId;
@@ -1155,7 +1159,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         expect(flow.bank).toEqual(Bank.PNZ);
         expect(flow.callbackUrl).toEqual(callbackUrl);
         expect(flow.identifierType).toEqual(IdentifierType.PhoneNumber);
-        expect(flow.identifierValue).toEqual('+6449144425');
+        expect(flow.identifierValue).toEqual('+64-259531933');
 
         expect(detail.pcr).not.toBeNull();
         expect(detail.pcr.particulars).toEqual('particulars');
@@ -1204,7 +1208,7 @@ describe('BlinkDebitClient Integration Tests', () => {
                     type: AuthFlowDetailTypeEnum.Decoupled,
                     bank: Bank.PNZ,
                     identifierType: IdentifierType.PhoneNumber,
-                    identifierValue: '+6449144425',
+                    identifierValue: '+64-259531933',
                     callbackUrl: callbackUrl
                 } as DecoupledFlow
             } as AuthFlow,
@@ -1220,7 +1224,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         };
 
         const createConsentResponse = await instance.createSingleConsent(request,
-            uuidv4(), uuidv4(), "192.168.0.1", uuidv4());
+                params);
         expect(createConsentResponse).not.toBeNull();
 
         const consentId = createConsentResponse.consentId;
@@ -1246,7 +1250,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         expect(flow.bank).toEqual(Bank.PNZ);
         expect(flow.callbackUrl).toEqual(callbackUrl);
         expect(flow.identifierType).toEqual(IdentifierType.PhoneNumber);
-        expect(flow.identifierValue).toEqual('+6449144425');
+        expect(flow.identifierValue).toEqual('+64-259531933');
 
         expect(detail.pcr).not.toBeNull();
         expect(detail.pcr.particulars).toEqual('particulars');

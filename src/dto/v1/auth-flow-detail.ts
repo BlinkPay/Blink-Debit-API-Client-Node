@@ -24,9 +24,9 @@
  * The base auth flow detail.
  *
  * @export
- * @interface AuthFlowDetail
+ * @class AuthFlowDetail
  */
-export interface AuthFlowDetail {
+export class AuthFlowDetail {
     /**
      * Whether to use Blink Gateway, redirect or decoupled flow.
      * @type {string}

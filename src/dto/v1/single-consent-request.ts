@@ -50,4 +50,10 @@ export interface SingleConsentRequest extends ConsentDetail {
      * @memberof SingleConsentRequest
      */
     amount: Amount;
+    /**
+     * The hashed unique ID of the customer e.g. customer internal ID. SHA-256 is recommended.
+     * @type {string}
+     * @memberof SingleConsentRequest
+     */
+    hashedCustomerIdentifier?: string;
 }

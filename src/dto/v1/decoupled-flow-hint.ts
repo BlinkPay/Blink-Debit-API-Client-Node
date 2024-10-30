@@ -23,19 +23,23 @@
 import {FlowHint} from './flow-hint';
 import {IdentifierType} from './identifier-type';
 import {IdentifierValue} from './identifier-value';
+import {Transform} from "class-transformer";
 
 /**
  * Decoupled flow hint.
  *
  * @export
- * @interface DecoupledFlowHint
+ * @class DecoupledFlowHint
  */
-export interface DecoupledFlowHint extends FlowHint {
+export class DecoupledFlowHint extends FlowHint {
     /**
      *
      * @type {IdentifierType}
      * @memberof DecoupledFlowHint
      */
+    @Transform(({value}) => {
+        return Object.values(IdentifierType).find(status => status === value)
+    })
     identifierType: IdentifierType;
     /**
      *

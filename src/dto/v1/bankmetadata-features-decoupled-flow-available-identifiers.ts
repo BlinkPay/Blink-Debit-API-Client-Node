@@ -21,19 +21,23 @@
  */
 
 import {IdentifierType} from './identifier-type';
+import {Transform} from "class-transformer";
 
 /**
  * The available identifiers.
  *
  * @export
- * @interface BankmetadataFeaturesDecoupledFlowAvailableIdentifiers
+ * @class BankmetadataFeaturesDecoupledFlowAvailableIdentifiers
  */
-export interface BankmetadataFeaturesDecoupledFlowAvailableIdentifiers {
+export class BankmetadataFeaturesDecoupledFlowAvailableIdentifiers {
     /**
      *
      * @type {IdentifierType}
      * @memberof BankmetadataFeaturesDecoupledFlowAvailableIdentifiers
      */
+    @Transform(({value}) => {
+        return Object.values(IdentifierType).find(status => status === value)
+    })
     type: IdentifierType;
     /**
      * A regex that can be used for validation of the field
