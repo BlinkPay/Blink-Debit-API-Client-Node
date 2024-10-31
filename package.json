@@ -26,6 +26,7 @@
     "loglevel": "^1.9.2",
     "luxon": "^3.5.0",
     "qs": "^6.13.0",
+    "reflect-metadata": "^0.2.2",
     "uuid": "^11.0.2"
   },
   "devDependencies": {
