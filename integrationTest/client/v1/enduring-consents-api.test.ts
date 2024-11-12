@@ -73,7 +73,6 @@ describe('EnduringConsentsApi Integration Test', () => {
         // create
         const now = DateTime.now().setZone('Pacific/Auckland');
         const request: EnduringConsentRequest = {
-            type: ConsentDetailTypeEnum.Enduring,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Redirect,
@@ -201,7 +200,6 @@ describe('EnduringConsentsApi Integration Test', () => {
         // create
         const now = DateTime.now().setZone('Pacific/Auckland');
         const request: EnduringConsentRequest = {
-            type: ConsentDetailTypeEnum.Enduring,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Decoupled,
@@ -302,7 +300,6 @@ describe('EnduringConsentsApi Integration Test', () => {
         // create
         const now = DateTime.now().setZone('Pacific/Auckland');
         const request: EnduringConsentRequest = {
-            type: ConsentDetailTypeEnum.Enduring,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Gateway,
@@ -412,7 +409,6 @@ describe('EnduringConsentsApi Integration Test', () => {
         // create
         const now = DateTime.now().setZone('Pacific/Auckland');
         const request: EnduringConsentRequest = {
-            type: ConsentDetailTypeEnum.Enduring,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Gateway,

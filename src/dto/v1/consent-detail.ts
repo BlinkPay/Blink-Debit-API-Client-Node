@@ -32,7 +32,7 @@ export interface ConsentDetail {
      * @type {string}
      * @memberof ConsentDetail
      */
-    type: ConsentDetailTypeEnum;
+    type?: ConsentDetailTypeEnum;
 }
 
 /**

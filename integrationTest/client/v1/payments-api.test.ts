@@ -26,7 +26,6 @@ import {
     AuthFlow,
     AuthFlowDetailTypeEnum,
     Bank,
-    ConsentDetailTypeEnum,
     DecoupledFlow,
     EnduringConsentRequest,
     EnduringConsentsApiFactory,
@@ -77,7 +76,6 @@ describe('PaymentsApi Integration Test', () => {
     it('Verify that payment for single consent with decoupled flow is created and retrieved', async () => {
         // create single consent with decoupled flow
         const request: SingleConsentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Decoupled,
@@ -156,7 +154,6 @@ describe('PaymentsApi Integration Test', () => {
         // create enduring consent with decoupled flow
         const now = DateTime.now().setZone('Pacific/Auckland');
         const request: EnduringConsentRequest = {
-            type: ConsentDetailTypeEnum.Enduring,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Decoupled,

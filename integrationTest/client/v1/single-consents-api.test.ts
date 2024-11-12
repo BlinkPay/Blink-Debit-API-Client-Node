@@ -71,7 +71,6 @@ describe('SingleConsentsApi Integration Test', () => {
     it('Verify that single consent with redirect flow is created in PNZ', async () => {
         // create
         const request: SingleConsentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Redirect,
@@ -210,7 +209,6 @@ describe('SingleConsentsApi Integration Test', () => {
     it('Verify that single consent with decoupled flow is created in PNZ', async () => {
         // create
         const request: SingleConsentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Decoupled,
@@ -319,7 +317,6 @@ describe('SingleConsentsApi Integration Test', () => {
     it('Verify that single consent with gateway flow and redirect flow hint is created in PNZ', async () => {
         // create
         const request: SingleConsentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Gateway,
@@ -437,7 +434,6 @@ describe('SingleConsentsApi Integration Test', () => {
     it('Verify that single consent with gateway flow and decoupled flow hint is created in PNZ', async () => {
         // create
         const request: SingleConsentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Gateway,

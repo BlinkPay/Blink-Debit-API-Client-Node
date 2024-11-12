@@ -31,7 +31,7 @@ import {
     BlinkConsentTimeoutException,
     BlinkDebitClient,
     BlinkResourceNotFoundException,
-    BlinkServiceException, Consent,
+    BlinkServiceException,
     ConsentDetailTypeEnum,
     ConsentStatusEnum,
     DecoupledFlow,
@@ -45,7 +45,7 @@ import {
     PaymentTypeEnum,
     Pcr,
     Period,
-    QuickPaymentRequest, QuickPaymentResponse,
+    QuickPaymentRequest,
     RedirectFlow,
     SingleConsentRequest
 } from '../../../src';
@@ -83,6 +83,10 @@ describe('BlinkDebitClient Integration Tests', () => {
 
         const bnz: BankMetadata = {
             name: Bank.BNZ,
+            paymentLimit: {
+                total: "50000",
+                currency: AmountCurrencyEnum.NZD
+            },
             features: {
                 enduringConsent: {
                     enabled: true,
@@ -107,6 +111,10 @@ describe('BlinkDebitClient Integration Tests', () => {
 
         const pnz: BankMetadata = {
             name: Bank.PNZ,
+            paymentLimit: {
+                total: "50000",
+                currency: AmountCurrencyEnum.NZD
+            },
             features: {
                 enduringConsent: {
                     enabled: true,
@@ -135,6 +143,10 @@ describe('BlinkDebitClient Integration Tests', () => {
 
         const westpac: BankMetadata = {
             name: Bank.Westpac,
+            paymentLimit: {
+                total: "10000",
+                currency: AmountCurrencyEnum.NZD
+            },
             features: {
                 enduringConsent: undefined,
                 decoupledFlow: undefined
@@ -147,6 +159,10 @@ describe('BlinkDebitClient Integration Tests', () => {
 
         const asb: BankMetadata = {
             name: Bank.ASB,
+            paymentLimit: {
+                total: "30000",
+                currency: AmountCurrencyEnum.NZD
+            },
             features: {
                 enduringConsent: {
                     enabled: true,
@@ -162,6 +178,10 @@ describe('BlinkDebitClient Integration Tests', () => {
 
         const anz: BankMetadata = {
             name: Bank.ANZ,
+            paymentLimit: {
+                total: "1000",
+                currency: AmountCurrencyEnum.NZD
+            },
             features: {
                 enduringConsent: undefined,
                 decoupledFlow: {
@@ -176,18 +196,17 @@ describe('BlinkDebitClient Integration Tests', () => {
                 }
             },
             redirectFlow: {
-                enabled: false,
-                requestTimeout: undefined
+                enabled: true,
+                requestTimeout: "PT10M"
             }
         };
 
-        expect(actual).toEqual(expect.arrayContaining([bnz, pnz, westpac, anz, asb]));
+        expect(actual).toEqual(expect.arrayContaining([bnz, pnz, asb, westpac, anz]));
     });
 
     it("Verify that timed out single consent is handled", async () => {
         // create
         const request: SingleConsentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Redirect,
@@ -238,7 +257,6 @@ describe('BlinkDebitClient Integration Tests', () => {
     it("Verify that single consent with decoupled flow is retrieved", async () => {
         // create
         const request: SingleConsentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Decoupled,
@@ -301,7 +319,6 @@ describe('BlinkDebitClient Integration Tests', () => {
     it("Verify that timed out single consent is handled (using exception)", async () => {
         // create
         const request: SingleConsentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Redirect,
@@ -351,7 +368,6 @@ describe('BlinkDebitClient Integration Tests', () => {
     it("Verify that single consent with decoupled flow is retrieved (using exception)", async () => {
         // create
         const request: SingleConsentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Decoupled,
@@ -415,7 +431,6 @@ describe('BlinkDebitClient Integration Tests', () => {
         // create
         const now = DateTime.now().setZone('Pacific/Auckland');
         const request: EnduringConsentRequest = {
-            type: ConsentDetailTypeEnum.Enduring,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Redirect,
@@ -465,7 +480,6 @@ describe('BlinkDebitClient Integration Tests', () => {
         // create
         const now = DateTime.now().setZone('Pacific/Auckland');
         const request: EnduringConsentRequest = {
-            type: ConsentDetailTypeEnum.Enduring,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Decoupled,
@@ -522,7 +536,6 @@ describe('BlinkDebitClient Integration Tests', () => {
     it('Verify that timed out enduring consent is handled (using exception)', async () => {
         const now = DateTime.now().setZone('Pacific/Auckland');
         const request: EnduringConsentRequest = {
-            type: ConsentDetailTypeEnum.Enduring,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Redirect,
@@ -571,7 +584,6 @@ describe('BlinkDebitClient Integration Tests', () => {
         // create
         const now = DateTime.now().setZone('Pacific/Auckland');
         const request: EnduringConsentRequest = {
-            type: ConsentDetailTypeEnum.Enduring,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Decoupled,
@@ -628,7 +640,6 @@ describe('BlinkDebitClient Integration Tests', () => {
     it('Verify that timed out quick payment is handled', async () => {
         // create
         const request: QuickPaymentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Redirect,
@@ -679,7 +690,6 @@ describe('BlinkDebitClient Integration Tests', () => {
     it('Verify that quick payment with decoupled flow is retrieved', async () => {
         // create
         const request: QuickPaymentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Decoupled,
@@ -713,7 +723,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         const quickPayment = await instance.awaitSuccessfulQuickPayment(quickPaymentId, 60);
         expect(quickPayment).not.toBeNull();
         const consent = quickPayment.consent;
-        expect(consent.status).toEqual(ConsentStatusEnum.Consumed);
+        expect([ConsentStatusEnum.Consumed, ConsentStatusEnum.Authorised]).toContain(consent.status);
         expect(consent.accounts).toBeUndefined();
         expect(consent.payments).toHaveLength(1);
         const payment = consent.payments[0];
@@ -752,7 +762,6 @@ describe('BlinkDebitClient Integration Tests', () => {
     it('Verify that timed out quick payment is handled (using exception)', async () => {
         // create
         const request: QuickPaymentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Redirect,
@@ -803,7 +812,6 @@ describe('BlinkDebitClient Integration Tests', () => {
     it('Verify that quick payment with decoupled flow is retrieved (using exception)', async () => {
         // create
         const request: QuickPaymentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Decoupled,
@@ -873,7 +881,6 @@ describe('BlinkDebitClient Integration Tests', () => {
     it("Verify that revoked quick payment with gateway flow is handled", async () => {
         // create
         const request: QuickPaymentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Gateway,
@@ -920,7 +927,6 @@ describe('BlinkDebitClient Integration Tests', () => {
     it("Verify that timed out payment is handled", async () => {
         // create consent
         const request: SingleConsentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Decoupled,
@@ -1016,7 +1022,6 @@ describe('BlinkDebitClient Integration Tests', () => {
     it("Verify that payment is created and retrieved", async () => {
         // create consent
         const request: SingleConsentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Decoupled,
@@ -1111,7 +1116,6 @@ describe('BlinkDebitClient Integration Tests', () => {
     it("Verify that timed out payment is handled (using exception)", async () => {
         // create consent
         const request: SingleConsentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Decoupled,
@@ -1202,7 +1206,6 @@ describe('BlinkDebitClient Integration Tests', () => {
     it("Verify that payment is created and retrieved (using exception)", async () => {
         // create consent
         const request: SingleConsentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Decoupled,

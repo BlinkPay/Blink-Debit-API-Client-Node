@@ -71,7 +71,6 @@ describe('QuickPaymentsApi Integration Test', () => {
     it('Verify that quick payment with redirect flow is created in PNZ', async () => {
         // create
         const request: QuickPaymentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Redirect,
@@ -213,7 +212,6 @@ describe('QuickPaymentsApi Integration Test', () => {
     it('Verify that quick payment with decoupled flow is created in PNZ', async () => {
         // create
         const request: QuickPaymentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Decoupled,
@@ -324,7 +322,6 @@ describe('QuickPaymentsApi Integration Test', () => {
     it('Verify that quick payment with gateway flow and redirect flow hint is created in PNZ', async () => {
         // create
         const request: QuickPaymentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Gateway,
@@ -444,7 +441,6 @@ describe('QuickPaymentsApi Integration Test', () => {
     it('Verify that quick payment with gateway flow and decoupled flow hint is created in PNZ', async () => {
         // create
         const request: QuickPaymentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Gateway,

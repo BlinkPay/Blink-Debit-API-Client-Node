@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import {Bank, BankMetadata, BankMetadataApiFactory, IdentifierType} from '../../../src';
+import {AmountCurrencyEnum, Bank, BankMetadata, BankMetadataApiFactory, IdentifierType} from '../../../src';
 import {Configuration} from '../../../configuration';
 import globalAxios from 'axios';
 
@@ -45,6 +45,10 @@ describe('BankMetadataApi Integration Test', () => {
 
         const bnz: BankMetadata = {
             name: Bank.BNZ,
+            paymentLimit: {
+                total: "50000",
+                currency: AmountCurrencyEnum.NZD
+            },
             features: {
                 enduringConsent: {
                     consentIndefinite: false,
@@ -69,6 +73,10 @@ describe('BankMetadataApi Integration Test', () => {
 
         const pnz: BankMetadata = {
             name: Bank.PNZ,
+            paymentLimit: {
+                total: "50000",
+                currency: AmountCurrencyEnum.NZD
+            },
             features: {
                 enduringConsent: {
                     enabled: true,
@@ -97,6 +105,10 @@ describe('BankMetadataApi Integration Test', () => {
 
         const westpac: BankMetadata = {
             name: Bank.Westpac,
+            paymentLimit: {
+                total: "10000",
+                currency: AmountCurrencyEnum.NZD
+            },
             features: {
                 enduringConsent: undefined,
                 decoupledFlow: undefined
@@ -109,6 +121,10 @@ describe('BankMetadataApi Integration Test', () => {
 
         const asb: BankMetadata = {
             name: Bank.ASB,
+            paymentLimit: {
+                total: "30000",
+                currency: AmountCurrencyEnum.NZD
+            },
             features: {
                 enduringConsent: {
                     consentIndefinite: false,
@@ -124,6 +140,10 @@ describe('BankMetadataApi Integration Test', () => {
 
         const anz: BankMetadata = {
             name: Bank.ANZ,
+            paymentLimit: {
+                total: "1000",
+                currency: AmountCurrencyEnum.NZD
+            },
             features: {
                 enduringConsent: undefined,
                 decoupledFlow: {
@@ -138,11 +158,11 @@ describe('BankMetadataApi Integration Test', () => {
                 }
             },
             redirectFlow: {
-                enabled: false,
-                requestTimeout: undefined
+                enabled: true,
+                requestTimeout: "PT10M"
             }
         };
 
-        expect(actual).toEqual(expect.arrayContaining([bnz, pnz, westpac, anz, asb]));
+        expect(actual).toEqual(expect.arrayContaining([bnz, pnz, asb, westpac, anz]));
     });
 });
