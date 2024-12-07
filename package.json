@@ -27,7 +27,7 @@
     "luxon": "^3.5.0",
     "qs": "^6.13.0",
     "reflect-metadata": "^0.2.2",
-    "uuid": "^11.0.2"
+    "uuid": "^11.0.3"
   },
   "devDependencies": {
     "@types/humps": "^2.0.6",
