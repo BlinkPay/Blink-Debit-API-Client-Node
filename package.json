@@ -21,7 +21,7 @@
     "axios": "^1.7.7",
     "class-transformer": "^0.5.1",
     "cockatiel": "^3.2.1",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.4.7",
     "humps": "^2.0.1",
     "loglevel": "^1.9.2",
     "luxon": "^3.5.0",
