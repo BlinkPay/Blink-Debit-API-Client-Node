@@ -54,5 +54,5 @@ export interface BankMetadata {
      * @type {BankmetadataRedirectFlow}
      * @memberof BankMetadata
      */
-    redirectFlow: BankmetadataRedirectFlow;
+    redirectFlow?: BankmetadataRedirectFlow;
 }

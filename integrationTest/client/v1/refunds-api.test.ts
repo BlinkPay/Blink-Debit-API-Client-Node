@@ -198,17 +198,15 @@ describe('RefundsApi Integration Test', () => {
         // create payment
         const paymentRequest: PaymentRequest = {
             consentId: consentId,
-            enduringPayment: {
-                amount: {
-                    total: "45.00",
-                    currency: AmountCurrencyEnum.NZD
-                } as Amount,
-                pcr: {
-                    particulars: "particulars",
-                    code: "code",
-                    reference: "reference"
-                } as Pcr
-            }
+            amount: {
+                total: "45.00",
+                currency: AmountCurrencyEnum.NZD
+            } as Amount,
+            pcr: {
+                particulars: "particulars",
+                code: "code",
+                reference: "reference"
+            } as Pcr
         };
         let paymentId;
         params.idempotencyKey = uuidv4();

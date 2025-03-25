@@ -20,26 +20,14 @@
  * SOFTWARE.
  */
 
-import {Amount} from './amount';
-import {Pcr} from './pcr';
-
 /**
- * The model for an enduring payment request, if applicable.
- *
- * @export
- * @interface EnduringPaymentRequest
+ * The card network.
  */
-export interface EnduringPaymentRequest {
-    /**
-     *
-     * @type {Pcr}
-     * @memberof EnduringPaymentRequest
-     */
-    pcr: Pcr;
-    /**
-     *
-     * @type {Amount}
-     * @memberof EnduringPaymentRequest
-     */
-    amount: Amount;
+export enum CardNetwork {
+    VISA = 'VISA',
+    MASTERCARD = 'MASTERCARD',
+    AMEX = 'AMEX',
+    DISCOVER = 'DISCOVER',
+    DINERSCLUB = 'DINERSCLUB',
+    JCB = 'JCB'
 }

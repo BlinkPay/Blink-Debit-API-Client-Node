@@ -106,7 +106,7 @@ describe('QuickPaymentsApi Integration Test', () => {
         expect(quickPayment).not.toBeNull();
         let consent = quickPayment.consent;
         expect(consent.status).toEqual(ConsentStatusEnum.AwaitingAuthorisation);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -143,7 +143,7 @@ describe('QuickPaymentsApi Integration Test', () => {
         expect(quickPayment).not.toBeNull();
         consent = quickPayment.consent;
         expect(consent.status).toEqual(ConsentStatusEnum.Revoked);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -180,7 +180,7 @@ describe('QuickPaymentsApi Integration Test', () => {
         expect(quickPayment).not.toBeNull();
         let consent = quickPayment.consent;
         expect(consent.status).toEqual(ConsentStatusEnum.Rejected);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -249,7 +249,7 @@ describe('QuickPaymentsApi Integration Test', () => {
         expect(quickPayment).not.toBeNull();
         let consent = quickPayment.consent;
         expect(consent.status).toEqual(ConsentStatusEnum.AwaitingAuthorisation);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -288,7 +288,7 @@ describe('QuickPaymentsApi Integration Test', () => {
         expect(quickPayment).not.toBeNull();
         consent = quickPayment.consent;
         expect(consent.status).toEqual(ConsentStatusEnum.Revoked);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -360,7 +360,7 @@ describe('QuickPaymentsApi Integration Test', () => {
         expect(quickPayment).not.toBeNull();
         let consent = quickPayment.consent;
         expect(consent.status).toEqual(ConsentStatusEnum.GatewayAwaitingSubmission);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -403,7 +403,7 @@ describe('QuickPaymentsApi Integration Test', () => {
         expect(quickPayment).not.toBeNull();
         consent = quickPayment.consent;
         expect(consent.status).toEqual(ConsentStatusEnum.Revoked);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -481,7 +481,7 @@ describe('QuickPaymentsApi Integration Test', () => {
         expect(quickPayment).not.toBeNull();
         let consent = quickPayment.consent;
         expect(consent.status).toEqual(ConsentStatusEnum.GatewayAwaitingSubmission);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -526,7 +526,7 @@ describe('QuickPaymentsApi Integration Test', () => {
         expect(quickPayment).not.toBeNull();
         consent = quickPayment.consent;
         expect(consent.status).toEqual(ConsentStatusEnum.Revoked);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();

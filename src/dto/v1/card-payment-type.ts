@@ -21,34 +21,11 @@
  */
 
 /**
- * The model for a Westpac account.
- *
- * @export
- * @interface Account
+ * The type of card payment.
  */
-export interface Account {
-    /**
-     * The account reference ID from account list. This is required if the account selection information was provided to you on the consents endpoint.
-     * @type {string}
-     * @memberof Account
-     */
-    accountReferenceId?: string;
-    /**
-     * The account number.
-     * @type {string}
-     * @memberof Account
-     */
-    accountNumber?: string;
-    /**
-     * The account name.
-     * @type {string}
-     * @memberof Account
-     */
-    name?: string;
-    /**
-     * The available balance.
-     * @type {string}
-     * @memberof Account
-     */
-    availableBalance?: string;
+export enum CardPaymentType {
+    APPLEPAY = 'APPLEPAY',
+    CLICKTOPAY = 'CLICKTOPAY',
+    GOOGLEPAY = 'GOOGLEPAY',
+    PANENTRY = 'PANENTRY'
 }

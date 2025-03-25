@@ -104,7 +104,7 @@ describe('EnduringConsentsApi Integration Test', () => {
         let consent = consentAxiosResponse.data;
         expect(consent).not.toBeNull();
         expect(consent.status).toEqual(ConsentStatusEnum.AwaitingAuthorisation);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -137,7 +137,7 @@ describe('EnduringConsentsApi Integration Test', () => {
         consent = consentAxiosResponse.data;
         expect(consent).not.toBeNull();
         expect(consent.status).toEqual(ConsentStatusEnum.Revoked);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -170,7 +170,7 @@ describe('EnduringConsentsApi Integration Test', () => {
         const consent = consentAxiosResponse.data;
         expect(consent).not.toBeNull();
         expect(consent.status).toEqual(ConsentStatusEnum.Rejected);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -233,7 +233,7 @@ describe('EnduringConsentsApi Integration Test', () => {
         let consent = consentAxiosResponse.data;
         expect(consent).not.toBeNull();
         expect(consent.status).toEqual(ConsentStatusEnum.AwaitingAuthorisation);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -268,7 +268,7 @@ describe('EnduringConsentsApi Integration Test', () => {
         consent = consentAxiosResponse.data;
         expect(consent).not.toBeNull();
         expect(consent.status).toEqual(ConsentStatusEnum.Revoked);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -334,7 +334,7 @@ describe('EnduringConsentsApi Integration Test', () => {
         let consent = consentAxiosResponse.data;
         expect(consent).not.toBeNull();
         expect(consent.status).toEqual(ConsentStatusEnum.GatewayAwaitingSubmission);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -373,7 +373,7 @@ describe('EnduringConsentsApi Integration Test', () => {
         consent = consentAxiosResponse.data;
         expect(consent).not.toBeNull();
         expect(consent.status).toEqual(ConsentStatusEnum.Revoked);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -445,7 +445,7 @@ describe('EnduringConsentsApi Integration Test', () => {
         let consent = consentAxiosResponse.data;
         expect(consent).not.toBeNull();
         expect(consent.status).toEqual(ConsentStatusEnum.GatewayAwaitingSubmission);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -486,7 +486,7 @@ describe('EnduringConsentsApi Integration Test', () => {
         consent = consentAxiosResponse.data;
         expect(consent).not.toBeNull();
         expect(consent.status).toEqual(ConsentStatusEnum.Revoked);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();

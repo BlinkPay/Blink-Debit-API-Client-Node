@@ -31,7 +31,7 @@ import {
     BlinkConsentTimeoutException,
     BlinkDebitClient,
     BlinkResourceNotFoundException,
-    BlinkServiceException,
+    BlinkServiceException, CardNetwork, CardPaymentType,
     ConsentDetailTypeEnum,
     ConsentStatusEnum,
     DecoupledFlow,
@@ -79,7 +79,7 @@ describe('BlinkDebitClient Integration Tests', () => {
     it('Verify that bank metadata is retrieved', async () => {
         const actual = await instance.getMeta();
         expect(actual).toBeInstanceOf(Array);
-        expect(actual.length).toEqual(5);
+        expect(actual.length).toEqual(6);
 
         const bnz: BankMetadata = {
             name: Bank.BNZ,
@@ -201,7 +201,18 @@ describe('BlinkDebitClient Integration Tests', () => {
             }
         };
 
-        expect(actual).toEqual(expect.arrayContaining([bnz, pnz, asb, westpac, anz]));
+        const cybersource: BankMetadata = {
+            name: Bank.Cybersource,
+            features: {
+                cardPayment: {
+                    enabled: true,
+                    allowedCardPaymentTypes: [CardPaymentType.PANENTRY, CardPaymentType.GOOGLEPAY],
+                    allowedCardNetworks: [CardNetwork.VISA, CardNetwork.MASTERCARD, CardNetwork.AMEX]
+                }
+            }
+        };
+
+        expect(actual).toEqual(expect.arrayContaining([bnz, pnz, asb, westpac, anz, cybersource]));
     });
 
     it("Verify that timed out single consent is handled", async () => {
@@ -289,7 +300,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         const consent = await instance.awaitAuthorisedSingleConsent(consentId, 30);
         expect(consent).not.toBeNull();
         expect(consent.status).toEqual(ConsentStatusEnum.Authorised);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -400,7 +411,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         const consent = await instance.awaitAuthorisedSingleConsentOrThrowException(consentId, 60);
         expect(consent).not.toBeNull();
         expect(consent.status).toEqual(ConsentStatusEnum.Authorised);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -509,7 +520,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         const consent = await instance.awaitAuthorisedEnduringConsent(consentId, 30);
         expect(consent).not.toBeNull();
         expect(consent.status).toEqual(ConsentStatusEnum.Authorised);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -613,7 +624,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         let consent = await instance.awaitAuthorisedEnduringConsentOrThrowException(consentId, 30);
         expect(consent).not.toBeNull();
         expect(consent.status).toEqual(ConsentStatusEnum.Authorised);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -724,7 +735,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         expect(quickPayment).not.toBeNull();
         const consent = quickPayment.consent;
         expect([ConsentStatusEnum.Consumed, ConsentStatusEnum.Authorised]).toContain(consent.status);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toHaveLength(1);
         const payment = consent.payments[0];
         expect(payment.paymentId).not.toBeNull();
@@ -847,7 +858,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         const consent = quickPayment.consent;
         const validStatuses = [ConsentStatusEnum.Consumed, ConsentStatusEnum.Authorised];
         expect(validStatuses).toContain(consent.status);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         if (consent.status == ConsentStatusEnum.Consumed) {
             expect(consent.payments).toHaveLength(1);
         } else {
@@ -959,7 +970,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         const consent = await instance.awaitAuthorisedSingleConsent(consentId, 60);
         expect(consent).not.toBeNull();
         expect(consent.status).toEqual(ConsentStatusEnum.Authorised);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -1054,7 +1065,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         const consent = await instance.awaitAuthorisedSingleConsent(consentId, 60);
         expect(consent).not.toBeNull();
         expect(consent.status).toEqual(ConsentStatusEnum.Authorised);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -1108,8 +1119,8 @@ describe('BlinkDebitClient Integration Tests', () => {
         const paymentDetail = payment.detail as PaymentRequest;
         expect(paymentDetail).not.toBeNull();
         expect(paymentDetail.consentId).toEqual(consentId);
-        expect(paymentDetail.enduringPayment).toBeUndefined();
-        expect(paymentDetail.accountReferenceId).toBeUndefined();
+        expect(paymentDetail.pcr).toBeUndefined();
+        expect(paymentDetail.amount).toEqual(request.amount);
         expect(payment.refunds).toHaveLength(0);
     });
 
@@ -1148,7 +1159,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         const consent = await instance.awaitAuthorisedSingleConsent(consentId, 30);
         expect(consent).not.toBeNull();
         expect(consent.status).toEqual(ConsentStatusEnum.Authorised);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -1238,7 +1249,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         const consent = await instance.awaitAuthorisedSingleConsent(consentId, 60);
         expect(consent).not.toBeNull();
         expect(consent.status).toEqual(ConsentStatusEnum.Authorised);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -1287,8 +1298,8 @@ describe('BlinkDebitClient Integration Tests', () => {
         const paymentDetail = payment.detail as PaymentRequest;
         expect(paymentDetail).not.toBeNull();
         expect(paymentDetail.consentId).toEqual(consentId);
-        expect(paymentDetail.enduringPayment).toBeUndefined();
-        expect(paymentDetail.accountReferenceId).toBeUndefined();
+        expect(paymentDetail.pcr).toBeUndefined();
+        expect(paymentDetail.amount).toEqual(request.amount);
 
         expect(payment.refunds).toHaveLength(0);
     });

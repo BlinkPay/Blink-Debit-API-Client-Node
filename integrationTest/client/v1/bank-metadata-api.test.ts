@@ -20,7 +20,15 @@
  * SOFTWARE.
  */
 
-import {AmountCurrencyEnum, Bank, BankMetadata, BankMetadataApiFactory, IdentifierType} from '../../../src';
+import {
+    AmountCurrencyEnum,
+    Bank,
+    BankMetadata,
+    BankMetadataApiFactory,
+    CardNetwork,
+    CardPaymentType,
+    IdentifierType
+} from '../../../src';
 import {Configuration} from '../../../configuration';
 import globalAxios from 'axios';
 
@@ -41,7 +49,7 @@ describe('BankMetadataApi Integration Test', () => {
         expect(response.data).toBeInstanceOf(Array);
         expect(response.status).toEqual(200);
         const actual = response.data;
-        expect(actual.length).toEqual(5);
+        expect(actual.length).toEqual(6);
 
         const bnz: BankMetadata = {
             name: Bank.BNZ,
@@ -163,6 +171,17 @@ describe('BankMetadataApi Integration Test', () => {
             }
         };
 
-        expect(actual).toEqual(expect.arrayContaining([bnz, pnz, asb, westpac, anz]));
+        const cybersource: BankMetadata = {
+            name: Bank.Cybersource,
+            features: {
+                cardPayment: {
+                    enabled: true,
+                    allowedCardPaymentTypes: [CardPaymentType.PANENTRY, CardPaymentType.GOOGLEPAY],
+                    allowedCardNetworks: [CardNetwork.VISA, CardNetwork.MASTERCARD, CardNetwork.AMEX]
+                }
+            }
+        };
+
+        expect(actual).toEqual(expect.arrayContaining([bnz, pnz, asb, westpac, anz, cybersource]));
     });
 });
