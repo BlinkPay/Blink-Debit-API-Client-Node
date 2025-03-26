@@ -20,33 +20,23 @@
  * SOFTWARE.
  */
 
-import {BankmetadataFeaturesDecoupledFlow} from './bankmetadata-features-decoupled-flow';
-import {BankmetadataFeaturesEnduringConsent} from './bankmetadata-features-enduring-consent';
-import {BankmetadataFeaturesCardPayment} from "./bankmetadata-features-card-payment";
+import { CardNetwork } from './card-network';
+import { CardPaymentType } from './card-payment-type';
 
 /**
- * The available bank features
- *
- * @export
- * @interface BankmetadataFeatures
+ * The card payment feature
  */
-export interface BankmetadataFeatures {
+export interface BankmetadataFeaturesCardPayment { 
     /**
-     *
-     * @type {BankmetadataFeaturesEnduringConsent}
-     * @memberof BankmetadataFeatures
+     * Whether card payment is enabled.
      */
-    enduringConsent?: BankmetadataFeaturesEnduringConsent;
+    enabled: boolean;
     /**
-     *
-     * @type {BankmetadataFeaturesDecoupledFlow}
-     * @memberof BankmetadataFeatures
+     * The allowed card payment types.
      */
-    decoupledFlow?: BankmetadataFeaturesDecoupledFlow;
+    allowedCardPaymentTypes: Array<CardPaymentType>;
     /**
-     *
-     * @type {BankmetadataFeaturesCardPayment}
-     * @memberof BankmetadataFeatures
+     * The allowed card networks.
      */
-    cardPayment?: BankmetadataFeaturesCardPayment;
+    allowedCardNetworks: Array<CardNetwork>;
 }

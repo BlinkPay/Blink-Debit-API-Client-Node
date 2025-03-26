@@ -23,6 +23,7 @@
 import {Bank} from './bank';
 import {BankmetadataFeatures} from './bankmetadata-features';
 import {BankmetadataRedirectFlow} from './bankmetadata-redirect-flow';
+import {Amount} from "./amount";
 
 /**
  * Information about a banks enabled features.
@@ -38,6 +39,12 @@ export interface BankMetadata {
     name: Bank;
     /**
      *
+     * @type {Amount}
+     * @memberof BankMetadata
+     */
+    paymentLimit?: Amount;
+    /**
+     *
      * @type {BankmetadataFeatures}
      * @memberof BankMetadata
      */
@@ -47,5 +54,5 @@ export interface BankMetadata {
      * @type {BankmetadataRedirectFlow}
      * @memberof BankMetadata
      */
-    redirectFlow: BankmetadataRedirectFlow;
+    redirectFlow?: BankmetadataRedirectFlow;
 }

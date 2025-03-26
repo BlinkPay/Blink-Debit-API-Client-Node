@@ -71,7 +71,6 @@ describe('SingleConsentsApi Integration Test', () => {
     it('Verify that single consent with redirect flow is created in PNZ', async () => {
         // create
         const request: SingleConsentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Redirect,
@@ -106,7 +105,7 @@ describe('SingleConsentsApi Integration Test', () => {
         let consent = consentAxiosResponse.data;
         expect(consent).not.toBeNull();
         expect(consent.status).toEqual(ConsentStatusEnum.AwaitingAuthorisation);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -142,7 +141,7 @@ describe('SingleConsentsApi Integration Test', () => {
         consent = consentAxiosResponse.data;
         expect(consent).not.toBeNull();
         expect(consent.status).toEqual(ConsentStatusEnum.Revoked);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -178,7 +177,7 @@ describe('SingleConsentsApi Integration Test', () => {
         const consent = consentAxiosResponse.data;
         expect(consent).not.toBeNull();
         expect(consent.status).toEqual(ConsentStatusEnum.Rejected);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -210,7 +209,6 @@ describe('SingleConsentsApi Integration Test', () => {
     it('Verify that single consent with decoupled flow is created in PNZ', async () => {
         // create
         const request: SingleConsentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Decoupled,
@@ -247,7 +245,7 @@ describe('SingleConsentsApi Integration Test', () => {
         let consent = consentAxiosResponse.data;
         expect(consent).not.toBeNull();
         expect(consent.status).toEqual(ConsentStatusEnum.AwaitingAuthorisation);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -285,7 +283,7 @@ describe('SingleConsentsApi Integration Test', () => {
         consent = consentAxiosResponse.data;
         expect(consent).not.toBeNull();
         expect(consent.status).toEqual(ConsentStatusEnum.Revoked);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -319,7 +317,6 @@ describe('SingleConsentsApi Integration Test', () => {
     it('Verify that single consent with gateway flow and redirect flow hint is created in PNZ', async () => {
         // create
         const request: SingleConsentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Gateway,
@@ -357,7 +354,7 @@ describe('SingleConsentsApi Integration Test', () => {
         let consent = consentAxiosResponse.data;
         expect(consent).not.toBeNull();
         expect(consent.status).toEqual(ConsentStatusEnum.GatewayAwaitingSubmission);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -399,7 +396,7 @@ describe('SingleConsentsApi Integration Test', () => {
         consent = consentAxiosResponse.data;
         expect(consent).not.toBeNull();
         expect(consent.status).toEqual(ConsentStatusEnum.Revoked);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -437,7 +434,6 @@ describe('SingleConsentsApi Integration Test', () => {
     it('Verify that single consent with gateway flow and decoupled flow hint is created in PNZ', async () => {
         // create
         const request: SingleConsentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Gateway,
@@ -477,7 +473,7 @@ describe('SingleConsentsApi Integration Test', () => {
         let consent = consentAxiosResponse.data;
         expect(consent).not.toBeNull();
         expect(consent.status).toEqual(ConsentStatusEnum.GatewayAwaitingSubmission);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -521,7 +517,7 @@ describe('SingleConsentsApi Integration Test', () => {
         consent = consentAxiosResponse.data;
         expect(consent).not.toBeNull();
         expect(consent.status).toEqual(ConsentStatusEnum.Revoked);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();

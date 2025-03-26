@@ -53,12 +53,11 @@ Create and use the client:
 ```javascript
 import axios from 'axios';
 import log from 'loglevel';
-import { BlinkDebitClient, ConsentDetailTypeEnum, AuthFlowDetailTypeEnum, AmountCurrencyEnum } from 'blink-debit-api-client-node';
+import { BlinkDebitClient, AuthFlowDetailTypeEnum, AmountCurrencyEnum } from 'blink-debit-api-client-node';
 
 const client = new BlinkDebitClient(axios);
 
 const request = {
-    type: ConsentDetailTypeEnum.Single,
     flow: {
         detail: {
             type: AuthFlowDetailTypeEnum.Gateway,
@@ -89,12 +88,11 @@ await createQuickPayment();
 ```typescript
 import axios from 'axios';
 import log from 'loglevel';
-import { BlinkDebitClient, QuickPaymentRequest, ConsentDetailTypeEnum, AuthFlowDetailTypeEnum, GatewayFlow, AuthFlow, AmountCurrencyEnum, Amount, Pcr } from 'blink-debit-api-client-node';
+import { BlinkDebitClient, QuickPaymentRequest, AuthFlowDetailTypeEnum, GatewayFlow, AuthFlow, AmountCurrencyEnum, Amount, Pcr } from 'blink-debit-api-client-node';
 
 const client = new BlinkDebitClient(axios);
 
 const request: QuickPaymentRequest = {
-    type: ConsentDetailTypeEnum.Single,
     flow: {
         detail: {
             type: AuthFlowDetailTypeEnum.Gateway,
@@ -218,8 +216,7 @@ import React, {Component} from 'react';
 import lollipop from '../lollipop.jpg';
 import {
     AmountCurrencyEnum,
-    AuthFlowDetailTypeEnum,
-    ConsentDetailTypeEnum
+    AuthFlowDetailTypeEnum
 } from 'blink-debit-api-client-node';
 import client from '../blinkDebitClientInstance';
 
@@ -245,7 +242,6 @@ class Cart extends Component {
         });
 
         const request = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Gateway,
@@ -313,7 +309,6 @@ import {
     AmountCurrencyEnum,
     AuthFlow,
     AuthFlowDetailTypeEnum,
-    ConsentDetailTypeEnum,
     GatewayFlow,
     Pcr,
     QuickPaymentRequest
@@ -347,7 +342,6 @@ class Cart extends Component<{}, State> {
         });
 
         const request: QuickPaymentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Gateway,
@@ -502,7 +496,6 @@ A request can have one request ID and one idempotency key but multiple correlati
 A quick payment is a one-off payment that combines the API calls needed for both the consent and the payment.
 ```javascript
 const request = {
-    type: ConsentDetailTypeEnum.Single,
     flow: {
         detail: {
             type: AuthFlowDetailTypeEnum.Gateway,
@@ -529,7 +522,6 @@ const qpResponse = await client.awaitSuccessfulQuickPaymentOrThrowException(qpId
 ### Single consent followed by one-off payment, using Gateway flow
 ```javascript
 const request = {
-    type: ConsentDetailTypeEnum.Single,
     flow: {
         detail: {
             type: AuthFlowDetailTypeEnum.Redirect,
@@ -569,7 +561,6 @@ const bankMetadataList = await client.getMeta();
 #### Gateway Flow
 ```javascript
 const request = {
-    type: ConsentDetailTypeEnum.Single,
     flow: {
         detail: {
             type: AuthFlowDetailTypeEnum.Gateway,
@@ -592,7 +583,6 @@ const createQuickPaymentResponse = await client.createQuickPayment(request);
 #### Gateway Flow - Redirect Flow Hint
 ```javascript
 const request = {
-    type: ConsentDetailTypeEnum.Single,
     flow: {
         detail: {
             type: AuthFlowDetailTypeEnum.Gateway,
@@ -619,7 +609,6 @@ const createQuickPaymentResponse = await client.createQuickPayment(request);
 #### Gateway Flow - Decoupled Flow Hint
 ```javascript
 const request = {
-    type: ConsentDetailTypeEnum.Single,
     flow: {
         detail: {
             type: AuthFlowDetailTypeEnum.Gateway,
@@ -648,7 +637,6 @@ const createQuickPaymentResponse = await client.createQuickPayment(request);
 #### Redirect Flow
 ```javascript
 const request = {
-    type: ConsentDetailTypeEnum.Single,
     flow: {
         detail: {
             type: AuthFlowDetailTypeEnum.Redirect,
@@ -672,7 +660,6 @@ const createQuickPaymentResponse = await client.createQuickPayment(request);
 #### Decoupled Flow
 ```javascript
 const request = {
-    type: ConsentDetailTypeEnum.Single,
     flow: {
         detail: {
             type: AuthFlowDetailTypeEnum.Decoupled,
@@ -708,7 +695,6 @@ await client.revokeQuickPayment(quickPaymentId);
 #### Gateway Flow
 ```javascript
 const request = {
-    type: ConsentDetailTypeEnum.Single,
     flow: {
         detail: {
             type: AuthFlowDetailTypeEnum.Gateway,
@@ -731,7 +717,6 @@ const createConsentResponse = await client.createSingleConsent(request);
 #### Gateway Flow - Redirect Flow Hint
 ```javascript
 const request = {
-    type: ConsentDetailTypeEnum.Single,
     flow: {
         detail: {
             type: AuthFlowDetailTypeEnum.Gateway,
@@ -758,7 +743,6 @@ const createConsentResponse = await client.createSingleConsent(request);
 #### Gateway Flow - Decoupled Flow Hint
 ```javascript
 const request = {
-    type: ConsentDetailTypeEnum.Single,
     flow: {
         detail: {
             type: AuthFlowDetailTypeEnum.Gateway,
@@ -788,7 +772,6 @@ const createConsentResponse = await client.createSingleConsent(request);
 Suitable for most consents.
 ```javascript
 const request = {
-    type: ConsentDetailTypeEnum.Single,
     flow: {
         detail: {
             type: AuthFlowDetailTypeEnum.Redirect,
@@ -816,7 +799,6 @@ The customer will receive the consent request directly to their online banking a
 
 ```javascript
 const request = {
-    type: ConsentDetailTypeEnum.Single,
     flow: {
         detail: {
             type: AuthFlowDetailTypeEnum.Decoupled,
@@ -856,7 +838,6 @@ Note that such an authorisation can be revoked by the customer in their mobile b
 #### Gateway Flow
 ```javascript
 const request = {
-    type: ConsentDetailTypeEnum.Enduring,
     flow: {
         detail: {
             type: AuthFlowDetailTypeEnum.Gateway,
@@ -877,7 +858,6 @@ const createConsentResponse = await client.createEnduringConsent(request);
 #### Gateway Flow - Redirect Flow Hint
 ```javascript
 const request = {
-    type: ConsentDetailTypeEnum.Enduring,
     flow: {
         detail: {
             type: AuthFlowDetailTypeEnum.Gateway,
@@ -902,7 +882,6 @@ const createConsentResponse = await client.createEnduringConsent(request);
 #### Gateway Flow - Decoupled Flow Hint
 ```javascript
 const request = {
-    type: ConsentDetailTypeEnum.Enduring,
     flow: {
         detail: {
             type: AuthFlowDetailTypeEnum.Gateway,
@@ -929,7 +908,6 @@ const createConsentResponse = await client.createEnduringConsent(request);
 #### Redirect Flow
 ```javascript
 const request = {
-    type: ConsentDetailTypeEnum.Enduring,
     flow: {
         detail: {
             type: AuthFlowDetailTypeEnum.Redirect,
@@ -951,7 +929,6 @@ const createConsentResponse = await client.createEnduringConsent(request);
 #### Decoupled Flow
 ```javascript
 const request = {
-    type: ConsentDetailTypeEnum.Enduring,
     flow: {
         detail: {
             type: AuthFlowDetailTypeEnum.Decoupled,
@@ -996,16 +973,14 @@ If you already have an approved consent, you can run a Payment against that cons
 ```javascript
 const paymentRequest = {
     consentId: consentId,
-    enduringPayment: {
-        amount: {
-            total: total,
-            currency: AmountCurrencyEnum.NZD
-        },
-        pcr: {
-            particulars: particulars,
-            code: code,
-            reference: reference
-        }
+    amount: {
+        total: total,
+        currency: AmountCurrencyEnum.NZD
+    },
+    pcr: {
+        particulars: particulars,
+        code: code,
+        reference: reference
     }
 };
 

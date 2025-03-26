@@ -71,7 +71,6 @@ describe('QuickPaymentsApi Integration Test', () => {
     it('Verify that quick payment with redirect flow is created in PNZ', async () => {
         // create
         const request: QuickPaymentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Redirect,
@@ -107,7 +106,7 @@ describe('QuickPaymentsApi Integration Test', () => {
         expect(quickPayment).not.toBeNull();
         let consent = quickPayment.consent;
         expect(consent.status).toEqual(ConsentStatusEnum.AwaitingAuthorisation);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -144,7 +143,7 @@ describe('QuickPaymentsApi Integration Test', () => {
         expect(quickPayment).not.toBeNull();
         consent = quickPayment.consent;
         expect(consent.status).toEqual(ConsentStatusEnum.Revoked);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -181,7 +180,7 @@ describe('QuickPaymentsApi Integration Test', () => {
         expect(quickPayment).not.toBeNull();
         let consent = quickPayment.consent;
         expect(consent.status).toEqual(ConsentStatusEnum.Rejected);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -213,7 +212,6 @@ describe('QuickPaymentsApi Integration Test', () => {
     it('Verify that quick payment with decoupled flow is created in PNZ', async () => {
         // create
         const request: QuickPaymentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Decoupled,
@@ -251,7 +249,7 @@ describe('QuickPaymentsApi Integration Test', () => {
         expect(quickPayment).not.toBeNull();
         let consent = quickPayment.consent;
         expect(consent.status).toEqual(ConsentStatusEnum.AwaitingAuthorisation);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -290,7 +288,7 @@ describe('QuickPaymentsApi Integration Test', () => {
         expect(quickPayment).not.toBeNull();
         consent = quickPayment.consent;
         expect(consent.status).toEqual(ConsentStatusEnum.Revoked);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -324,7 +322,6 @@ describe('QuickPaymentsApi Integration Test', () => {
     it('Verify that quick payment with gateway flow and redirect flow hint is created in PNZ', async () => {
         // create
         const request: QuickPaymentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Gateway,
@@ -363,7 +360,7 @@ describe('QuickPaymentsApi Integration Test', () => {
         expect(quickPayment).not.toBeNull();
         let consent = quickPayment.consent;
         expect(consent.status).toEqual(ConsentStatusEnum.GatewayAwaitingSubmission);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -406,7 +403,7 @@ describe('QuickPaymentsApi Integration Test', () => {
         expect(quickPayment).not.toBeNull();
         consent = quickPayment.consent;
         expect(consent.status).toEqual(ConsentStatusEnum.Revoked);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -444,7 +441,6 @@ describe('QuickPaymentsApi Integration Test', () => {
     it('Verify that quick payment with gateway flow and decoupled flow hint is created in PNZ', async () => {
         // create
         const request: QuickPaymentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Gateway,
@@ -485,7 +481,7 @@ describe('QuickPaymentsApi Integration Test', () => {
         expect(quickPayment).not.toBeNull();
         let consent = quickPayment.consent;
         expect(consent.status).toEqual(ConsentStatusEnum.GatewayAwaitingSubmission);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();
@@ -530,7 +526,7 @@ describe('QuickPaymentsApi Integration Test', () => {
         expect(quickPayment).not.toBeNull();
         consent = quickPayment.consent;
         expect(consent.status).toEqual(ConsentStatusEnum.Revoked);
-        expect(consent.accounts).toBeUndefined();
+        expect(consent.cardNetwork).toBeUndefined();
         expect(consent.payments).toEqual([]);
         expect(consent.creationTimestamp).not.toBeNull();
         expect(consent.statusUpdatedTimestamp).not.toBeNull();

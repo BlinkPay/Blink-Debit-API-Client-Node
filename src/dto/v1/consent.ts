@@ -20,10 +20,10 @@
  * SOFTWARE.
  */
 
-import {Account} from './account';
 import {EnduringConsentRequest} from './enduring-consent-request';
 import {Payment} from './payment';
 import {SingleConsentRequest} from './single-consent-request';
+import {CardNetwork} from "./card-network";
 
 /**
  * The model for a consent.
@@ -63,17 +63,17 @@ export interface Consent {
      */
     detail: EnduringConsentRequest | SingleConsentRequest;
     /**
-     * If applicable, the Westpac account list for account selection. If this is included, the merchant is required to ask the customer which account they would like to debit the payment from using the information provided.
-     * @type {Array<Account>}
-     * @memberof Consent
-     */
-    accounts?: Array<Account>;
-    /**
      * Payments associated with this consent, if any.
      * @type {Array<Payment>}
      * @memberof Consent
      */
     payments: Array<Payment>;
+    /**
+     * The card network
+     * @type {CardNetwork}
+     * @memberOf Consent
+     */
+    cardNetwork: CardNetwork;
 }
 
 /**

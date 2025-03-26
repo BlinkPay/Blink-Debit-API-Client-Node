@@ -20,7 +20,8 @@
  * SOFTWARE.
  */
 
-import {EnduringPaymentRequest} from './enduring-payment-request';
+import {Amount} from './amount';
+import {Pcr} from './pcr';
 
 /**
  * The payment request model.
@@ -37,14 +38,14 @@ export interface PaymentRequest {
     consentId: string;
     /**
      *
-     * @type {EnduringPaymentRequest}
+     * @type {Pcr}
      * @memberof PaymentRequest
      */
-    enduringPayment?: EnduringPaymentRequest;
+    pcr?: Pcr;
     /**
-     * The account reference ID from account list. This is required if the account selection information was provided to you on the consents endpoint.
-     * @type {string}
+     *
+     * @type {Amount}
      * @memberof PaymentRequest
      */
-    accountReferenceId?: string;
+    amount?: Amount;
 }

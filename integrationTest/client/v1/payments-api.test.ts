@@ -26,7 +26,6 @@ import {
     AuthFlow,
     AuthFlowDetailTypeEnum,
     Bank,
-    ConsentDetailTypeEnum,
     DecoupledFlow,
     EnduringConsentRequest,
     EnduringConsentsApiFactory,
@@ -77,7 +76,6 @@ describe('PaymentsApi Integration Test', () => {
     it('Verify that payment for single consent with decoupled flow is created and retrieved', async () => {
         // create single consent with decoupled flow
         const request: SingleConsentRequest = {
-            type: ConsentDetailTypeEnum.Single,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Decoupled,
@@ -148,15 +146,14 @@ describe('PaymentsApi Integration Test', () => {
         const detail = payment.detail;
         expect(detail).not.toBeNull();
         expect(detail.consentId).toBe(consentId);
-        expect(detail.accountReferenceId).toBeUndefined();
-        expect(detail.enduringPayment).toBeUndefined();
+        expect(detail.pcr).toBeUndefined();
+        expect(detail.amount).toEqual(request.amount);
     });
 
     it('Verify that payment for enduring consent with decoupled flow is created and retrieved', async () => {
         // create enduring consent with decoupled flow
         const now = DateTime.now().setZone('Pacific/Auckland');
         const request: EnduringConsentRequest = {
-            type: ConsentDetailTypeEnum.Enduring,
             flow: {
                 detail: {
                     type: AuthFlowDetailTypeEnum.Decoupled,
@@ -187,17 +184,15 @@ describe('PaymentsApi Integration Test', () => {
         // create payment
         const paymentRequest: PaymentRequest = {
             consentId: consentId,
-            enduringPayment: {
-                amount: {
-                    total: "45.00",
-                    currency: AmountCurrencyEnum.NZD
-                } as Amount,
-                pcr: {
-                    particulars: "particulars",
-                    code: "code",
-                    reference: "reference"
-                } as Pcr
-            }
+            amount: {
+                total: "45.00",
+                currency: AmountCurrencyEnum.NZD
+            } as Amount,
+            pcr: {
+                particulars: "particulars",
+                code: "code",
+                reference: "reference"
+            } as Pcr
         };
         let paymentId;
         params.idempotencyKey = uuidv4();
@@ -235,7 +230,7 @@ describe('PaymentsApi Integration Test', () => {
         const detail = payment.detail;
         expect(detail).not.toBeNull();
         expect(detail.consentId).toBe(consentId);
-        expect(detail.accountReferenceId).toBeUndefined();
-        expect(detail.enduringPayment).not.toBeNull();
+        expect(detail.pcr).toEqual(paymentRequest.pcr);
+        expect(detail.amount).toEqual(paymentRequest.amount);
     });
 });

@@ -32,5 +32,6 @@ export enum Bank {
     BNZ = 'BNZ',
     Westpac = 'Westpac',
     KiwiBank = 'KiwiBank',
+    Cybersource = 'Cybersource',
     PNZ = 'PNZ'
 }
