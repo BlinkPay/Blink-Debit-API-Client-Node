@@ -84,6 +84,10 @@ describe('EnduringConsentsApi Integration Test', () => {
                 currency: AmountCurrencyEnum.NZD,
                 total: '50.00'
             } as Amount,
+            maximumAmountPayment: {
+                currency: AmountCurrencyEnum.NZD,
+                total: '50.00'
+            } as Amount,
             fromTimestamp: now.toJSDate(),
             period: Period.Fortnightly
         };
@@ -213,6 +217,10 @@ describe('EnduringConsentsApi Integration Test', () => {
                 currency: AmountCurrencyEnum.NZD,
                 total: '50.00'
             } as Amount,
+            maximumAmountPayment: {
+                currency: AmountCurrencyEnum.NZD,
+                total: '50.00'
+            } as Amount,
             fromTimestamp: now.toJSDate(),
             period: Period.Fortnightly
         };
@@ -311,6 +319,10 @@ describe('EnduringConsentsApi Integration Test', () => {
                 } as GatewayFlow
             } as AuthFlow,
             maximumAmountPeriod: {
+                currency: AmountCurrencyEnum.NZD,
+                total: '50.00'
+            } as Amount,
+            maximumAmountPayment: {
                 currency: AmountCurrencyEnum.NZD,
                 total: '50.00'
             } as Amount,
@@ -422,6 +434,10 @@ describe('EnduringConsentsApi Integration Test', () => {
                 } as GatewayFlow
             } as AuthFlow,
             maximumAmountPeriod: {
+                currency: AmountCurrencyEnum.NZD,
+                total: '50.00'
+            } as Amount,
+            maximumAmountPayment: {
                 currency: AmountCurrencyEnum.NZD,
                 total: '50.00'
             } as Amount,

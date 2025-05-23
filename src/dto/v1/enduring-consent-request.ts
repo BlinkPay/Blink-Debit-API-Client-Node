@@ -68,4 +68,10 @@ export interface EnduringConsentRequest extends ConsentDetail {
      * @memberof EnduringConsentRequest
      */
     hashedCustomerIdentifier?: string;
+    /**
+     *
+     * @type {Amount}
+     * @memberof EnduringConsentRequest
+     */
+    maximumAmountPayment: Amount;
 }

@@ -167,6 +167,10 @@ describe('PaymentsApi Integration Test', () => {
                 currency: AmountCurrencyEnum.NZD,
                 total: '50.00'
             } as Amount,
+            maximumAmountPayment: {
+                currency: AmountCurrencyEnum.NZD,
+                total: '50.00'
+            } as Amount,
             fromTimestamp: now.toJSDate(),
             period: Period.Fortnightly
         };

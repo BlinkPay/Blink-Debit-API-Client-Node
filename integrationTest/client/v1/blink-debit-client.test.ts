@@ -453,6 +453,10 @@ describe('BlinkDebitClient Integration Tests', () => {
                 currency: AmountCurrencyEnum.NZD,
                 total: '50.00'
             } as Amount,
+            maximumAmountPayment: {
+                currency: AmountCurrencyEnum.NZD,
+                total: '50.00'
+            } as Amount,
             fromTimestamp: now.toJSDate(),
             period: Period.Fortnightly
         };
@@ -501,6 +505,10 @@ describe('BlinkDebitClient Integration Tests', () => {
                 } as DecoupledFlow
             } as AuthFlow,
             maximumAmountPeriod: {
+                currency: AmountCurrencyEnum.NZD,
+                total: '50.00'
+            } as Amount,
+            maximumAmountPayment: {
                 currency: AmountCurrencyEnum.NZD,
                 total: '50.00'
             } as Amount,
@@ -558,6 +566,10 @@ describe('BlinkDebitClient Integration Tests', () => {
                 currency: AmountCurrencyEnum.NZD,
                 total: '50.00'
             } as Amount,
+            maximumAmountPayment: {
+                currency: AmountCurrencyEnum.NZD,
+                total: '50.00'
+            } as Amount,
             fromTimestamp: now.toJSDate(),
             period: Period.Fortnightly
         };
@@ -605,6 +617,10 @@ describe('BlinkDebitClient Integration Tests', () => {
                 } as DecoupledFlow
             } as AuthFlow,
             maximumAmountPeriod: {
+                currency: AmountCurrencyEnum.NZD,
+                total: '50.00'
+            } as Amount,
+            maximumAmountPayment: {
                 currency: AmountCurrencyEnum.NZD,
                 total: '50.00'
             } as Amount,
