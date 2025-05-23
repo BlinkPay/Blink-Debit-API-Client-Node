@@ -846,7 +846,11 @@ const request = {
     },
     maximumAmountPeriod: {
         currency: AmountCurrencyEnum.NZD,
-        total: total
+        total: totalPerPeriod
+    },
+    maximumAmountPayment: {
+        currency: AmountCurrencyEnum.NZD,
+        total: totalPerPayment
     },
     fromTimestamp: startDate,
     expiryTimestamp: endDate,
@@ -870,7 +874,11 @@ const request = {
     },
     maximumAmountPeriod: {
         currency: AmountCurrencyEnum.NZD,
-        total: total
+        total: totalPerPeriod
+    },
+    maximumAmountPayment: {
+        currency: AmountCurrencyEnum.NZD,
+        total: totalPerPayment
     },
     fromTimestamp: startDate,
     expiryTimestamp: endDate,
@@ -896,7 +904,11 @@ const request = {
     },
     maximumAmountPeriod: {
         currency: AmountCurrencyEnum.NZD,
-        total: total
+        total: totalPerPeriod
+    },
+    maximumAmountPayment: {
+        currency: AmountCurrencyEnum.NZD,
+        total: totalPerPayment
     },
     fromTimestamp: startDate,
     expiryTimestamp: endDate,
@@ -918,6 +930,10 @@ const request = {
     maximumAmountPeriod: {
         currency: AmountCurrencyEnum.NZD,
         total: total
+    },
+    maximumAmountPayment: {
+        currency: AmountCurrencyEnum.NZD,
+        total: totalPerPayment
     },
     fromTimestamp: startDate,
     expiryTimestamp: endDate,
@@ -941,6 +957,10 @@ const request = {
     maximumAmountPeriod: {
         currency: AmountCurrencyEnum.NZD,
         total: total
+    },
+    maximumAmountPayment: {
+        currency: AmountCurrencyEnum.NZD,
+        total: totalPerPayment
     },
     fromTimestamp: startDate,
     expiryTimestamp: endDate,
