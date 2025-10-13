@@ -97,7 +97,7 @@ describe('SingleConsentsApi Integration Test', () => {
         const consentId = createConsentResponse.consentId;
         expect(consentId).not.toBeNull();
         expect(createConsentResponse.redirectUri).not.toEqual('');
-        expect(createConsentResponse.redirectUri.startsWith('https://obabank.glueware.dev/auth/login?oba_request=')).toBeTruthy();
+        expect(createConsentResponse.redirectUri.startsWith('https://api-nomatls.apicentre.middleware.co.nz/oauth/v2.0/authorize?scope=openid%20payments&response_type=code%20id_token&request=')).toBeTruthy();
 
         // retrieve
         let consentAxiosResponse = await apiInstance.getSingleConsent(consentId);

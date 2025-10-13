@@ -97,7 +97,7 @@ describe('QuickPaymentsApi Integration Test', () => {
         const quickPaymentId = createQuickPaymentResponse.quickPaymentId;
         expect(quickPaymentId).not.toBeNull();
         expect(createQuickPaymentResponse.redirectUri).not.toEqual('');
-        expect(createQuickPaymentResponse.redirectUri.startsWith('https://obabank.glueware.dev/auth/login?oba_request=')).toBeTruthy();
+        expect(createQuickPaymentResponse.redirectUri.startsWith('https://api-nomatls.apicentre.middleware.co.nz/oauth/v2.0/authorize?scope=openid%20payments&response_type=code%20id_token&request=')).toBeTruthy();
 
         // retrieve
         let quickPaymentAxiosResponse = await apiInstance.getQuickPayment(quickPaymentId);

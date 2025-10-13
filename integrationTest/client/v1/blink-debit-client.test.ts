@@ -148,8 +148,24 @@ describe('BlinkDebitClient Integration Tests', () => {
                 currency: AmountCurrencyEnum.NZD
             },
             features: {
-                enduringConsent: undefined,
-                decoupledFlow: undefined
+                enduringConsent: {
+                    enabled: true,
+                    consentIndefinite: false
+                },
+                decoupledFlow: {
+                    enabled: true,
+                    availableIdentifiers: [
+                        {
+                            type: IdentifierType.BankingUsername,
+                            name: "Access Number"
+                        },
+                        {
+                            type: IdentifierType.ConsentId,
+                            name: "Consent ID"
+                        }
+                    ],
+                    requestTimeout: "PT10M"
+                }
             },
             redirectFlow: {
                 enabled: true,
@@ -168,7 +184,20 @@ describe('BlinkDebitClient Integration Tests', () => {
                     enabled: true,
                     consentIndefinite: false
                 },
-                decoupledFlow: undefined
+                decoupledFlow: {
+                    enabled: true,
+                    availableIdentifiers: [
+                        {
+                            type: IdentifierType.MobileNumber,
+                            name: "Mobile Number"
+                        },
+                        {
+                            type: IdentifierType.ConsentId,
+                            name: "Consent ID"
+                        }
+                    ],
+                    requestTimeout: "PT5M"
+                }
             },
             redirectFlow: {
                 enabled: true,
@@ -192,7 +221,7 @@ describe('BlinkDebitClient Integration Tests', () => {
                             name: "Mobile Number"
                         }
                     ],
-                    requestTimeout: "PT7M"
+                    requestTimeout: "PT405S"
                 }
             },
             redirectFlow: {
@@ -212,7 +241,7 @@ describe('BlinkDebitClient Integration Tests', () => {
             }
         };
 
-        expect(actual).toEqual(expect.arrayContaining([bnz, pnz, asb, westpac, anz, cybersource]));
+        expect(actual).toEqual(expect.arrayContaining([bnz, pnz, westpac, anz, asb, cybersource]));
     });
 
     it("Verify that timed out single consent is handled", async () => {
@@ -243,7 +272,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         const consentId = createConsentResponse.consentId;
         expect(consentId).not.toBeNull();
         expect(createConsentResponse.redirectUri).not.toEqual('');
-        expect(createConsentResponse.redirectUri.startsWith('https://obabank.glueware.dev/auth/login?oba_request=')).toBeTruthy();
+        expect(createConsentResponse.redirectUri.startsWith('https://api-nomatls.apicentre.middleware.co.nz/oauth/v2.0/authorize?scope=openid%20payments&response_type=code%20id_token&request=')).toBeTruthy();
 
         // retrieve
         try {
@@ -354,7 +383,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         const consentId = createConsentResponse.consentId;
         expect(consentId).not.toBeNull();
         expect(createConsentResponse.redirectUri).not.toEqual('');
-        expect(createConsentResponse.redirectUri.startsWith('https://obabank.glueware.dev/auth/login?oba_request=')).toBeTruthy();
+        expect(createConsentResponse.redirectUri.startsWith('https://api-nomatls.apicentre.middleware.co.nz/oauth/v2.0/authorize?scope=openid%20payments&response_type=code%20id_token&request=')).toBeTruthy();
 
         // retrieve
         try {
@@ -468,7 +497,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         const consentId = createConsentResponse.consentId;
         expect(consentId).not.toBeNull();
         expect(createConsentResponse.redirectUri).not.toEqual('');
-        expect(createConsentResponse.redirectUri.startsWith('https://obabank.glueware.dev/auth/login?oba_request=')).toBeTruthy();
+        expect(createConsentResponse.redirectUri.startsWith('https://api-nomatls.apicentre.middleware.co.nz/oauth/v2.0/authorize?scope=openid%20payments&response_type=code%20id_token&request=')).toBeTruthy();
 
         // retrieve
         try {
@@ -581,7 +610,7 @@ describe('BlinkDebitClient Integration Tests', () => {
         const consentId = createConsentResponse.consentId;
         expect(consentId).not.toBeNull();
         expect(createConsentResponse.redirectUri).not.toEqual('');
-        expect(createConsentResponse.redirectUri.startsWith('https://obabank.glueware.dev/auth/login?oba_request=')).toBeTruthy();
+        expect(createConsentResponse.redirectUri.startsWith('https://api-nomatls.apicentre.middleware.co.nz/oauth/v2.0/authorize?scope=openid%20payments&response_type=code%20id_token&request=')).toBeTruthy();
 
         // retrieve
         try {

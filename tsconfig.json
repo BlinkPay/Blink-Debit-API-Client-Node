@@ -1,31 +1,20 @@
 {
   "compilerOptions": {
-    "esModuleInterop": true,
-    "types": [
-      "node",
-      "jest"
-    ],
-    "declaration": true,
-    "target": "ESNext",
+    "target": "ES2022",
     "module": "ESNext",
-    "moduleResolution": "Node",
+    "moduleResolution": "Bundler",
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "declaration": true,
     "sourceMap": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "noImplicitAny": true,
     "outDir": "dist",
     "rootDir": ".",
-    "lib": [
-      "ESNext",
-      "ESNext.AsyncIterable",
-      "DOM"
-    ],
-    "typeRoots": [
-      "node_modules/@types"
-    ]
+    "lib": ["ESNext", "ESNext.AsyncIterable", "DOM"],
+    "types": ["node", "jest"],
+    "typeRoots": ["node_modules/@types"]
   },
-  "exclude": [
-    "dist",
-    "node_modules"
-  ]
+  "exclude": ["dist", "node_modules"]
 }

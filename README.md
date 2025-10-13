@@ -28,7 +28,7 @@ We welcome contributions from the community. Your pull request will be reviewed 
 This project is licensed under the MIT License.
 
 ## Minimum Requirements
-- Axios 1.7
+- Axios 1.12
 - Node.js 22.10 LTS
 
 ## Adding the dependency

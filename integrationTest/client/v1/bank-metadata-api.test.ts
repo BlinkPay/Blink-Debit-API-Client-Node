@@ -59,8 +59,8 @@ describe('BankMetadataApi Integration Test', () => {
             },
             features: {
                 enduringConsent: {
-                    consentIndefinite: false,
-                    enabled: true
+                    enabled: true,
+                    consentIndefinite: false
                 },
                 decoupledFlow: {
                     enabled: true,
@@ -118,8 +118,24 @@ describe('BankMetadataApi Integration Test', () => {
                 currency: AmountCurrencyEnum.NZD
             },
             features: {
-                enduringConsent: undefined,
-                decoupledFlow: undefined
+                enduringConsent: {
+                    enabled: true,
+                    consentIndefinite: false
+                },
+                decoupledFlow: {
+                    enabled: true,
+                    availableIdentifiers: [
+                        {
+                            type: IdentifierType.BankingUsername,
+                            name: "Access Number"
+                        },
+                        {
+                            type: IdentifierType.ConsentId,
+                            name: "Consent ID"
+                        }
+                    ],
+                    requestTimeout: "PT10M"
+                }
             },
             redirectFlow: {
                 enabled: true,
@@ -135,10 +151,23 @@ describe('BankMetadataApi Integration Test', () => {
             },
             features: {
                 enduringConsent: {
-                    consentIndefinite: false,
-                    enabled: true
+                    enabled: true,
+                    consentIndefinite: false
                 },
-                decoupledFlow: undefined
+                decoupledFlow: {
+                    enabled: true,
+                    availableIdentifiers: [
+                        {
+                            type: IdentifierType.MobileNumber,
+                            name: "Mobile Number"
+                        },
+                        {
+                            type: IdentifierType.ConsentId,
+                            name: "Consent ID"
+                        }
+                    ],
+                    requestTimeout: "PT5M"
+                }
             },
             redirectFlow: {
                 enabled: true,
@@ -162,7 +191,7 @@ describe('BankMetadataApi Integration Test', () => {
                             name: "Mobile Number"
                         }
                     ],
-                    requestTimeout: "PT7M"
+                    requestTimeout: "PT405S"
                 }
             },
             redirectFlow: {
@@ -182,6 +211,6 @@ describe('BankMetadataApi Integration Test', () => {
             }
         };
 
-        expect(actual).toEqual(expect.arrayContaining([bnz, pnz, asb, westpac, anz, cybersource]));
+        expect(actual).toEqual(expect.arrayContaining([bnz, pnz, westpac, anz, asb, cybersource]));
     });
 });
