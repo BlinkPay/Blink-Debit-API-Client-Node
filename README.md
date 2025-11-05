@@ -188,7 +188,7 @@ const fileName = 'my-config.json'
 const client = new BlinkDebitClient(axios, directory, fileName);
 ```
 
-In a `browser environment`, the client can be created by passing the BlinkPayConfig:
+Alternatively, the client can be created with explicit configuration by passing the BlinkPayConfig:
 - `JavaScript`
 ```javascript
 const blinkPayConfig = {

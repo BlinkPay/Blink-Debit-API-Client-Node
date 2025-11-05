@@ -26,7 +26,6 @@ import {BaseAPI, RequestArgs} from '../../../base';
 import {Consent, CreateConsentResponse, EnduringConsentRequest} from '../../dto';
 import {decamelizeKeys} from 'humps';
 import {BlinkInvalidValueException} from '../../exceptions';
-import {TokenAPI} from './token-api';
 import {GenericParameters} from "../../util/types";
 import {buildRequestHeaders} from "../../util/helper";
 
@@ -68,7 +67,7 @@ export const EnduringConsentsApiAxiosParamCreator = function (axios: AxiosInstan
 
             // authentication Bearer required
             // oauth required
-            await new TokenAPI(axios, configuration).getAccessToken();
+            await configuration.tokenApi.getAccessToken();
             if (configuration && configuration.accessToken) {
                 const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
                         ? await configuration.accessToken("Bearer", ["create:single_consent", "view:single_consent", "revoke:single_consent", "create:enduring_consent", "view:enduring_consent", "revoke:enduring_consent", "create:payment", "view:payment", "view:metadata", "view:transaction", "create:quick_payment", "view:quick_payment", "create:refund", "view:refund"])
@@ -127,7 +126,7 @@ export const EnduringConsentsApiAxiosParamCreator = function (axios: AxiosInstan
 
             // authentication Bearer required
             // oauth required
-            await new TokenAPI(axios, configuration).getAccessToken();
+            await configuration.tokenApi.getAccessToken();
             if (configuration && configuration.accessToken) {
                 const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
                         ? await configuration.accessToken("Bearer", ["create:single_consent", "view:single_consent", "revoke:single_consent", "create:enduring_consent", "view:enduring_consent", "revoke:enduring_consent", "create:payment", "view:payment", "view:metadata", "view:transaction", "create:quick_payment", "view:quick_payment", "create:refund", "view:refund"])
@@ -182,7 +181,7 @@ export const EnduringConsentsApiAxiosParamCreator = function (axios: AxiosInstan
 
             // authentication Bearer required
             // oauth required
-            await new TokenAPI(axios, configuration).getAccessToken();
+            await configuration.tokenApi.getAccessToken();
             if (configuration && configuration.accessToken) {
                 const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
                         ? await configuration.accessToken("Bearer", ["create:single_consent", "view:single_consent", "revoke:single_consent", "create:enduring_consent", "view:enduring_consent", "revoke:enduring_consent", "create:payment", "view:payment", "view:metadata", "view:transaction", "create:quick_payment", "view:quick_payment", "create:refund", "view:refund"])

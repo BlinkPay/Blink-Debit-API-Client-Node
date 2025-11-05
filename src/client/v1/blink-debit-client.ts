@@ -83,6 +83,8 @@ export class BlinkDebitClient {
 
     constructor(axios: AxiosInstance, configDirectory: string, configFile: string);
 
+    constructor(axios: AxiosInstance, debitUrl: string, clientId: string, clientSecret: string);
+
     constructor(axios?: AxiosInstance, configDirectoryOrConfigOrDebitUrl?: string | BlinkPayConfig, configFileOrClientId?: string, clientSecret?: string) {
         let configDirectoryOrConfig;
         let configFile;

@@ -32,7 +32,8 @@ import {
     BlinkResourceNotFoundException,
     BlinkRetryableException,
     BlinkServiceException,
-    BlinkUnauthorisedException
+    BlinkUnauthorisedException,
+    TokenAPI
 } from './src';
 import {ExponentialBackoff, handleType, retry, RetryPolicy} from 'cockatiel';
 import {BlinkPayConfig} from './blinkpay-config';
@@ -112,6 +113,18 @@ export class Configuration {
      * @memberof Configuration
      */
     readonly clientSecret: string;
+    /**
+     * The Axios instance
+     *
+     * @private
+     */
+    private readonly _axios: AxiosInstance;
+    /**
+     * The TokenAPI instance for token management
+     *
+     * @private
+     */
+    private readonly _tokenApi: TokenAPI;
 
     constructor(axios: AxiosInstance, config: BlinkPayConfig);
 
@@ -193,7 +206,7 @@ export class Configuration {
 
         // configure timeout, defaults to 10,000 milliseconds
         this._timeout = Number(timeout);
-        if (isNaN(timeout)) {
+        if (isNaN(this._timeout)) {
             this._timeout = 10000;
         }
 
@@ -206,8 +219,21 @@ export class Configuration {
             this._retryEnabled = true;
         }
 
+        // Store axios instance and initialize TokenAPI
+        this._axios = axios;
+        this._tokenApi = new TokenAPI(axios, this);
+
         this.configureAxios(axios);
         this.configureRetry();
+    }
+
+    /**
+     * Get the TokenAPI instance for token management
+     *
+     * @returns {TokenAPI} The TokenAPI instance
+     */
+    get tokenApi(): TokenAPI {
+        return this._tokenApi;
     }
 
     private configureAxios(axios: AxiosInstance) {
