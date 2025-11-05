@@ -69,11 +69,11 @@ export interface Consent {
      */
     payments: Array<Payment>;
     /**
-     * The card network
+     * The card network (only present for card payments)
      * @type {CardNetwork}
      * @memberOf Consent
      */
-    cardNetwork: CardNetwork;
+    cardNetwork?: CardNetwork;
 }
 
 /**

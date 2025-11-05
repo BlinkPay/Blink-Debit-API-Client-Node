@@ -60,7 +60,7 @@ describe('PaymentsApi Integration Test', () => {
     let apiInstance: ReturnType<typeof PaymentsApiFactory>;
 
     beforeAll(async (): Promise<void> => {
-        const configuration: Configuration = Configuration.getInstance(globalAxios);
+        const configuration: Configuration = new Configuration(globalAxios);
 
         singleConsentsApiInstance = SingleConsentsApiFactory(globalAxios, configuration, undefined);
         enduringConsentsApiInstance = EnduringConsentsApiFactory(globalAxios, configuration, undefined);

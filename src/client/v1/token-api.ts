@@ -26,21 +26,12 @@ import {Configuration} from '../../../configuration';
 import {AccessTokenResponse} from '../../dto/v1/access-token-response';
 
 export class TokenAPI {
-    private static instance: TokenAPI;
     private readonly _axios: AxiosInstance;
     private readonly _configuration: Configuration;
 
-    private constructor(axios: AxiosInstance, configuration: Configuration) {
+    constructor(axios: AxiosInstance, configuration: Configuration) {
         this._axios = axios;
         this._configuration = configuration;
-    }
-
-    public static getInstance(axios: AxiosInstance, configuration: Configuration): TokenAPI {
-        if (!TokenAPI.instance) {
-            TokenAPI.instance = new TokenAPI(axios, configuration);
-        }
-
-        return TokenAPI.instance;
     }
 
     async getAccessToken(): Promise<string | ((name?: string, scopes?: string[]) => string) | ((name?: string, scopes?: string[]) => Promise<string>)> {
@@ -75,12 +66,8 @@ export class TokenAPI {
             const accessTokenResponse = response.data;
             this._configuration.accessToken = accessTokenResponse.accessToken;
             this._configuration.expirationDate = new Date(Date.now() + (response.data.expiresIn * 1000));
-
-            this._axios.interceptors.request.use(async (config) => {
-                const token = await this.getAccessToken();
-                config.headers.Authorization = `Bearer ${token}`;
-                return config;
-            });
+            // Note: Authorization header is set in each API call via getAccessToken()
+            // No need to add an interceptor here (prevents interceptor accumulation)
         } catch (error) {
             log.error(`Encountered: ${error}`);
         }

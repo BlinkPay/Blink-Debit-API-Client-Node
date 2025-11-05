@@ -62,7 +62,7 @@ export const BankMetadataApiAxiosParamCreator = function (axios: AxiosInstance, 
 
             // authentication Bearer required
             // oauth required
-            await TokenAPI.getInstance(axios, configuration).getAccessToken();
+            await new TokenAPI(axios, configuration).getAccessToken();
             if (configuration && configuration.accessToken) {
                 const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
                         ? await configuration.accessToken("Bearer", ["create:single_consent", "view:single_consent", "revoke:single_consent", "create:enduring_consent", "view:enduring_consent", "revoke:enduring_consent", "create:payment", "view:payment", "view:metadata", "view:transaction", "create:quick_payment", "view:quick_payment", "create:refund", "view:refund"])
@@ -107,7 +107,7 @@ export const BankMetadataApiFp = function (axios: AxiosInstance, configuration?:
                     ...localVarAxiosArgs.options,
                     url: basePath + localVarAxiosArgs.url
                 };
-                if (configuration.retryPolicy) {
+                if (configuration && configuration.retryPolicy) {
                     return configuration.retryPolicy.execute(() => axios.request(axiosRequestArgs))
                 }
                 return axios.request(axiosRequestArgs);

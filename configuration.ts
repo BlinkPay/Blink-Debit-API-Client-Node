@@ -113,18 +113,17 @@ export class Configuration {
      */
     readonly clientSecret: string;
 
-    private static instance: Configuration;
+    constructor(axios: AxiosInstance, config: BlinkPayConfig);
 
-    private constructor(axios: AxiosInstance, config: BlinkPayConfig);
+    constructor(axios: AxiosInstance, configDirectory?: string, configFile?: string);
 
-    private constructor(axios: AxiosInstance, configDirectory?: string, configFile?: string);
-
-    private constructor(axios: AxiosInstance, configDirectoryOrConfig?: string | BlinkPayConfig, configFile?: string) {
+    constructor(axios: AxiosInstance, configDirectoryOrConfig?: string | BlinkPayConfig, configFile?: string) {
         let config;
         let timeout;
         let retryEnabled;
         // check if it's not a browser environment
         if (typeof window === 'undefined') {
+            // Node.js server-side environment
             const fs = require('fs');
 
             if (typeof configDirectoryOrConfig === 'string') {
@@ -132,13 +131,12 @@ export class Configuration {
                 // environment variables from .env have higher priority
                 const configPath = this.getConfigPath(configDirectoryOrConfig, configFile);
                 config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+            } else if (configDirectoryOrConfig === undefined) {
+                // No config provided, will read from environment variables
+                config = undefined;
             } else {
-                // load properties from config.json
-                // environment variables from .env have higher priority
-                if (configFile) {
-                    const configPath = this.getConfigPath(undefined, configFile);
-                    config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-                }
+                // Config object provided
+                config = configDirectoryOrConfig;
             }
 
             this.debitUrl = process.env.BLINKPAY_DEBIT_URL
@@ -153,8 +151,21 @@ export class Configuration {
             this.clientId = process.env.BLINKPAY_CLIENT_ID
                 ? process.env.BLINKPAY_CLIENT_ID
                 : (config && config.blinkpay && config.blinkpay.clientId);
-            this.clientSecret = process.env.BLINKPAY_CLIENT_SECRET;
+            this.clientSecret = process.env.BLINKPAY_CLIENT_SECRET
+                ? process.env.BLINKPAY_CLIENT_SECRET
+                : (config && config.blinkpay && config.blinkpay.clientSecret);
         } else {
+            // Browser environment detected - only allow if config is explicitly provided
+            // This supports SSR scenarios like Next.js API routes where window exists but code runs server-side
+            if (!configDirectoryOrConfig || typeof configDirectoryOrConfig !== 'object') {
+                throw new BlinkInvalidValueException(
+                    "Blink Debit SDK detected browser environment. " +
+                    "This SDK must only be used server-side (Node.js backend, Next.js API routes, etc.). " +
+                    "NEVER expose client credentials in frontend JavaScript. " +
+                    "If you are in a server-side rendering context, ensure you pass the config object explicitly."
+                );
+            }
+
             config = configDirectoryOrConfig as BlinkPayConfig;
 
             this.debitUrl = config.blinkpay.debitUrl;
@@ -245,7 +256,7 @@ export class Configuration {
             }
             const status = error.response.status;
             const headers = error.response.headers;
-            const body = error.response.data ? error.response.data : error.message;
+            const body = error.response.data ? error.response.data : { message: error.message };
             switch (status) {
                 case 401:
                     log.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
@@ -261,7 +272,7 @@ export class Configuration {
                     throw new BlinkRetryableException(body.message);
                 case 422:
                     log.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
-                    throw new BlinkUnauthorisedException(body.message);
+                    throw new BlinkInvalidValueException(body.message);
                 case 429:
                     log.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
                     throw new BlinkRateLimitExceededException(body.message);
@@ -290,21 +301,12 @@ export class Configuration {
 
         this.retryPolicy = retry(handleType(BlinkRetryableException), {
             maxAttempts: 2,
-            backoff: new ExponentialBackoff({maxDelay: Math.random() * 1000, initialDelay: 2000, exponent: 2})
+            backoff: new ExponentialBackoff({
+                maxDelay: 10000,      // 10 seconds maximum
+                initialDelay: 1000,   // Start with 1 second
+                exponent: 2
+            })
         });
-    }
-
-    static getInstance(axios: AxiosInstance, configDirectoryOrConfig?: string | BlinkPayConfig, configFile?: string): Configuration {
-        if (!Configuration.instance) {
-            if (typeof configDirectoryOrConfig === 'string') {
-                Configuration.instance = new Configuration(axios, configDirectoryOrConfig, configFile);
-            } else if (configDirectoryOrConfig === undefined) {
-                Configuration.instance = new Configuration(axios, undefined, configFile);
-            } else {
-                Configuration.instance = new Configuration(axios, configDirectoryOrConfig);
-            }
-        }
-        return Configuration.instance;
     }
 
     private static sanitiseHeaders(headers: any): Record<string, string> {

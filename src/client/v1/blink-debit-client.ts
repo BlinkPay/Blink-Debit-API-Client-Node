@@ -87,47 +87,30 @@ export class BlinkDebitClient {
         let configDirectoryOrConfig;
         let configFile;
         if (!axios && !configDirectoryOrConfigOrDebitUrl && !configFileOrClientId && !clientSecret) {
-            // Handle no-arg constructor logic here
+            // Handle no-arg constructor: Configuration will read from environment variables
             axios = globalAxios.create({
                 headers: {
                     'Accept': 'application/json'
                 }
             });
-            configDirectoryOrConfig = {
-                blinkpay: {
-                    debitUrl: process.env.REACT_APP_BLINKPAY_DEBIT_URL || '',
-                    clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID || '',
-                    clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET || '',
-                    timeout: 10000,
-                    retryEnabled: true
-                }
-            };
+            configDirectoryOrConfig = undefined;
         } else if (axios && !configDirectoryOrConfigOrDebitUrl && !configFileOrClientId && !clientSecret) {
-            // Handle axios constructor logic here
-            configDirectoryOrConfig = {
-                blinkpay: {
-                    debitUrl: process.env.REACT_APP_BLINKPAY_DEBIT_URL || '',
-                    clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID || '',
-                    clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET || '',
-                    timeout: 10000,
-                    retryEnabled: true
-                }
-            };
+            // Handle axios-only constructor: Configuration will read from environment variables
+            configDirectoryOrConfig = undefined;
         } else if (axios && typeof configDirectoryOrConfigOrDebitUrl === 'object') {
-            // Handle axios, config constructor logic here
+            // Handle axios, config constructor: Use provided config object
             configDirectoryOrConfig = configDirectoryOrConfigOrDebitUrl;
-        } else if (axios && typeof configDirectoryOrConfigOrDebitUrl === 'string' && typeof configFileOrClientId === 'string') {
-            // Handle axios, configDirectory, configFile constructor logic here
+        } else if (axios && typeof configDirectoryOrConfigOrDebitUrl === 'string' && typeof configFileOrClientId === 'string' && !clientSecret) {
+            // Handle axios, configDirectory, configFile constructor: Pass to Configuration for file reading
             configDirectoryOrConfig = configDirectoryOrConfigOrDebitUrl;
             configFile = configFileOrClientId;
         } else if (axios && typeof configDirectoryOrConfigOrDebitUrl === 'string' && typeof configFileOrClientId === 'string' && clientSecret) {
-            // Handle axios, debitUrl, clientId, clientSecret constructor logic here
-            // In this case, configDirectoryOrConfig is debitUrl, and configFileOrClientId is clientId
+            // Handle axios, debitUrl, clientId, clientSecret constructor: Create config from parameters
             configDirectoryOrConfig = {
                 blinkpay: {
                     debitUrl: configDirectoryOrConfigOrDebitUrl,
-                    clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID || '',
-                    clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET || '',
+                    clientId: configFileOrClientId,
+                    clientSecret: clientSecret,
                     timeout: 10000,
                     retryEnabled: true
                 }
@@ -138,7 +121,7 @@ export class BlinkDebitClient {
             throw new BlinkInvalidValueException("Axios instance is required");
         }
 
-        const configuration = Configuration.getInstance(axios, configDirectoryOrConfig, configFile);
+        const configuration = new Configuration(axios, configDirectoryOrConfig as any, configFile);
 
         this._singleConsentsApi = SingleConsentsApiFactory(axios, configuration, undefined);
         this._enduringConsentsApi = EnduringConsentsApiFactory(axios, configuration, undefined);
@@ -738,7 +721,6 @@ export class BlinkDebitClient {
 
                     const status = quickPayment.data.consent.status;
                     log.debug(`The last status polled was: ${status} \tfor Quick Payment ID: ${quickPaymentId}`);
-                    console.log(`The last status polled was: ${status} \tfor Quick Payment ID: ${quickPaymentId}`);
 
                     if (status === ConsentStatusEnum.Authorised || status === ConsentStatusEnum.Consumed) {
                         return quickPayment;

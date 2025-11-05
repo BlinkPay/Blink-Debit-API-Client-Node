@@ -57,7 +57,7 @@ describe('SingleConsentsApi Integration Test', () => {
     let apiInstance: ReturnType<typeof SingleConsentsApiFactory>;
 
     beforeAll(async (): Promise<void> => {
-        const configuration: Configuration = Configuration.getInstance(globalAxios);
+        const configuration: Configuration = new Configuration(globalAxios);
 
         apiInstance = SingleConsentsApiFactory(globalAxios, configuration, undefined);
     });

@@ -37,13 +37,18 @@ export interface PaymentRequest {
      */
     consentId: string;
     /**
-     *
+     * PCR (Particulars, Code, Reference) details.
+     * Optional for single consents (uses the consent's PCR).
+     * Can be provided for enduring consents to specify payment-specific PCR details.
      * @type {Pcr}
      * @memberof PaymentRequest
      */
     pcr?: Pcr;
     /**
-     *
+     * Payment amount.
+     * Optional for single consents (uses the consent's amount).
+     * Can be provided for enduring consents to specify the payment amount
+     * (must be within the consent's maximum limits).
      * @type {Amount}
      * @memberof PaymentRequest
      */
