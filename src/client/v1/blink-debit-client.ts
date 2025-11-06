@@ -27,7 +27,7 @@ import {
     QuickPaymentsApiFactory,
     RefundsApiFactory,
     SingleConsentsApiFactory
-} from '../../client';
+} from '../../client/index.js';
 import {ConstantBackoff, handleType, retry} from 'cockatiel';
 import {
     BlinkConsentFailureException,
@@ -39,7 +39,7 @@ import {
     BlinkPaymentTimeoutException,
     BlinkRetryableException,
     BlinkServiceException
-} from '../../exceptions';
+} from '../../exceptions/index.js';
 import globalAxios, {AxiosInstance, AxiosResponse} from 'axios';
 import {
     BankMetadata,
@@ -58,11 +58,11 @@ import {
     RefundDetail,
     RefundResponse,
     SingleConsentRequest
-} from '../../dto';
-import {Configuration} from '../../../configuration';
-import {BlinkPayConfig} from '../../../blinkpay-config';
+} from '../../dto/index.js';
+import {Configuration} from '../../../configuration.js';
+import {BlinkPayConfig} from '../../../blinkpay-config.js';
 import log from 'loglevel';
-import {GenericParameters} from "../../util/types";
+import {GenericParameters} from "../../util/types.js";
 
 /**
  * The facade for accessing all client methods from one place.
@@ -83,51 +83,36 @@ export class BlinkDebitClient {
 
     constructor(axios: AxiosInstance, configDirectory: string, configFile: string);
 
+    constructor(axios: AxiosInstance, debitUrl: string, clientId: string, clientSecret: string);
+
     constructor(axios?: AxiosInstance, configDirectoryOrConfigOrDebitUrl?: string | BlinkPayConfig, configFileOrClientId?: string, clientSecret?: string) {
         let configDirectoryOrConfig;
         let configFile;
         if (!axios && !configDirectoryOrConfigOrDebitUrl && !configFileOrClientId && !clientSecret) {
-            // Handle no-arg constructor logic here
+            // Handle no-arg constructor: Configuration will read from environment variables
             axios = globalAxios.create({
                 headers: {
                     'Accept': 'application/json'
                 }
             });
-            configDirectoryOrConfig = {
-                blinkpay: {
-                    debitUrl: process.env.REACT_APP_BLINKPAY_DEBIT_URL || '',
-                    clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID || '',
-                    clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET || '',
-                    timeout: 10000,
-                    retryEnabled: true
-                }
-            };
+            configDirectoryOrConfig = undefined;
         } else if (axios && !configDirectoryOrConfigOrDebitUrl && !configFileOrClientId && !clientSecret) {
-            // Handle axios constructor logic here
-            configDirectoryOrConfig = {
-                blinkpay: {
-                    debitUrl: process.env.REACT_APP_BLINKPAY_DEBIT_URL || '',
-                    clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID || '',
-                    clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET || '',
-                    timeout: 10000,
-                    retryEnabled: true
-                }
-            };
+            // Handle axios-only constructor: Configuration will read from environment variables
+            configDirectoryOrConfig = undefined;
         } else if (axios && typeof configDirectoryOrConfigOrDebitUrl === 'object') {
-            // Handle axios, config constructor logic here
+            // Handle axios, config constructor: Use provided config object
             configDirectoryOrConfig = configDirectoryOrConfigOrDebitUrl;
-        } else if (axios && typeof configDirectoryOrConfigOrDebitUrl === 'string' && typeof configFileOrClientId === 'string') {
-            // Handle axios, configDirectory, configFile constructor logic here
+        } else if (axios && typeof configDirectoryOrConfigOrDebitUrl === 'string' && typeof configFileOrClientId === 'string' && !clientSecret) {
+            // Handle axios, configDirectory, configFile constructor: Pass to Configuration for file reading
             configDirectoryOrConfig = configDirectoryOrConfigOrDebitUrl;
             configFile = configFileOrClientId;
         } else if (axios && typeof configDirectoryOrConfigOrDebitUrl === 'string' && typeof configFileOrClientId === 'string' && clientSecret) {
-            // Handle axios, debitUrl, clientId, clientSecret constructor logic here
-            // In this case, configDirectoryOrConfig is debitUrl, and configFileOrClientId is clientId
+            // Handle axios, debitUrl, clientId, clientSecret constructor: Create config from parameters
             configDirectoryOrConfig = {
                 blinkpay: {
                     debitUrl: configDirectoryOrConfigOrDebitUrl,
-                    clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID || '',
-                    clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET || '',
+                    clientId: configFileOrClientId,
+                    clientSecret: clientSecret,
                     timeout: 10000,
                     retryEnabled: true
                 }
@@ -138,7 +123,7 @@ export class BlinkDebitClient {
             throw new BlinkInvalidValueException("Axios instance is required");
         }
 
-        const configuration = Configuration.getInstance(axios, configDirectoryOrConfig, configFile);
+        const configuration = new Configuration(axios, configDirectoryOrConfig as any, configFile);
 
         this._singleConsentsApi = SingleConsentsApiFactory(axios, configuration, undefined);
         this._enduringConsentsApi = EnduringConsentsApiFactory(axios, configuration, undefined);
@@ -158,13 +143,7 @@ export class BlinkDebitClient {
     public getMeta(params: GenericParameters = {}): Promise<BankMetadata[]> {
         return this.getMetaAsync(params)
                 .then(response => response.data)
-                .catch(error => {
-                    if (error instanceof BlinkServiceException) {
-                        throw error;
-                    }
-
-                    throw new BlinkServiceException(error.message, error);
-                });
+                .catch(error => this.handleError(error));
     }
 
     /**
@@ -189,13 +168,7 @@ export class BlinkDebitClient {
     public createSingleConsent(singleConsentRequest: SingleConsentRequest | null, params: GenericParameters = {}): Promise<CreateConsentResponse> {
         return this.createSingleConsentAsync(singleConsentRequest, params)
                 .then(response => response.data)
-                .catch(error => {
-                    if (error instanceof BlinkServiceException) {
-                        throw error;
-                    }
-
-                    throw new BlinkServiceException(error.message, error);
-                });
+                .catch(error => this.handleError(error));
     }
 
     /**
@@ -221,13 +194,7 @@ export class BlinkDebitClient {
     public getSingleConsent(consentId: string, params: GenericParameters = {}): Promise<Consent> {
         return this.getSingleConsentAsync(consentId, params)
                 .then(response => response.data)
-                .catch(error => {
-                    if (error instanceof BlinkServiceException) {
-                        throw error;
-                    }
-
-                    throw new BlinkServiceException(error.message, error);
-                });
+                .catch(error => this.handleError(error));
     }
 
     /**
@@ -407,12 +374,7 @@ export class BlinkDebitClient {
     public createEnduringConsent(enduringConsentRequest: EnduringConsentRequest, params: GenericParameters = {}): Promise<CreateConsentResponse> {
         return this._enduringConsentsApi.createEnduringConsent(enduringConsentRequest, params)
                 .then(response => response.data)
-                .catch(error => {
-                    if (error instanceof BlinkServiceException) {
-                        throw error;
-                    }
-                    throw new BlinkServiceException(error.message, error);
-                });
+                .catch(error => this.handleError(error));
     }
 
     /**
@@ -438,13 +400,7 @@ export class BlinkDebitClient {
     public getEnduringConsent(consentId: string, params: GenericParameters = {}): Promise<Consent> {
         return this.getEnduringConsentAsync(consentId, params)
                 .then(response => response.data)
-                .catch(error => {
-                    if (error instanceof BlinkServiceException) {
-                        throw error;
-                    }
-
-                    throw new BlinkServiceException(error.message, error);
-                });
+                .catch(error => this.handleError(error));
     }
 
     /**
@@ -632,13 +588,7 @@ export class BlinkDebitClient {
     public revokeEnduringConsent(consentId: string, params: GenericParameters = {}): Promise<void> {
         return this.revokeEnduringConsentAsync(consentId, params)
                 .then(response => response.data)
-                .catch(error => {
-                    if (error instanceof BlinkServiceException) {
-                        throw error;
-                    }
-
-                    throw new BlinkServiceException(error.message, error);
-                });
+                .catch(error => this.handleError(error));
     }
 
     /**
@@ -664,13 +614,7 @@ export class BlinkDebitClient {
     public createQuickPayment(quickPaymentRequest: QuickPaymentRequest, params: GenericParameters = {}): Promise<CreateQuickPaymentResponse> {
         return this.createQuickPaymentAsync(quickPaymentRequest, params)
                 .then(response => response.data)
-                .catch(error => {
-                    if (error instanceof BlinkServiceException) {
-                        throw error;
-                    }
-
-                    throw new BlinkServiceException(error.message, error);
-                });
+                .catch(error => this.handleError(error));
     }
 
     /**
@@ -696,13 +640,7 @@ export class BlinkDebitClient {
     public getQuickPayment(quickPaymentId: string, params: GenericParameters = {}): Promise<QuickPaymentResponse> {
         return this.getQuickPaymentAsync(quickPaymentId, params)
                 .then(response => response.data)
-                .catch(error => {
-                    if (error instanceof BlinkServiceException) {
-                        throw error;
-                    }
-
-                    throw new BlinkServiceException(error.message, error);
-                });
+                .catch(error => this.handleError(error));
     }
 
     /**
@@ -738,7 +676,6 @@ export class BlinkDebitClient {
 
                     const status = quickPayment.data.consent.status;
                     log.debug(`The last status polled was: ${status} \tfor Quick Payment ID: ${quickPaymentId}`);
-                    console.log(`The last status polled was: ${status} \tfor Quick Payment ID: ${quickPaymentId}`);
 
                     if (status === ConsentStatusEnum.Authorised || status === ConsentStatusEnum.Consumed) {
                         return quickPayment;
@@ -769,7 +706,7 @@ export class BlinkDebitClient {
                     } else if (error instanceof BlinkConsentFailureException || error instanceof BlinkServiceException) {
                         throw error;
                     } else if (error && error.innerException) {
-                        if (error instanceof BlinkConsentFailureException || error.innerException instanceof BlinkServiceException) {
+                        if (error.innerException instanceof BlinkConsentFailureException || error.innerException instanceof BlinkServiceException) {
                             throw error.innerException;
                         }
 
@@ -868,7 +805,7 @@ export class BlinkDebitClient {
                     } else if (error instanceof BlinkConsentFailureException || error instanceof BlinkServiceException) {
                         throw error;
                     } else if (error && error.innerException) {
-                        if (error instanceof BlinkConsentFailureException || error.innerException instanceof BlinkServiceException) {
+                        if (error.innerException instanceof BlinkConsentFailureException || error.innerException instanceof BlinkServiceException) {
                             throw error.innerException;
                         }
 
@@ -890,13 +827,7 @@ export class BlinkDebitClient {
     public revokeQuickPayment(quickPaymentId: string, params: GenericParameters = {}): Promise<void> {
         return this.revokeQuickPaymentAsync(quickPaymentId, params)
                 .then(response => response.data)
-                .catch(error => {
-                    if (error instanceof BlinkServiceException) {
-                        throw error;
-                    }
-
-                    throw new BlinkServiceException(error.message, error);
-                });
+                .catch(error => this.handleError(error));
     }
 
     /**
@@ -922,13 +853,7 @@ export class BlinkDebitClient {
     public createPayment(paymentRequest: PaymentRequest, params: GenericParameters = {}): Promise<PaymentResponse> {
         return this.createPaymentAsync(paymentRequest, params)
                 .then(response => response.data)
-                .catch(error => {
-                    if (error instanceof BlinkServiceException) {
-                        throw error;
-                    }
-
-                    throw new BlinkServiceException(error.message, error);
-                });
+                .catch(error => this.handleError(error));
     }
 
     /**
@@ -954,13 +879,7 @@ export class BlinkDebitClient {
     public getPayment(paymentId: string, params: GenericParameters = {}): Promise<Payment> {
         return this.getPaymentAsync(paymentId, params)
                 .then(response => response.data)
-                .catch(error => {
-                    if (error instanceof BlinkServiceException) {
-                        throw error;
-                    }
-
-                    throw new BlinkServiceException(error.message, error);
-                });
+                .catch(error => this.handleError(error));
     }
 
     /**
@@ -1111,13 +1030,7 @@ export class BlinkDebitClient {
     public createRefund(refundDetail: RefundDetail, params: GenericParameters = {}): Promise<RefundResponse> {
         return this.createRefundAsync(refundDetail, params)
                 .then(response => response.data)
-                .catch(error => {
-                    if (error instanceof BlinkServiceException) {
-                        throw error;
-                    }
-
-                    throw new BlinkServiceException(error.message, error);
-                });
+                .catch(error => this.handleError(error));
     }
 
     /**
@@ -1143,13 +1056,7 @@ export class BlinkDebitClient {
     public getRefund(refundId: string, params: GenericParameters = {}): Promise<Refund> {
         return this.getRefundAsync(refundId, params)
                 .then(response => response.data)
-                .catch(error => {
-                    if (error instanceof BlinkServiceException) {
-                        throw error;
-                    }
-
-                    throw new BlinkServiceException(error.message, error);
-                });
+                .catch(error => this.handleError(error));
     }
 
     /**
@@ -1162,5 +1069,17 @@ export class BlinkDebitClient {
      */
     public async getRefundAsync(refundId: string, params: GenericParameters = {}): Promise<AxiosResponse<Refund>> {
         return await this._refundsApi.getRefund(refundId, params);
+    }
+
+    /**
+     * Wraps generic errors in BlinkServiceException if not already a Blink exception
+     * @param error The error to wrap
+     * @private
+     */
+    private handleError(error: any): never {
+        if (error instanceof BlinkServiceException) {
+            throw error;
+        }
+        throw new BlinkServiceException(error.message, error);
     }
 }

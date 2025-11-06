@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import {FlowHint} from './flow-hint';
+import {FlowHint} from './flow-hint.js';
 
 /**
  * Redirect flow hint.

@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import {BlinkServiceException} from './blink-service-exception';
+import {BlinkServiceException} from './blink-service-exception.js';
 
 /**
  * The exception thrown when the number of requests exceeded the limit of the firewall (429).

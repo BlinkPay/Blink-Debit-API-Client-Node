@@ -13,6 +13,6 @@ import 'reflect-metadata';
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-export * from './src';
-export * from './configuration';
-export * from './blinkpay-config';
+export * from './src/index.js';
+export * from './configuration.js';
+export * from './blinkpay-config.js';

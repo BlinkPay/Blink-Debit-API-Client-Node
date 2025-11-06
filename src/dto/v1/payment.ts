@@ -19,8 +19,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import {PaymentRequest} from './payment-request';
-import {Refund} from './refund';
+import {PaymentRequest} from './payment-request.js';
+import {Refund} from './refund.js';
 import {Transform} from "class-transformer";
 
 /**

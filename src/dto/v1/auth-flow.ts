@@ -20,9 +20,9 @@
  * SOFTWARE.
  */
 
-import {DecoupledFlow} from './decoupled-flow';
-import {GatewayFlow} from './gateway-flow';
-import {RedirectFlow} from './redirect-flow';
+import {DecoupledFlow} from './decoupled-flow.js';
+import {GatewayFlow} from './gateway-flow.js';
+import {RedirectFlow} from './redirect-flow.js';
 
 /**
  * The type of bank authentication flow used and details of the authentication flow.

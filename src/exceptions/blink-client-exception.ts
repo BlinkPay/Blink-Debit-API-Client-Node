@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import {BlinkServiceException} from './blink-service-exception';
+import {BlinkServiceException} from './blink-service-exception.js';
 
 /**
  * The exception thrown when the client request is invalid.

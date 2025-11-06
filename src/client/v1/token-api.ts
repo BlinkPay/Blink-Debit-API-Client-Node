@@ -22,27 +22,29 @@
 
 import {AxiosInstance, AxiosRequestConfig} from 'axios';
 import log from 'loglevel';
-import {Configuration} from '../../../configuration';
-import {AccessTokenResponse} from '../../dto/v1/access-token-response';
+import {Configuration} from '../../../configuration.js';
+import {AccessTokenResponse} from '../../dto/v1/access-token-response.js';
 
 export class TokenAPI {
-    private static instance: TokenAPI;
     private readonly _axios: AxiosInstance;
     private readonly _configuration: Configuration;
 
-    private constructor(axios: AxiosInstance, configuration: Configuration) {
+    constructor(axios: AxiosInstance, configuration: Configuration) {
         this._axios = axios;
         this._configuration = configuration;
     }
 
-    public static getInstance(axios: AxiosInstance, configuration: Configuration): TokenAPI {
-        if (!TokenAPI.instance) {
-            TokenAPI.instance = new TokenAPI(axios, configuration);
-        }
-
-        return TokenAPI.instance;
-    }
-
+    /**
+     * Gets the OAuth2 access token, refreshing it if expired or not yet obtained.
+     *
+     * This method checks if the current access token is valid (exists and not expired).
+     * If the token is missing or expired, it automatically triggers a refresh before returning.
+     *
+     * @returns {Promise<string | ((name?: string, scopes?: string[]) => string) | ((name?: string, scopes?: string[]) => Promise<string>)>}
+     *          The access token, either as a string or as a function that returns a string/Promise<string>
+     * @throws {BlinkForbiddenException} When the client credentials are invalid or insufficient permissions
+     * @throws {BlinkServiceException} When the token refresh fails for other reasons
+     */
     async getAccessToken(): Promise<string | ((name?: string, scopes?: string[]) => string) | ((name?: string, scopes?: string[]) => Promise<string>)> {
         // If token is undefined or expired, refresh it
         if (!this._configuration.accessToken || new Date() >= this._configuration.expirationDate) {
@@ -52,7 +54,7 @@ export class TokenAPI {
         return this._configuration.accessToken;
     }
 
-    private async refreshToken(): Promise<void> {
+    public async refreshToken(): Promise<void> {
         const clientId = this._configuration.clientId;
         const clientSecret = this._configuration.clientSecret;
         const tokenEndpoint = this._configuration.debitUrl + '/oauth2/token';
@@ -75,14 +77,11 @@ export class TokenAPI {
             const accessTokenResponse = response.data;
             this._configuration.accessToken = accessTokenResponse.accessToken;
             this._configuration.expirationDate = new Date(Date.now() + (response.data.expiresIn * 1000));
-
-            this._axios.interceptors.request.use(async (config) => {
-                const token = await this.getAccessToken();
-                config.headers.Authorization = `Bearer ${token}`;
-                return config;
-            });
+            // Note: Authorization header is set in each API call via getAccessToken()
+            // No need to add an interceptor here (prevents interceptor accumulation)
         } catch (error) {
-            log.error(`Encountered: ${error}`);
+            log.error(`Token refresh failed: ${error}`);
+            throw error; // Rethrow to propagate authentication failures
         }
     }
 }

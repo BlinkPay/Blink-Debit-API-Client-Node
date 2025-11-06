@@ -21,14 +21,13 @@
  */
 
 import {AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios';
-import {Configuration} from '../../../configuration';
-import {BaseAPI, RequestArgs} from '../../../base';
-import {Payment, PaymentRequest, PaymentResponse} from '../../dto';
+import {Configuration} from '../../../configuration.js';
+import {BaseAPI, RequestArgs} from '../../../base.js';
+import {Payment, PaymentRequest, PaymentResponse} from '../../dto/index.js';
 import {decamelizeKeys} from 'humps';
-import {BlinkInvalidValueException} from '../../exceptions';
-import {TokenAPI} from './token-api';
-import {GenericParameters} from "../../util/types";
-import {buildRequestHeaders} from "../../util/helper";
+import {BlinkInvalidValueException} from '../../exceptions/index.js';
+import {GenericParameters} from "../../util/types.js";
+import {buildRequestHeaders} from "../../util/helper.js";
 
 /**
  * PaymentsApi - axios parameter creator
@@ -66,11 +65,11 @@ export const PaymentsApiAxiosParamCreator = function (axios: AxiosInstance, conf
                 xCustomerUserAgent,
                 idempotencyKey
             });
-            const localVarQueryParameter = {} as any;
+            const localVarQueryParameter: Record<string, string> = {};
 
             // authentication Bearer required
             // oauth required
-            await TokenAPI.getInstance(axios, configuration).getAccessToken();
+            await configuration.tokenApi.getAccessToken();
             if (configuration && configuration.accessToken) {
                 const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
                         ? await configuration.accessToken("Bearer", ["create:single_consent", "view:single_consent", "revoke:single_consent", "create:enduring_consent", "view:enduring_consent", "revoke:enduring_consent", "create:payment", "view:payment", "view:metadata", "view:transaction", "create:quick_payment", "view:quick_payment", "create:refund", "view:refund"])
@@ -125,11 +124,11 @@ export const PaymentsApiAxiosParamCreator = function (axios: AxiosInstance, conf
                 xCustomerIp,
                 xCustomerUserAgent
             });
-            const localVarQueryParameter = {} as any;
+            const localVarQueryParameter: Record<string, string> = {};
 
             // authentication Bearer required
             // oauth required
-            await TokenAPI.getInstance(axios, configuration).getAccessToken();
+            await configuration.tokenApi.getAccessToken();
             if (configuration && configuration.accessToken) {
                 const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
                         ? await configuration.accessToken("Bearer", ["create:single_consent", "view:single_consent", "revoke:single_consent", "create:enduring_consent", "view:enduring_consent", "revoke:enduring_consent", "create:payment", "view:payment", "view:metadata", "view:transaction", "create:quick_payment", "view:quick_payment", "create:refund", "view:refund"])
@@ -177,7 +176,7 @@ export const PaymentsApiFp = function (axios: AxiosInstance, configuration?: Con
                     ...localVarAxiosArgs.options,
                     url: basePath + localVarAxiosArgs.url
                 };
-                if (configuration.retryPolicy) {
+                if (configuration && configuration.retryPolicy) {
                     return configuration.retryPolicy.execute(() => axios.request(axiosRequestArgs))
                 }
                 return axios.request(axiosRequestArgs);
@@ -196,7 +195,7 @@ export const PaymentsApiFp = function (axios: AxiosInstance, configuration?: Con
                     ...localVarAxiosArgs.options,
                     url: basePath + localVarAxiosArgs.url
                 };
-                if (configuration.retryPolicy) {
+                if (configuration && configuration.retryPolicy) {
                     return configuration.retryPolicy.execute(() => axios.request(axiosRequestArgs))
                 }
                 return axios.request(axiosRequestArgs);

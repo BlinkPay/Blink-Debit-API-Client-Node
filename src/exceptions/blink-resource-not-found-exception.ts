@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import {BlinkServiceException} from './blink-service-exception';
+import {BlinkServiceException} from './blink-service-exception.js';
 
 /**
  * The exception thrown when the requested resource does not exist or if the resource does not belong to the merchant (404).

@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import {BlinkPaymentFailureException} from './blink-payment-failure-exception';
+import {BlinkPaymentFailureException} from './blink-payment-failure-exception.js';
 
 /**
  * The exception thrown when single/domestic or recurring/enduring payment is rejected by the bank.

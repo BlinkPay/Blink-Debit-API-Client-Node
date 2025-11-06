@@ -1,4 +1,4 @@
-import {GenericParameters} from "./types";
+import {GenericParameters} from "./types.js";
 
 /**
  * Build request headers.

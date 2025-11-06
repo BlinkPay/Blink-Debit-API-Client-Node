@@ -20,10 +20,10 @@
  * SOFTWARE.
  */
 
-import {Amount} from './amount';
-import {AuthFlow} from './auth-flow';
-import {ConsentDetail} from './consent-detail';
-import {Period} from './period';
+import {Amount} from './amount.js';
+import {AuthFlow} from './auth-flow.js';
+import {ConsentDetail} from './consent-detail.js';
+import {Period} from './period.js';
 
 /**
  * The model for an enduring consent request, relating to multiple payments.

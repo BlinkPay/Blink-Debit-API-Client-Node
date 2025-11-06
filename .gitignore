@@ -1,4 +1,36 @@
+# Build output
 dist/
+
+# Dependencies
 node_modules/
+
+# Logs
 logs/
+*.log
+npm-debug.log*
+
+# Environment variables
 .env
+.env.local
+.env.*.local
+
+# Claude Code settings
+.claude/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test coverage
+coverage/
+
+# Temporary files
+*.tmp
+.cache/

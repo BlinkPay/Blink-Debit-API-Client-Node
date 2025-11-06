@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import {BlinkServiceException} from './blink-service-exception';
+import {BlinkServiceException} from './blink-service-exception.js';
 
 /**
  * The exception thrown when the merchant does not have sufficient access rights or scopes to a resource (403).

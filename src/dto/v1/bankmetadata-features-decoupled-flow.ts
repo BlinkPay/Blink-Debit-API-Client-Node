@@ -22,7 +22,7 @@
 
 import {
     BankmetadataFeaturesDecoupledFlowAvailableIdentifiers
-} from './bankmetadata-features-decoupled-flow-available-identifiers';
+} from './bankmetadata-features-decoupled-flow-available-identifiers.js';
 
 /**
  * The decoupled flow bank feature

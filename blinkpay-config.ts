@@ -25,7 +25,7 @@ export interface BlinkPayConfig {
         debitUrl: string;
         clientId: string;
         clientSecret: string;
-        timeout: number;
-        retryEnabled: boolean;
+        timeout?: number;
+        retryEnabled?: boolean;
     };
 }

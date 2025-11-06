@@ -20,10 +20,10 @@
  * SOFTWARE.
  */
 
-import {Amount} from './amount';
-import {AuthFlow} from './auth-flow';
-import {ConsentDetail} from './consent-detail';
-import {Pcr} from './pcr';
+import {Amount} from './amount.js';
+import {AuthFlow} from './auth-flow.js';
+import {ConsentDetail} from './consent-detail.js';
+import {Pcr} from './pcr.js';
 
 /**
  * The model for a single consent request, relating to a one-off payment.

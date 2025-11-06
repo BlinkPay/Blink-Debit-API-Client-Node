@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import {BlinkClientException} from './blink-client-exception';
+import {BlinkClientException} from './blink-client-exception.js';
 
 /**
  * The exception thrown when the argument is invalid.

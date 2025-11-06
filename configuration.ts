@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import {AxiosInstance} from 'axios';
+import {AxiosInstance, AxiosRequestConfig} from 'axios';
 import qs from 'qs';
 import {camelizeKeys, decamelizeKeys} from 'humps';
 import {
@@ -32,10 +32,11 @@ import {
     BlinkResourceNotFoundException,
     BlinkRetryableException,
     BlinkServiceException,
-    BlinkUnauthorisedException
-} from './src';
+    BlinkUnauthorisedException,
+    TokenAPI
+} from './src/index.js';
 import {ExponentialBackoff, handleType, retry, RetryPolicy} from 'cockatiel';
-import {BlinkPayConfig} from './blinkpay-config';
+import {BlinkPayConfig} from './blinkpay-config.js';
 import log from 'loglevel';
 
 if (typeof process !== 'undefined') {
@@ -64,10 +65,10 @@ export class Configuration {
     /**
      * base options for axios calls
      *
-     * @type {any}
+     * @type {AxiosRequestConfig}
      * @memberof Configuration
      */
-    baseOptions?: any;
+    baseOptions?: AxiosRequestConfig;
     /**
      * parameter for expiry date of the access token
      *
@@ -112,19 +113,30 @@ export class Configuration {
      * @memberof Configuration
      */
     readonly clientSecret: string;
+    /**
+     * The Axios instance
+     *
+     * @private
+     */
+    private readonly _axios: AxiosInstance;
+    /**
+     * The TokenAPI instance for token management
+     *
+     * @private
+     */
+    private readonly _tokenApi: TokenAPI;
 
-    private static instance: Configuration;
+    constructor(axios: AxiosInstance, config: BlinkPayConfig);
 
-    private constructor(axios: AxiosInstance, config: BlinkPayConfig);
+    constructor(axios: AxiosInstance, configDirectory?: string, configFile?: string);
 
-    private constructor(axios: AxiosInstance, configDirectory?: string, configFile?: string);
-
-    private constructor(axios: AxiosInstance, configDirectoryOrConfig?: string | BlinkPayConfig, configFile?: string) {
+    constructor(axios: AxiosInstance, configDirectoryOrConfig?: string | BlinkPayConfig, configFile?: string) {
         let config;
         let timeout;
         let retryEnabled;
         // check if it's not a browser environment
         if (typeof window === 'undefined') {
+            // Node.js server-side environment
             const fs = require('fs');
 
             if (typeof configDirectoryOrConfig === 'string') {
@@ -132,13 +144,12 @@ export class Configuration {
                 // environment variables from .env have higher priority
                 const configPath = this.getConfigPath(configDirectoryOrConfig, configFile);
                 config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+            } else if (configDirectoryOrConfig === undefined) {
+                // No config provided, will read from environment variables
+                config = undefined;
             } else {
-                // load properties from config.json
-                // environment variables from .env have higher priority
-                if (configFile) {
-                    const configPath = this.getConfigPath(undefined, configFile);
-                    config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-                }
+                // Config object provided
+                config = configDirectoryOrConfig;
             }
 
             this.debitUrl = process.env.BLINKPAY_DEBIT_URL
@@ -147,14 +158,32 @@ export class Configuration {
             timeout = process.env.BLINKPAY_TIMEOUT
                 ? process.env.BLINKPAY_TIMEOUT
                 : (config && config.blinkpay && config.blinkpay.timeout) || 10000;
-            retryEnabled = process.env.BLINKPAY_RETRY_ENABLED
-                ? process.env.BLINKPAY_RETRY_ENABLED
-                : (config && config.blinkpay && config.blinkpay.retryEnabled) || true;
+            // Handle retryEnabled with proper boolean logic
+            if (process.env.BLINKPAY_RETRY_ENABLED !== undefined) {
+                retryEnabled = process.env.BLINKPAY_RETRY_ENABLED;
+            } else if (config && config.blinkpay && config.blinkpay.retryEnabled !== undefined) {
+                retryEnabled = config.blinkpay.retryEnabled;
+            } else {
+                retryEnabled = true;
+            }
             this.clientId = process.env.BLINKPAY_CLIENT_ID
                 ? process.env.BLINKPAY_CLIENT_ID
                 : (config && config.blinkpay && config.blinkpay.clientId);
-            this.clientSecret = process.env.BLINKPAY_CLIENT_SECRET;
+            this.clientSecret = process.env.BLINKPAY_CLIENT_SECRET
+                ? process.env.BLINKPAY_CLIENT_SECRET
+                : (config && config.blinkpay && config.blinkpay.clientSecret);
         } else {
+            // Browser environment detected - only allow if config is explicitly provided
+            // This supports SSR scenarios like Next.js API routes where window exists but code runs server-side
+            if (!configDirectoryOrConfig || typeof configDirectoryOrConfig !== 'object') {
+                throw new BlinkInvalidValueException(
+                    "Blink Debit SDK detected browser environment. " +
+                    "This SDK must only be used server-side (Node.js backend, Next.js API routes, etc.). " +
+                    "NEVER expose client credentials in frontend JavaScript. " +
+                    "If you are in a server-side rendering context, ensure you pass the config object explicitly."
+                );
+            }
+
             config = configDirectoryOrConfig as BlinkPayConfig;
 
             this.debitUrl = config.blinkpay.debitUrl;
@@ -182,7 +211,7 @@ export class Configuration {
 
         // configure timeout, defaults to 10,000 milliseconds
         this._timeout = Number(timeout);
-        if (isNaN(timeout)) {
+        if (isNaN(this._timeout)) {
             this._timeout = 10000;
         }
 
@@ -195,8 +224,24 @@ export class Configuration {
             this._retryEnabled = true;
         }
 
+        // Initialize expiration date to epoch 0 to force initial token refresh
+        this.expirationDate = new Date(0);
+
+        // Store axios instance and initialize TokenAPI
+        this._axios = axios;
+        this._tokenApi = new TokenAPI(axios, this);
+
         this.configureAxios(axios);
         this.configureRetry();
+    }
+
+    /**
+     * Get the TokenAPI instance for token management
+     *
+     * @returns {TokenAPI} The TokenAPI instance
+     */
+    get tokenApi(): TokenAPI {
+        return this._tokenApi;
     }
 
     private configureAxios(axios: AxiosInstance) {
@@ -245,7 +290,7 @@ export class Configuration {
             }
             const status = error.response.status;
             const headers = error.response.headers;
-            const body = error.response.data ? error.response.data : error.message;
+            const body = error.response.data ? error.response.data : { message: error.message };
             switch (status) {
                 case 401:
                     log.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
@@ -261,7 +306,7 @@ export class Configuration {
                     throw new BlinkRetryableException(body.message);
                 case 422:
                     log.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
-                    throw new BlinkUnauthorisedException(body.message);
+                    throw new BlinkInvalidValueException(body.message);
                 case 429:
                     log.error(`Status Code: ${status}\nHeaders: ${JSON.stringify(headers)}\nBody: ${body.message}`);
                     throw new BlinkRateLimitExceededException(body.message);
@@ -290,24 +335,15 @@ export class Configuration {
 
         this.retryPolicy = retry(handleType(BlinkRetryableException), {
             maxAttempts: 2,
-            backoff: new ExponentialBackoff({maxDelay: Math.random() * 1000, initialDelay: 2000, exponent: 2})
+            backoff: new ExponentialBackoff({
+                maxDelay: 10000,      // 10 seconds maximum
+                initialDelay: 1000,   // Start with 1 second
+                exponent: 2
+            })
         });
     }
 
-    static getInstance(axios: AxiosInstance, configDirectoryOrConfig?: string | BlinkPayConfig, configFile?: string): Configuration {
-        if (!Configuration.instance) {
-            if (typeof configDirectoryOrConfig === 'string') {
-                Configuration.instance = new Configuration(axios, configDirectoryOrConfig, configFile);
-            } else if (configDirectoryOrConfig === undefined) {
-                Configuration.instance = new Configuration(axios, undefined, configFile);
-            } else {
-                Configuration.instance = new Configuration(axios, configDirectoryOrConfig);
-            }
-        }
-        return Configuration.instance;
-    }
-
-    private static sanitiseHeaders(headers: any): Record<string, string> {
+    private static sanitiseHeaders(headers: Record<string, any>): Record<string, string> {
         const AUTHORIZATION = 'Authorization';
         const authorization = headers[AUTHORIZATION] || headers['authorization'];
         if (authorization && authorization.trim() !== '') {

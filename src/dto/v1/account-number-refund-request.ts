@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import {RefundDetail} from './refund-detail';
+import {RefundDetail} from './refund-detail.js';
 
 /**
  * The details for an `account_number` refund request.

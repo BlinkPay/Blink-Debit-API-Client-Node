@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import {IdentifierType} from './identifier-type';
+import {IdentifierType} from './identifier-type.js';
 import {Transform} from "class-transformer";
 
 /**

@@ -18,9 +18,29 @@
 10. [Individual API Call Examples](#individual-api-call-examples)
 
 ## Introduction
-This SDK allows merchants with TypeScript- or JavaScript-based e.g. React e-commerce site to integrate with Blink PayNow and Blink AutoPay.
+This SDK allows merchants with TypeScript- or JavaScript-based backends to integrate with Blink PayNow and Blink AutoPay.
 
 This SDK was written in TypeScript 5.
+
+## ⚠️ Security Warning
+
+**This SDK is for SERVER-SIDE use only.**
+
+**NEVER use this SDK in browser/frontend JavaScript** (React components, Vue components, Angular components, etc.).
+
+Your OAuth2 client credentials (`client_id` and `client_secret`) would be exposed in the browser bundle, allowing attackers to steal them and make unauthorized payments from your merchant account.
+
+**Valid use cases:**
+- ✅ Node.js backend servers
+- ✅ Next.js API routes (in `/pages/api/` or `/app/api/`)
+- ✅ Express.js / Fastify / NestJS servers
+- ✅ Serverless functions (AWS Lambda, Vercel Functions, etc.)
+- ❌ React/Vue/Angular components
+- ❌ Browser JavaScript
+- ❌ Mobile app WebViews
+
+**Proper architecture:**
+Your frontend should call YOUR backend API, which then uses this SDK to communicate with BlinkPay.
 
 ## Contributing
 We welcome contributions from the community. Your pull request will be reviewed by our team.
@@ -38,7 +58,6 @@ npm install blink-debit-api-client-node --save
 ```
 
 ## Quick Start
-### Option 1: Node.js environment
 Append the BlinkPay environment variables to your `.env` file.
 ```dotenv
 BLINKPAY_DEBIT_URL=https://sandbox.debit.blinkpay.co.nz
@@ -120,287 +139,6 @@ async function createQuickPayment() {
 await createQuickPayment();
 ```
 
-### Option 2: Browser environment e.g. React
-Append the BlinkPay environment variables to your `.env` file. Notice the `REACT_APP_` prefix.
-```dotenv
-REACT_APP_BLINKPAY_DEBIT_URL=https://sandbox.debit.blinkpay.co.nz
-REACT_APP_BLINKPAY_CLIENT_ID=...
-REACT_APP_BLINKPAY_CLIENT_SECRET=...
-REACT_APP_BLINKPAY_RETRY_ENABLED=true
-REACT_APP_BLINKPAY_TIMEOUT=10000
-```
-You may need to install `react-app-rewired` and other dependencies to override the default webpack configuration and to disable path and fs which only work for `Node.js environment`. Create a `config-overrides.js` file:
-```javascript
-module.exports = function override(config, env) {
-    config.resolve.fallback = {
-        ...config.resolve.fallback,
-        "path": false,
-        "fs": false,
-        "os": require.resolve("os-browserify/browser"),
-        "crypto": require.resolve("crypto-browserify"),
-        "stream": require.resolve("stream-browserify"),
-        "buffer": require.resolve("buffer/")
-    };
-
-    return config;
-};
-```
-Create an Axios instance:
-- `axiosInstance.js`
-```javascript
-import axios from 'axios';
-
-const globalAxios = axios.create({
-    headers: {
-        'Accept': 'application/json'
-    }
-});
-
-export default globalAxios;
-```
-- `axiosInstance.ts`
-```typescript
-import axios, {AxiosInstance} from 'axios';
-
-const globalAxios: AxiosInstance = axios.create({
-    headers: {
-        'Accept': 'application/json'
-    }
-});
-
-export default globalAxios;
-```
-
-Create the BlinkDebitClient instance:
-- `blinkDebitClientInstance.js`
-```javascript
-import {BlinkDebitClient} from 'blink-debit-api-client-node';
-import globalAxios from './axiosInstance';
-
-const blinkPayConfig = {
-    blinkpay: {
-        debitUrl: process.env.REACT_APP_BLINKPAY_DEBIT_URL || '',
-        clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID || '',
-        clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET || '',
-        timeout: 10000,
-        retryEnabled: true
-    }
-};
-
-const client = new BlinkDebitClient(globalAxios, blinkPayConfig);
-
-export default client;
-```
-- `blinkDebitClientInstance.ts`
-```typescript
-import {BlinkPayConfig, BlinkDebitClient} from 'blink-debit-api-client-node';
-import globalAxios from './axiosInstance';
-
-const blinkPayConfig: BlinkPayConfig = {
-    blinkpay: {
-        debitUrl: process.env.REACT_APP_BLINKPAY_DEBIT_URL || '',
-        clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID || '',
-        clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET || '',
-        timeout: 10000,
-        retryEnabled: true
-    }
-};
-
-export const client = new BlinkDebitClient(globalAxios, blinkPayConfig);
-```
-
-In your component, create a function for submitting a form:
-- `cart.jsx`
-```javascript
-import React, {Component} from 'react';
-import lollipop from '../lollipop.jpg';
-import {
-    AmountCurrencyEnum,
-    AuthFlowDetailTypeEnum
-} from 'blink-debit-api-client-node';
-import client from '../blinkDebitClientInstance';
-
-class Cart extends Component {
-
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            errorResponse: {},
-            disabled: false
-        }
-
-        this.submitForm = this.submitForm.bind(this);
-    }
-
-    async submitForm(e) {
-        e.preventDefault();
-
-        this.setState({
-            errorResponse: {},
-            disabled: true
-        });
-
-        const request = {
-            flow: {
-                detail: {
-                    type: AuthFlowDetailTypeEnum.Gateway,
-                    redirectUri: window.location.origin + "/redirect"
-                }
-            },
-            amount: {
-                currency: AmountCurrencyEnum.NZD,
-                total: "0.40"
-            },
-            pcr: {
-                particulars: "lollipop",
-                code: "code",
-                reference: "reference"
-            }
-        };
-
-        const qpCreateResponse = await client.createQuickPayment(request);
-        // redirect to gateway
-        const redirectUri = qpCreateResponse.redirectUri;
-        if (redirectUri !== undefined) {
-            window.location.assign(redirectUri);
-        }
-    }
-
-    render() {
-        return (
-            <div className="container">
-                <h3>Shopping Cart</h3>
-                <form onSubmit={this.submitForm} className="form">
-                    <table className="table">
-                        <tbody>
-                        <tr>
-                            <td className="border">
-                                <img src={lollipop} alt="lollipop" width="200"/>
-                            </td>
-                            <td className="border">
-                                Red Heart Lollipop, unwrapped
-                            </td>
-                            <td className="border">
-                                $0.40
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                    <br/>
-                    <div className="form-group form-row align-items-center justify-content-center">
-                        <button type="submit" className="btn btn-primary ml-1 mr-1"
-                                disabled={this.state.disabled}>Checkout
-                        </button>
-                    </div>
-                </form>
-            </div>);
-    }
-}
-
-export default Cart;
-```
-- `cart.tsx`
-```typescript
-import React, {Component} from 'react';
-import lollipop from '../lollipop.jpg';
-import {
-    Amount,
-    AmountCurrencyEnum,
-    AuthFlow,
-    AuthFlowDetailTypeEnum,
-    GatewayFlow,
-    Pcr,
-    QuickPaymentRequest
-} from 'blink-debit-api-client-node';
-import {client} from '../blinkDebitClientInstance';
-
-interface State {
-    errorResponse: any,
-    disabled: boolean
-}
-
-class Cart extends Component<{}, State> {
-
-    constructor(props: {}) {
-        super(props);
-
-        this.state = {
-            errorResponse: {},
-            disabled: false
-        }
-
-        this.submitForm = this.submitForm.bind(this);
-    }
-
-    async submitForm(e: React.FormEvent) {
-        e.preventDefault();
-
-        this.setState({
-            errorResponse: {},
-            disabled: true
-        });
-
-        const request: QuickPaymentRequest = {
-            flow: {
-                detail: {
-                    type: AuthFlowDetailTypeEnum.Gateway,
-                    redirectUri: window.location.origin + "/redirect"
-                } as GatewayFlow
-            } as AuthFlow,
-            amount: {
-                currency: AmountCurrencyEnum.NZD,
-                total: "0.40"
-            } as Amount,
-            pcr: {
-                particulars: "lollipop",
-                code: "code",
-                reference: "reference"
-            } as Pcr
-        };
-
-        const qpCreateResponse = await client.createQuickPayment(request);
-        // redirect to gateway
-        const redirectUri = qpCreateResponse.redirectUri;
-        if (redirectUri !== undefined) {
-            window.location.assign(redirectUri);
-        }
-    }
-
-    render() {
-        return (
-            <div className="container">
-                <h3>Shopping Cart</h3>
-                <form onSubmit={this.submitForm} className="form">
-                    <table className="table">
-                        <tbody>
-                            <tr>
-                                <td className="border">
-                                    <img src={lollipop} alt="lollipop" width="200"/>
-                                </td>
-                                <td className="border">
-                                    Red Heart Lollipop, unwrapped
-                                </td>
-                                <td className="border">
-                                    $0.40
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <br/>
-                    <div className="form-group form-row align-items-center justify-content-center">
-                        <button type="submit" className="btn btn-primary ml-1 mr-1"
-                        disabled={this.state.disabled}>Checkout
-                        </button>
-                    </div>
-                </form>
-            </div>);
-    }
-}
-
-export default Cart;
-```
-
 ## Configuration
 - Customise/supply the required properties in your `config.json` and `.env`. This file should be available in your project folder.
 - The BlinkPay **Sandbox** debit URL is `https://sandbox.debit.blinkpay.co.nz` and the **production** debit URL is `https://debit.blinkpay.co.nz`.
@@ -450,14 +188,14 @@ const fileName = 'my-config.json'
 const client = new BlinkDebitClient(axios, directory, fileName);
 ```
 
-In a `browser environment`, the client can be created by passing the BlinkPayConfig:
+Alternatively, the client can be created with explicit configuration by passing the BlinkPayConfig:
 - `JavaScript`
 ```javascript
 const blinkPayConfig = {
     blinkpay: {
-        debitUrl: process.env.REACT_APP_BLINKPAY_DEBIT_URL || '',
-        clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID || '',
-        clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET || '',
+        debitUrl: process.env.BLINKPAY_DEBIT_URL || '',
+        clientId: process.env.BLINKPAY_CLIENT_ID || '',
+        clientSecret: process.env.BLINKPAY_CLIENT_SECRET || '',
         timeout: 10000,
         retryEnabled: true
     }
@@ -468,9 +206,9 @@ const client = new BlinkDebitClient(axios, blinkPayConfig);
 ```typescript
 const blinkPayConfig: BlinkPayConfig = {
     blinkpay: {
-        debitUrl: process.env.REACT_APP_BLINKPAY_DEBIT_URL || '',
-        clientId: process.env.REACT_APP_BLINKPAY_CLIENT_ID || '',
-        clientSecret: process.env.REACT_APP_BLINKPAY_CLIENT_SECRET || '',
+        debitUrl: process.env.BLINKPAY_DEBIT_URL || '',
+        clientId: process.env.BLINKPAY_CLIENT_ID || '',
+        clientSecret: process.env.BLINKPAY_CLIENT_SECRET || '',
         timeout: 10000,
         retryEnabled: true
     }
@@ -481,8 +219,8 @@ const client = new BlinkDebitClient(axios, blinkPayConfig);
 or by providing the required parameters:
 
 ```javascript
-const client = new BlinkDebitClient(axios, process.env.REACT_APP_BLINKPAY_DEBIT_URL,
-    process.env.REACT_APP_BLINKPAY_CLIENT_ID, process.env.REACT_APP_BLINKPAY_CLIENT_SECRET);
+const client = new BlinkDebitClient(axios, process.env.BLINKPAY_DEBIT_URL,
+    process.env.BLINKPAY_CLIENT_ID, process.env.BLINKPAY_CLIENT_SECRET);
 ```
 
 ## Request ID, Correlation ID and Idempotency Key
