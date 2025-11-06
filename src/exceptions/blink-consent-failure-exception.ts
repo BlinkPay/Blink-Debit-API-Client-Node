@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import {BlinkServiceException} from './blink-service-exception';
+import {BlinkServiceException} from './blink-service-exception.js';
 
 /**
  * The exception for Blink Debit consents.

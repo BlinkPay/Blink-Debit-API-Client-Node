@@ -20,8 +20,8 @@
  * SOFTWARE.
  */
 
-import {Amount} from './amount';
-import {Pcr} from './pcr';
+import {Amount} from './amount.js';
+import {Pcr} from './pcr.js';
 
 /**
  * The payment request model.

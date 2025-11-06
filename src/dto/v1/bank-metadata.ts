@@ -20,10 +20,10 @@
  * SOFTWARE.
  */
 
-import {Bank} from './bank';
-import {BankmetadataFeatures} from './bankmetadata-features';
-import {BankmetadataRedirectFlow} from './bankmetadata-redirect-flow';
-import {Amount} from "./amount";
+import {Bank} from './bank.js';
+import {BankmetadataFeatures} from './bankmetadata-features.js';
+import {BankmetadataRedirectFlow} from './bankmetadata-redirect-flow.js';
+import {Amount} from "./amount.js";
 
 /**
  * Information about a banks enabled features.

@@ -21,12 +21,12 @@
  */
 
 import {AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios';
-import {Configuration} from '../../../configuration';
-import {BaseAPI, RequestArgs} from '../../../base';
-import {BankMetadata} from '../../dto';
-import {BlinkInvalidValueException} from "../../exceptions";
-import {GenericParameters} from "../../util/types";
-import {buildRequestHeaders} from "../../util/helper";
+import {Configuration} from '../../../configuration.js';
+import {BaseAPI, RequestArgs} from '../../../base.js';
+import {BankMetadata} from '../../dto/index.js';
+import {BlinkInvalidValueException} from "../../exceptions/index.js";
+import {GenericParameters} from "../../util/types.js";
+import {buildRequestHeaders} from "../../util/helper.js";
 
 /**
  * BankMetadataApi - axios parameter creator

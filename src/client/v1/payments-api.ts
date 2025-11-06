@@ -21,13 +21,13 @@
  */
 
 import {AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios';
-import {Configuration} from '../../../configuration';
-import {BaseAPI, RequestArgs} from '../../../base';
-import {Payment, PaymentRequest, PaymentResponse} from '../../dto';
+import {Configuration} from '../../../configuration.js';
+import {BaseAPI, RequestArgs} from '../../../base.js';
+import {Payment, PaymentRequest, PaymentResponse} from '../../dto/index.js';
 import {decamelizeKeys} from 'humps';
-import {BlinkInvalidValueException} from '../../exceptions';
-import {GenericParameters} from "../../util/types";
-import {buildRequestHeaders} from "../../util/helper";
+import {BlinkInvalidValueException} from '../../exceptions/index.js';
+import {GenericParameters} from "../../util/types.js";
+import {buildRequestHeaders} from "../../util/helper.js";
 
 /**
  * PaymentsApi - axios parameter creator

@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import {Consent} from './consent';
+import {Consent} from './consent.js';
 
 /**
  * The model for quick payment response.

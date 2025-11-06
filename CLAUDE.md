@@ -1,6 +1,6 @@
-# BlinkPay SDK - Development Notes
+# BlinkPay SDK - Development Guide
 
-This document provides context and guidance for AI assistants (like Claude) working on the BlinkPay Node.js SDK codebase.
+This document provides implementation guidance and best practices for working on the BlinkPay Node.js SDK codebase.
 
 ## Project Overview
 
@@ -23,15 +23,15 @@ This document provides context and guidance for AI assistants (like Claude) work
 2. **Configuration** (`configuration.ts`)
    - Handles environment variables and config files
    - Manages OAuth2 credentials
-   - Stores singleton TokenAPI instance (optimized)
+   - Stores TokenAPI instance per client (not singleton)
    - Configures Axios, retry policy, and error handling
    - **Critical**: Detects browser environment and throws error
 
 3. **TokenAPI** (`src/client/v1/token-api.ts`)
    - Manages OAuth2 Client Credentials flow
    - Automatically refreshes expired tokens
-   - Stored as singleton in Configuration (v1.3.2+)
    - Token expiration tracked via `expirationDate`
+   - One instance per Configuration (not shared globally)
 
 4. **API Clients** (`src/client/v1/*-api.ts`)
    - Individual API endpoint implementations
@@ -46,15 +46,10 @@ This document provides context and guidance for AI assistants (like Claude) work
 
 ### Key Design Decisions
 
-#### Singleton Removal (v1.3.1)
-- **Before**: Configuration and TokenAPI used singleton pattern
-- **After**: Instances created per client, enabling multiple concurrent clients
-- **Benefit**: Better testability, no global state issues
-
-#### TokenAPI Optimization (v1.3.2)
-- **Before**: New TokenAPI instance created for every API call (14+ per request)
-- **After**: Single TokenAPI instance stored in Configuration
-- **Benefit**: Reduced object creation overhead, cleaner code
+#### No Singleton Pattern
+- Each `BlinkDebitClient` instance creates its own `Configuration` and `TokenAPI`
+- Enables multiple concurrent clients with different credentials
+- Better testability, no global state issues
 
 #### Environment Variables
 - **Prefix**: `BLINKPAY_*` (not `REACT_APP_*`)
@@ -63,64 +58,14 @@ This document provides context and guidance for AI assistants (like Claude) work
 
 #### Error Handling
 - All errors wrapped in `BlinkServiceException` or specific subclasses
-- Helper method `handleError()` reduces duplication (v1.3.2+)
-- Errors properly propagated (token refresh no longer silently fails)
+- Helper method `handleError()` reduces duplication
+- Errors properly propagated (no silent failures)
+- Token refresh errors rethrown to caller
 
-## Recent Changes & Fixes
-
-### Session 1: Initial Code Review & Fixes (Commit: d27a2fc)
-- Fixed critical constructor bug using wrong env vars
-- Removed all REACT_APP_ prefixes → BLINKPAY_*
-- Removed singleton patterns from Configuration and TokenAPI
-- Fixed token refresh interceptor leak
-- Added retry policy null checks
-- Fixed error handling (HTTP 422, error body access)
-- Removed console.log statements
-- Made cardNetwork optional
-- Updated README (removed 280+ lines of React/browser docs)
-- Added security warning
-
-### Session 2: Minor Issues (Commit: 52356f2)
-- Added missing 4-arg constructor overload
-- Fixed timeout validation logic
-- Optimized TokenAPI instantiation (singleton in Configuration)
-- Updated README wording ("browser environment" → "with explicit configuration")
-
-### Session 3: Critical Fixes & Recommendations (Current)
-
-**Critical Fixes:**
-1. **Token Refresh Error Handling** (`token-api.ts:72`)
-   - **Issue**: Errors caught but not rethrown, causing silent failures
-   - **Fix**: Now rethrows errors to propagate authentication failures
-   - **Impact**: Better error visibility and debugging
-
-2. **Uninitialized expirationDate** (`configuration.ts:223`)
-   - **Issue**: Field declared but never initialized
-   - **Fix**: Initialize to `new Date(0)` to force initial token refresh
-   - **Impact**: Prevents undefined comparison errors
-
-3. **Error Handling Logic** (`blink-debit-client.ts:756, 855`)
-   - **Issue**: Incorrect instanceof check threw wrong error
-   - **Before**: `if (error instanceof BlinkConsentFailureException || error.innerException instanceof BlinkServiceException)`
-   - **After**: `if (error.innerException instanceof BlinkConsentFailureException || error.innerException instanceof BlinkServiceException)`
-   - **Impact**: Correct error propagation
-
-4. **Missing idempotencyKey** (`quick-payments-api.ts:64`)
-   - **Issue**: Extracted from params but not passed to buildRequestHeaders
-   - **Fix**: Added idempotencyKey to buildRequestHeaders call
-   - **Impact**: Idempotency protection now works correctly for quick payments
-
-5. **retryEnabled Boolean Handling** (`configuration.ts:161-168`)
-   - **Issue**: `retryEnabled: false` was overridden by `|| true` fallback logic
-   - **Before**: `retryEnabled = ... || (config.blinkpay.retryEnabled) || true` → false became true
-   - **After**: Proper undefined check with explicit if-else logic
-   - **Impact**: Users can now correctly disable retry policy with `retryEnabled: false`
-
-**Optional Improvements:**
-- Added `handleError()` helper method to reduce duplication
-- Added comprehensive JSDoc to TokenAPI.getAccessToken()
-- Replaced `any` types with specific types (AxiosRequestConfig, Record<string, any>, etc.)
-- Created comprehensive unit tests for Configuration and TokenAPI classes
+#### Token Management
+- `expirationDate` initialized to `new Date(0)` to force initial refresh
+- Token refresh triggered when `Date.now() >= expirationDate`
+- Errors during refresh are propagated, not suppressed
 
 ## Testing
 
@@ -128,46 +73,30 @@ This document provides context and guidance for AI assistants (like Claude) work
 Location: `test/unit/*.test.ts`
 
 **Coverage:**
-- ✅ Configuration class (constructor overloads, timeout, retry policy, etc.)
-- ✅ TokenAPI class (token refresh, expiration logic, error handling)
+- Configuration class (constructor overloads, timeout, retry policy)
+- TokenAPI class (token refresh, expiration logic, error handling)
 
-**Key Test Areas:**
-- Constructor with config object vs environment variables
-- Timeout configuration and validation
-- Retry policy enable/disable
-- Token expiration and refresh logic
-- Error propagation (403, 500, 400 errors)
-- Base path generation
-
-**Running Unit Tests:**
+**Running:**
 ```bash
 npm test test/unit/
 ```
 
-**Dependencies:**
-- `axios-mock-adapter` for mocking HTTP requests
-- No credentials required (fully mocked)
+**Dependencies:** axios-mock-adapter for mocking (no credentials required)
 
 ### Integration Tests
 Location: `integrationTest/client/v1/*.test.ts`
 
 **Coverage:**
-- ✅ Bank metadata retrieval
-- ✅ Single consents (redirect & decoupled flows)
-- ✅ Enduring consents
-- ✅ Quick payments
-- ✅ Payments
-- ✅ Refunds
-- ✅ Error handling (timeouts, 404s, etc.)
+- Bank metadata retrieval
+- Single consents (redirect & decoupled flows)
+- Enduring consents
+- Quick payments, payments, refunds
+- Error handling (timeouts, 404s, etc.)
 
-**Running Integration Tests:**
+**Running:**
 ```bash
 npm test integrationTest/
-```
-
-**Running All Tests:**
-```bash
-npm test
+npm test                    # Run all tests
 ```
 
 **Requirements:**
@@ -175,9 +104,7 @@ npm test
 - Access to BlinkPay sandbox environment
 - Tests use live API (not mocked)
 
-**Note**: Integration tests require valid BlinkPay sandbox credentials. The 403 "Access denied" error indicates invalid/expired credentials, not code issues.
-
-### Manual Testing
+### Manual Testing Checklist
 When making changes, verify:
 1. TypeScript compilation: `npm run build`
 2. Environment variable loading
@@ -185,16 +112,17 @@ When making changes, verify:
 4. Error handling propagates correctly
 5. Integration tests pass (with valid creds)
 
-## Common Pitfalls
+## Implementation Guidelines
 
 ### ❌ DON'T
 - Use this SDK in browser/frontend code
 - Use REACT_APP_ environment variable prefix
 - Modify DTOs without checking OpenAPI spec
 - Add console.log statements (use loglevel)
-- Create singleton patterns
+- Create singleton patterns or global state
 - Catch errors without rethrowing (unless intentional)
 - Use `any` type without good reason
+- Skip error propagation in token refresh
 
 ### ✅ DO
 - Keep SDK server-side only
@@ -204,6 +132,9 @@ When making changes, verify:
 - Create instances (not singletons)
 - Propagate errors properly
 - Use proper TypeScript types
+- Initialize fields that will be compared
+- Pass idempotency keys through to headers
+- Validate boolean config correctly (check for undefined, not falsy)
 
 ## Code Review Checklist
 
@@ -226,6 +157,7 @@ When reviewing or making changes:
 - [ ] Errors propagated correctly
 - [ ] No silent failures
 - [ ] Helpful error messages
+- [ ] Token refresh errors rethrown
 
 ### Testing
 - [ ] Integration tests still pass
@@ -238,40 +170,6 @@ When reviewing or making changes:
 - [ ] README updated if needed
 - [ ] Comments explain "why" not "what"
 - [ ] CHANGELOG updated
-
-## Known Issues & Technical Debt
-
-### High Priority
-None currently.
-
-### Medium Priority
-1. **Type Safety**: Some uses of `any` type could be more specific
-   - `configuration.ts:71` - baseOptions
-   - `configuration.ts:338` - headers parameter
-   - All API files - localVarQueryParameter
-
-2. **Error Handling**: Remaining duplicated error handling blocks
-   - Many methods in blink-debit-client.ts still have duplicated catch blocks
-   - Pattern established with `handleError()` method
-   - Could be refactored to use helper in remaining methods
-
-3. **Constructor Overloads**: Complex implementation
-   - BlinkDebitClient has 5 overloads with nested conditionals
-   - Works correctly but could be cleaner
-   - Consider builder pattern for future v2
-
-### Low Priority
-1. **Token Refresh Race Condition**: Multiple concurrent calls might trigger multiple refreshes
-   - Not critical as OAuth2 server handles it
-   - Could add semaphore/lock for cleaner implementation
-
-2. **Hardcoded Dummy URL**: All API files use `'https://example.com'` as dummy base
-   - Functional but confusing
-   - Could use constant with explanatory comment
-
-3. **Missing JSDoc**: Some public methods lack documentation
-   - Most critical ones now documented
-   - Could document remaining methods for consistency
 
 ## Environment Setup
 
@@ -340,6 +238,33 @@ grep "strict" tsconfig.json
 ls -la src/client/v1/*-api.ts
 ```
 
+## Common Patterns
+
+### Adding a New API Endpoint
+1. Update the OpenAPI spec
+2. Regenerate DTO types if needed
+3. Add method to appropriate API class
+4. Use `buildRequestHeaders()` for headers
+5. Include idempotency key support if applicable
+6. Wrap errors in BlinkServiceException
+7. Add integration test
+8. Update JSDoc
+
+### Modifying Error Handling
+1. Use `handleError()` helper where possible
+2. Ensure errors are wrapped correctly
+3. Don't suppress errors silently
+4. Test error propagation paths
+5. Check both unit and integration tests
+
+### Adding Configuration Options
+1. Add to Configuration constructor
+2. Support both env vars and config object
+3. Add proper validation
+4. Update JSDoc
+5. Add unit tests
+6. Update README
+
 ## Contact & Resources
 
 - **Repository**: https://github.com/BlinkPay/Blink-Debit-API-Client-Node
@@ -347,16 +272,7 @@ ls -la src/client/v1/*-api.ts
 - **OpenAPI Spec**: Provided separately by BlinkPay
 - **Support**: sysadmin@blinkpay.co.nz
 
-## Version History
-
-- **v1.3.2** (Current): Critical fixes and optimizations
-- **v1.3.1**: Second code review fixes
-- **v1.3.0**: Major refactoring - removed singletons, fixed critical bugs
-- **v1.2.x**: Previous stable version
-- **v1.0.19**: API spec version match
-
 ---
 
 **Last Updated**: 2025-11-06
 **Maintained By**: BlinkPay Team
-**AI Assistant Guidelines Version**: 1.0

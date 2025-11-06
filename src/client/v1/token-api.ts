@@ -22,8 +22,8 @@
 
 import {AxiosInstance, AxiosRequestConfig} from 'axios';
 import log from 'loglevel';
-import {Configuration} from '../../../configuration';
-import {AccessTokenResponse} from '../../dto/v1/access-token-response';
+import {Configuration} from '../../../configuration.js';
+import {AccessTokenResponse} from '../../dto/v1/access-token-response.js';
 
 export class TokenAPI {
     private readonly _axios: AxiosInstance;

@@ -20,9 +20,9 @@
  * SOFTWARE.
  */
 
-import {BankmetadataFeaturesDecoupledFlow} from './bankmetadata-features-decoupled-flow';
-import {BankmetadataFeaturesEnduringConsent} from './bankmetadata-features-enduring-consent';
-import {BankmetadataFeaturesCardPayment} from "./bankmetadata-features-card-payment";
+import {BankmetadataFeaturesDecoupledFlow} from './bankmetadata-features-decoupled-flow.js';
+import {BankmetadataFeaturesEnduringConsent} from './bankmetadata-features-enduring-consent.js';
+import {BankmetadataFeaturesCardPayment} from "./bankmetadata-features-card-payment.js";
 
 /**
  * The available bank features

@@ -20,9 +20,9 @@
  * SOFTWARE.
  */
 
-import {Configuration} from './configuration';
+import {Configuration} from './configuration.js';
 import {AxiosInstance, AxiosRequestConfig} from 'axios';
-import {BlinkInvalidValueException} from './src';
+import {BlinkInvalidValueException} from './src/index.js';
 
 /**
  * The request arguments.

@@ -20,8 +20,8 @@
  * SOFTWARE.
  */
 
-import {AuthFlowDetail} from './auth-flow-detail';
-import {Bank} from './bank';
+import {AuthFlowDetail} from './auth-flow-detail.js';
+import {Bank} from './bank.js';
 
 /**
  * The details for a Redirect flow.

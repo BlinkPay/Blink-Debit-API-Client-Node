@@ -20,9 +20,9 @@
  * SOFTWARE.
  */
 
-import {Amount} from './amount';
-import {Pcr} from './pcr';
-import {RefundDetail} from './refund-detail';
+import {Amount} from './amount.js';
+import {Pcr} from './pcr.js';
+import {RefundDetail} from './refund-detail.js';
 
 /**
  * The PCR and amount to use in the `partial_refund` request.

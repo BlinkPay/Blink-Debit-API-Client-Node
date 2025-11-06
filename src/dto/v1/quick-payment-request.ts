@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import {SingleConsentRequest} from './single-consent-request';
+import {SingleConsentRequest} from './single-consent-request.js';
 
 /**
  * The model for a quick payment, relating to a single consent and a one-off payment.

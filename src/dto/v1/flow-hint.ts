@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import {Bank} from './bank';
+import {Bank} from './bank.js';
 
 /**
  * Optionally include a hint to the Gateway of which flow should be used, allowing the customers details to be prefilled in order to make the checkout experience faster. You can also use Gateway flow hint to instruct Gateway to identify a customer using their last consent ID for mobile payments.

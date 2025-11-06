@@ -20,9 +20,9 @@
  * SOFTWARE.
  */
 
-import {AuthFlowDetail} from './auth-flow-detail';
-import {DecoupledFlowHint} from './decoupled-flow-hint';
-import {RedirectFlowHint} from './redirect-flow-hint';
+import {AuthFlowDetail} from './auth-flow-detail.js';
+import {DecoupledFlowHint} from './decoupled-flow-hint.js';
+import {RedirectFlowHint} from './redirect-flow-hint.js';
 
 /**
  * The details for a Gateway flow.

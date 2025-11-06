@@ -20,8 +20,8 @@
  * SOFTWARE.
  */
 
-import { Pcr } from './pcr';
-import { RefundDetail } from './refund-detail';
+import { Pcr } from './pcr.js';
+import { RefundDetail } from './refund-detail.js';
 
 /**
  * The PCR and to use in the `full_refund` request.

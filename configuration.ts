@@ -34,9 +34,9 @@ import {
     BlinkServiceException,
     BlinkUnauthorisedException,
     TokenAPI
-} from './src';
+} from './src/index.js';
 import {ExponentialBackoff, handleType, retry, RetryPolicy} from 'cockatiel';
-import {BlinkPayConfig} from './blinkpay-config';
+import {BlinkPayConfig} from './blinkpay-config.js';
 import log from 'loglevel';
 
 if (typeof process !== 'undefined') {

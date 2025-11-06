@@ -20,12 +20,12 @@
  * SOFTWARE.
  */
 
-import {AuthFlowDetail} from './auth-flow-detail';
-import {Bank} from './bank';
-import {IdentifierType} from './identifier-type';
-import {IdentifierValue} from './identifier-value';
+import {AuthFlowDetail} from './auth-flow-detail.js';
+import {Bank} from './bank.js';
+import {IdentifierType} from './identifier-type.js';
+import {IdentifierValue} from './identifier-value.js';
 import {Transform} from "class-transformer";
-import {PaymentAcceptedReasonEnum} from "./payment";
+import {PaymentAcceptedReasonEnum} from "./payment.js";
 
 /**
  * The details for a Decoupled flow.

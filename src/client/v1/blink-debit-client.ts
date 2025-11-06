@@ -27,7 +27,7 @@ import {
     QuickPaymentsApiFactory,
     RefundsApiFactory,
     SingleConsentsApiFactory
-} from '../../client';
+} from '../../client/index.js';
 import {ConstantBackoff, handleType, retry} from 'cockatiel';
 import {
     BlinkConsentFailureException,
@@ -39,7 +39,7 @@ import {
     BlinkPaymentTimeoutException,
     BlinkRetryableException,
     BlinkServiceException
-} from '../../exceptions';
+} from '../../exceptions/index.js';
 import globalAxios, {AxiosInstance, AxiosResponse} from 'axios';
 import {
     BankMetadata,
@@ -58,11 +58,11 @@ import {
     RefundDetail,
     RefundResponse,
     SingleConsentRequest
-} from '../../dto';
-import {Configuration} from '../../../configuration';
-import {BlinkPayConfig} from '../../../blinkpay-config';
+} from '../../dto/index.js';
+import {Configuration} from '../../../configuration.js';
+import {BlinkPayConfig} from '../../../blinkpay-config.js';
 import log from 'loglevel';
-import {GenericParameters} from "../../util/types";
+import {GenericParameters} from "../../util/types.js";
 
 /**
  * The facade for accessing all client methods from one place.

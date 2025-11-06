@@ -20,9 +20,9 @@
  * SOFTWARE.
  */
 
-import {FlowHint} from './flow-hint';
-import {IdentifierType} from './identifier-type';
-import {IdentifierValue} from './identifier-value';
+import {FlowHint} from './flow-hint.js';
+import {IdentifierType} from './identifier-type.js';
+import {IdentifierValue} from './identifier-value.js';
 import {Transform} from "class-transformer";
 
 /**

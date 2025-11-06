@@ -20,8 +20,8 @@
  * SOFTWARE.
  */
 
-import { CardNetwork } from './card-network';
-import { CardPaymentType } from './card-payment-type';
+import { CardNetwork } from './card-network.js';
+import { CardPaymentType } from './card-payment-type.js';
 
 /**
  * The card payment feature

@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import {BlinkConsentFailureException} from './blink-consent-failure-exception';
+import {BlinkConsentFailureException} from './blink-consent-failure-exception.js';
 
 /**
  * The exception thrown when consent was not completed within the bank's request timeout window.

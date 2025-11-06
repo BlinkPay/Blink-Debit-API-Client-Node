@@ -20,10 +20,10 @@
  * SOFTWARE.
  */
 
-import {EnduringConsentRequest} from './enduring-consent-request';
-import {Payment} from './payment';
-import {SingleConsentRequest} from './single-consent-request';
-import {CardNetwork} from "./card-network";
+import {EnduringConsentRequest} from './enduring-consent-request.js';
+import {Payment} from './payment.js';
+import {SingleConsentRequest} from './single-consent-request.js';
+import {CardNetwork} from "./card-network.js";
 
 /**
  * The model for a consent.

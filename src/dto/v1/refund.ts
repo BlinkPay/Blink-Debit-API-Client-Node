@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import {RefundRequest} from './refund-request';
+import {RefundRequest} from './refund-request.js';
 
 /**
  * The model for a refund.

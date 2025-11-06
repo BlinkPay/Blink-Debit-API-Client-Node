@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import {BlinkPaymentFailureException} from './blink-payment-failure-exception';
+import {BlinkPaymentFailureException} from './blink-payment-failure-exception.js';
 
 /**
  * The exception thrown when payment was not completed within the bank's request timeout window.
