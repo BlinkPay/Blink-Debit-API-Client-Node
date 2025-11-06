@@ -60,7 +60,8 @@ export const QuickPaymentsApiAxiosParamCreator = function (axios: AxiosInstance,
                 requestId,
                 xCorrelationId,
                 xCustomerIp,
-                xCustomerUserAgent
+                xCustomerUserAgent,
+                idempotencyKey
             });
             const localVarQueryParameter = {} as any;
 

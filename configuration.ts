@@ -219,6 +219,9 @@ export class Configuration {
             this._retryEnabled = true;
         }
 
+        // Initialize expiration date to epoch 0 to force initial token refresh
+        this.expirationDate = new Date(0);
+
         // Store axios instance and initialize TokenAPI
         this._axios = axios;
         this._tokenApi = new TokenAPI(axios, this);

@@ -143,13 +143,7 @@ export class BlinkDebitClient {
     public getMeta(params: GenericParameters = {}): Promise<BankMetadata[]> {
         return this.getMetaAsync(params)
                 .then(response => response.data)
-                .catch(error => {
-                    if (error instanceof BlinkServiceException) {
-                        throw error;
-                    }
-
-                    throw new BlinkServiceException(error.message, error);
-                });
+                .catch(error => this.handleError(error));
     }
 
     /**
@@ -174,13 +168,7 @@ export class BlinkDebitClient {
     public createSingleConsent(singleConsentRequest: SingleConsentRequest | null, params: GenericParameters = {}): Promise<CreateConsentResponse> {
         return this.createSingleConsentAsync(singleConsentRequest, params)
                 .then(response => response.data)
-                .catch(error => {
-                    if (error instanceof BlinkServiceException) {
-                        throw error;
-                    }
-
-                    throw new BlinkServiceException(error.message, error);
-                });
+                .catch(error => this.handleError(error));
     }
 
     /**
@@ -753,7 +741,7 @@ export class BlinkDebitClient {
                     } else if (error instanceof BlinkConsentFailureException || error instanceof BlinkServiceException) {
                         throw error;
                     } else if (error && error.innerException) {
-                        if (error instanceof BlinkConsentFailureException || error.innerException instanceof BlinkServiceException) {
+                        if (error.innerException instanceof BlinkConsentFailureException || error.innerException instanceof BlinkServiceException) {
                             throw error.innerException;
                         }
 
@@ -852,7 +840,7 @@ export class BlinkDebitClient {
                     } else if (error instanceof BlinkConsentFailureException || error instanceof BlinkServiceException) {
                         throw error;
                     } else if (error && error.innerException) {
-                        if (error instanceof BlinkConsentFailureException || error.innerException instanceof BlinkServiceException) {
+                        if (error.innerException instanceof BlinkConsentFailureException || error.innerException instanceof BlinkServiceException) {
                             throw error.innerException;
                         }
 
@@ -1146,5 +1134,17 @@ export class BlinkDebitClient {
      */
     public async getRefundAsync(refundId: string, params: GenericParameters = {}): Promise<AxiosResponse<Refund>> {
         return await this._refundsApi.getRefund(refundId, params);
+    }
+
+    /**
+     * Wraps generic errors in BlinkServiceException if not already a Blink exception
+     * @param error The error to wrap
+     * @private
+     */
+    private handleError(error: any): never {
+        if (error instanceof BlinkServiceException) {
+            throw error;
+        }
+        throw new BlinkServiceException(error.message, error);
     }
 }

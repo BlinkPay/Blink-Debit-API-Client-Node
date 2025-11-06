@@ -34,6 +34,17 @@ export class TokenAPI {
         this._configuration = configuration;
     }
 
+    /**
+     * Gets the OAuth2 access token, refreshing it if expired or not yet obtained.
+     *
+     * This method checks if the current access token is valid (exists and not expired).
+     * If the token is missing or expired, it automatically triggers a refresh before returning.
+     *
+     * @returns {Promise<string | ((name?: string, scopes?: string[]) => string) | ((name?: string, scopes?: string[]) => Promise<string>)>}
+     *          The access token, either as a string or as a function that returns a string/Promise<string>
+     * @throws {BlinkForbiddenException} When the client credentials are invalid or insufficient permissions
+     * @throws {BlinkServiceException} When the token refresh fails for other reasons
+     */
     async getAccessToken(): Promise<string | ((name?: string, scopes?: string[]) => string) | ((name?: string, scopes?: string[]) => Promise<string>)> {
         // If token is undefined or expired, refresh it
         if (!this._configuration.accessToken || new Date() >= this._configuration.expirationDate) {
@@ -69,7 +80,8 @@ export class TokenAPI {
             // Note: Authorization header is set in each API call via getAccessToken()
             // No need to add an interceptor here (prevents interceptor accumulation)
         } catch (error) {
-            log.error(`Encountered: ${error}`);
+            log.error(`Token refresh failed: ${error}`);
+            throw error; // Rethrow to propagate authentication failures
         }
     }
 }
