@@ -54,7 +54,7 @@ export class TokenAPI {
         return this._configuration.accessToken;
     }
 
-    private async refreshToken(): Promise<void> {
+    public async refreshToken(): Promise<void> {
         const clientId = this._configuration.clientId;
         const clientSecret = this._configuration.clientSecret;
         const tokenEndpoint = this._configuration.debitUrl + '/oauth2/token';

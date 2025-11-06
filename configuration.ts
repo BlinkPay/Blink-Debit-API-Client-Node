@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import {AxiosInstance} from 'axios';
+import {AxiosInstance, AxiosRequestConfig} from 'axios';
 import qs from 'qs';
 import {camelizeKeys, decamelizeKeys} from 'humps';
 import {
@@ -65,10 +65,10 @@ export class Configuration {
     /**
      * base options for axios calls
      *
-     * @type {any}
+     * @type {AxiosRequestConfig}
      * @memberof Configuration
      */
-    baseOptions?: any;
+    baseOptions?: AxiosRequestConfig;
     /**
      * parameter for expiry date of the access token
      *
@@ -158,9 +158,14 @@ export class Configuration {
             timeout = process.env.BLINKPAY_TIMEOUT
                 ? process.env.BLINKPAY_TIMEOUT
                 : (config && config.blinkpay && config.blinkpay.timeout) || 10000;
-            retryEnabled = process.env.BLINKPAY_RETRY_ENABLED
-                ? process.env.BLINKPAY_RETRY_ENABLED
-                : (config && config.blinkpay && config.blinkpay.retryEnabled) || true;
+            // Handle retryEnabled with proper boolean logic
+            if (process.env.BLINKPAY_RETRY_ENABLED !== undefined) {
+                retryEnabled = process.env.BLINKPAY_RETRY_ENABLED;
+            } else if (config && config.blinkpay && config.blinkpay.retryEnabled !== undefined) {
+                retryEnabled = config.blinkpay.retryEnabled;
+            } else {
+                retryEnabled = true;
+            }
             this.clientId = process.env.BLINKPAY_CLIENT_ID
                 ? process.env.BLINKPAY_CLIENT_ID
                 : (config && config.blinkpay && config.blinkpay.clientId);
@@ -338,7 +343,7 @@ export class Configuration {
         });
     }
 
-    private static sanitiseHeaders(headers: any): Record<string, string> {
+    private static sanitiseHeaders(headers: Record<string, any>): Record<string, string> {
         const AUTHORIZATION = 'Authorization';
         const authorization = headers[AUTHORIZATION] || headers['authorization'];
         if (authorization && authorization.trim() !== '') {

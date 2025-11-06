@@ -194,13 +194,7 @@ export class BlinkDebitClient {
     public getSingleConsent(consentId: string, params: GenericParameters = {}): Promise<Consent> {
         return this.getSingleConsentAsync(consentId, params)
                 .then(response => response.data)
-                .catch(error => {
-                    if (error instanceof BlinkServiceException) {
-                        throw error;
-                    }
-
-                    throw new BlinkServiceException(error.message, error);
-                });
+                .catch(error => this.handleError(error));
     }
 
     /**
@@ -380,12 +374,7 @@ export class BlinkDebitClient {
     public createEnduringConsent(enduringConsentRequest: EnduringConsentRequest, params: GenericParameters = {}): Promise<CreateConsentResponse> {
         return this._enduringConsentsApi.createEnduringConsent(enduringConsentRequest, params)
                 .then(response => response.data)
-                .catch(error => {
-                    if (error instanceof BlinkServiceException) {
-                        throw error;
-                    }
-                    throw new BlinkServiceException(error.message, error);
-                });
+                .catch(error => this.handleError(error));
     }
 
     /**
@@ -411,13 +400,7 @@ export class BlinkDebitClient {
     public getEnduringConsent(consentId: string, params: GenericParameters = {}): Promise<Consent> {
         return this.getEnduringConsentAsync(consentId, params)
                 .then(response => response.data)
-                .catch(error => {
-                    if (error instanceof BlinkServiceException) {
-                        throw error;
-                    }
-
-                    throw new BlinkServiceException(error.message, error);
-                });
+                .catch(error => this.handleError(error));
     }
 
     /**
@@ -605,13 +588,7 @@ export class BlinkDebitClient {
     public revokeEnduringConsent(consentId: string, params: GenericParameters = {}): Promise<void> {
         return this.revokeEnduringConsentAsync(consentId, params)
                 .then(response => response.data)
-                .catch(error => {
-                    if (error instanceof BlinkServiceException) {
-                        throw error;
-                    }
-
-                    throw new BlinkServiceException(error.message, error);
-                });
+                .catch(error => this.handleError(error));
     }
 
     /**
@@ -637,13 +614,7 @@ export class BlinkDebitClient {
     public createQuickPayment(quickPaymentRequest: QuickPaymentRequest, params: GenericParameters = {}): Promise<CreateQuickPaymentResponse> {
         return this.createQuickPaymentAsync(quickPaymentRequest, params)
                 .then(response => response.data)
-                .catch(error => {
-                    if (error instanceof BlinkServiceException) {
-                        throw error;
-                    }
-
-                    throw new BlinkServiceException(error.message, error);
-                });
+                .catch(error => this.handleError(error));
     }
 
     /**
@@ -669,13 +640,7 @@ export class BlinkDebitClient {
     public getQuickPayment(quickPaymentId: string, params: GenericParameters = {}): Promise<QuickPaymentResponse> {
         return this.getQuickPaymentAsync(quickPaymentId, params)
                 .then(response => response.data)
-                .catch(error => {
-                    if (error instanceof BlinkServiceException) {
-                        throw error;
-                    }
-
-                    throw new BlinkServiceException(error.message, error);
-                });
+                .catch(error => this.handleError(error));
     }
 
     /**
@@ -862,13 +827,7 @@ export class BlinkDebitClient {
     public revokeQuickPayment(quickPaymentId: string, params: GenericParameters = {}): Promise<void> {
         return this.revokeQuickPaymentAsync(quickPaymentId, params)
                 .then(response => response.data)
-                .catch(error => {
-                    if (error instanceof BlinkServiceException) {
-                        throw error;
-                    }
-
-                    throw new BlinkServiceException(error.message, error);
-                });
+                .catch(error => this.handleError(error));
     }
 
     /**
@@ -894,13 +853,7 @@ export class BlinkDebitClient {
     public createPayment(paymentRequest: PaymentRequest, params: GenericParameters = {}): Promise<PaymentResponse> {
         return this.createPaymentAsync(paymentRequest, params)
                 .then(response => response.data)
-                .catch(error => {
-                    if (error instanceof BlinkServiceException) {
-                        throw error;
-                    }
-
-                    throw new BlinkServiceException(error.message, error);
-                });
+                .catch(error => this.handleError(error));
     }
 
     /**
@@ -926,13 +879,7 @@ export class BlinkDebitClient {
     public getPayment(paymentId: string, params: GenericParameters = {}): Promise<Payment> {
         return this.getPaymentAsync(paymentId, params)
                 .then(response => response.data)
-                .catch(error => {
-                    if (error instanceof BlinkServiceException) {
-                        throw error;
-                    }
-
-                    throw new BlinkServiceException(error.message, error);
-                });
+                .catch(error => this.handleError(error));
     }
 
     /**
@@ -1083,13 +1030,7 @@ export class BlinkDebitClient {
     public createRefund(refundDetail: RefundDetail, params: GenericParameters = {}): Promise<RefundResponse> {
         return this.createRefundAsync(refundDetail, params)
                 .then(response => response.data)
-                .catch(error => {
-                    if (error instanceof BlinkServiceException) {
-                        throw error;
-                    }
-
-                    throw new BlinkServiceException(error.message, error);
-                });
+                .catch(error => this.handleError(error));
     }
 
     /**
@@ -1115,13 +1056,7 @@ export class BlinkDebitClient {
     public getRefund(refundId: string, params: GenericParameters = {}): Promise<Refund> {
         return this.getRefundAsync(refundId, params)
                 .then(response => response.data)
-                .catch(error => {
-                    if (error instanceof BlinkServiceException) {
-                        throw error;
-                    }
-
-                    throw new BlinkServiceException(error.message, error);
-                });
+                .catch(error => this.handleError(error));
     }
 
     /**

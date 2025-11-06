@@ -66,7 +66,7 @@ export const RefundsApiAxiosParamCreator = function (axios: AxiosInstance, confi
                 xCustomerIp,
                 xCustomerUserAgent
             });
-            const localVarQueryParameter = {} as any;
+            const localVarQueryParameter: Record<string, string> = {};
 
             // authentication Bearer required
             // oauth required
@@ -125,7 +125,7 @@ export const RefundsApiAxiosParamCreator = function (axios: AxiosInstance, confi
                 xCustomerIp,
                 xCustomerUserAgent
             });
-            const localVarQueryParameter = {} as any;
+            const localVarQueryParameter: Record<string, string> = {};
 
             // authentication Bearer required
             // oauth required

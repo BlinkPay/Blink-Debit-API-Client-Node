@@ -63,7 +63,7 @@ export const SingleConsentsApiAxiosParamCreator = function (axios: AxiosInstance
                 xCustomerUserAgent,
                 idempotencyKey
             });
-            const localVarQueryParameter = {} as any;
+            const localVarQueryParameter: Record<string, string> = {};
 
             // authentication Bearer required
             // oauth required
@@ -122,7 +122,7 @@ export const SingleConsentsApiAxiosParamCreator = function (axios: AxiosInstance
                 xCustomerIp,
                 xCustomerUserAgent
             });
-            const localVarQueryParameter = {} as any;
+            const localVarQueryParameter: Record<string, string> = {};
 
             // authentication Bearer required
             // oauth required
@@ -177,7 +177,7 @@ export const SingleConsentsApiAxiosParamCreator = function (axios: AxiosInstance
                 xCustomerIp,
                 xCustomerUserAgent
             });
-            const localVarQueryParameter = {} as any;
+            const localVarQueryParameter: Record<string, string> = {};
 
             // authentication Bearer required
             // oauth required

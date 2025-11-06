@@ -65,7 +65,7 @@ export const PaymentsApiAxiosParamCreator = function (axios: AxiosInstance, conf
                 xCustomerUserAgent,
                 idempotencyKey
             });
-            const localVarQueryParameter = {} as any;
+            const localVarQueryParameter: Record<string, string> = {};
 
             // authentication Bearer required
             // oauth required
@@ -124,7 +124,7 @@ export const PaymentsApiAxiosParamCreator = function (axios: AxiosInstance, conf
                 xCustomerIp,
                 xCustomerUserAgent
             });
-            const localVarQueryParameter = {} as any;
+            const localVarQueryParameter: Record<string, string> = {};
 
             // authentication Bearer required
             // oauth required

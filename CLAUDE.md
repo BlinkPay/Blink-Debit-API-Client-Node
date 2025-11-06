@@ -110,12 +110,43 @@ This document provides context and guidance for AI assistants (like Claude) work
    - **Fix**: Added idempotencyKey to buildRequestHeaders call
    - **Impact**: Idempotency protection now works correctly for quick payments
 
+5. **retryEnabled Boolean Handling** (`configuration.ts:161-168`)
+   - **Issue**: `retryEnabled: false` was overridden by `|| true` fallback logic
+   - **Before**: `retryEnabled = ... || (config.blinkpay.retryEnabled) || true` → false became true
+   - **After**: Proper undefined check with explicit if-else logic
+   - **Impact**: Users can now correctly disable retry policy with `retryEnabled: false`
+
 **Optional Improvements:**
 - Added `handleError()` helper method to reduce duplication
 - Added comprehensive JSDoc to TokenAPI.getAccessToken()
-- Demonstrated error handling refactoring pattern
+- Replaced `any` types with specific types (AxiosRequestConfig, Record<string, any>, etc.)
+- Created comprehensive unit tests for Configuration and TokenAPI classes
 
 ## Testing
+
+### Unit Tests
+Location: `test/unit/*.test.ts`
+
+**Coverage:**
+- ✅ Configuration class (constructor overloads, timeout, retry policy, etc.)
+- ✅ TokenAPI class (token refresh, expiration logic, error handling)
+
+**Key Test Areas:**
+- Constructor with config object vs environment variables
+- Timeout configuration and validation
+- Retry policy enable/disable
+- Token expiration and refresh logic
+- Error propagation (403, 500, 400 errors)
+- Base path generation
+
+**Running Unit Tests:**
+```bash
+npm test test/unit/
+```
+
+**Dependencies:**
+- `axios-mock-adapter` for mocking HTTP requests
+- No credentials required (fully mocked)
 
 ### Integration Tests
 Location: `integrationTest/client/v1/*.test.ts`
@@ -129,7 +160,12 @@ Location: `integrationTest/client/v1/*.test.ts`
 - ✅ Refunds
 - ✅ Error handling (timeouts, 404s, etc.)
 
-**Running Tests:**
+**Running Integration Tests:**
+```bash
+npm test integrationTest/
+```
+
+**Running All Tests:**
 ```bash
 npm test
 ```
@@ -139,7 +175,7 @@ npm test
 - Access to BlinkPay sandbox environment
 - Tests use live API (not mocked)
 
-**Note**: Tests require valid BlinkPay sandbox credentials. The 403 "Access denied" error indicates invalid/expired credentials, not code issues.
+**Note**: Integration tests require valid BlinkPay sandbox credentials. The 403 "Access denied" error indicates invalid/expired credentials, not code issues.
 
 ### Manual Testing
 When making changes, verify:

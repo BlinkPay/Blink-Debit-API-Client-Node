@@ -57,7 +57,7 @@ export const BankMetadataApiAxiosParamCreator = function (axios: AxiosInstance, 
                 xCustomerIp,
                 xCustomerUserAgent
             });
-            const localVarQueryParameter = {} as any;
+            const localVarQueryParameter: Record<string, string> = {};
 
             // authentication Bearer required
             // oauth required
